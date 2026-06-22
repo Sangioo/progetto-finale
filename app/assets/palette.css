@@ -1,0 +1,85 @@
+:root {
+  --evergreen: #022704;
+  --mint-leaf: #58b368;
+  --alabaster-grey: #f8f9fa;
+  --muted-teal: #a2b2aa;
+
+  --text-main: #1a202c;
+  --text-muted: #718096;
+  --bg-card: #ffffff;
+
+  --accent-wl: #40bcf4;
+  --accent-seen: #00e054;
+  --status-low-bg: #ef4444;
+  --status-mid-bg: #f59e0b;
+  --status-high-bg: #2d6a4f;
+
+  --transition-standard: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+.text-evergreen {
+  color: var(--evergreen);
+}
+.text-mint {
+  color: var(--mint-leaf);
+}
+
+.status-low {
+  background-color: var(--status-low-bg);
+}
+.status-mid {
+  background-color: var(--status-mid-bg);
+}
+.status-high {
+  background-color: var(--status-high-bg);
+}
+
+.btn-base {
+  padding: 10px 25px;
+  border-radius: 8px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+[data-theme='dark'] {
+  --evergreen: #58b368;
+  --mint-leaf: #86efac;
+  --alabaster-grey: #1a202c;
+  --muted-teal: #606978;
+  --bg-footer: #005f42;
+
+  --bg-app: #0f172a;
+  --bg-card: #1e293b;
+  --text-main: #f8f9fa;
+  --text-muted: #94a3b8;
+  --ft-muted-teal: #0f172a;
+
+  --accent-wl: #38bdf8;
+  --accent-seen: #4ade80;
+}
+
+body {
+  background-color: var(--bg-app);
+  color: var(--text-main);
+
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
+}
+
+.card,
+.bg-card-custom {
+  background-color: var(--bg-card);
+  transition: background-color 0.3s ease;
+}

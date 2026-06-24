@@ -5,8 +5,8 @@ import ThemeToggle from './ThemeToggle.vue'
 const API_URL = import.meta.env.VITE_API_URL
 const CHECK_SESSION = import.meta.env.VITE_SESSION_ENDPOINT
 
-const profilePicture = ref(sessionStorage.getItem('profilePicture') || null)
-const username = ref('')
+const username = useCookie('username', { default: () => null })
+const profilePicture = useCookie('profilePicture', { default: () => null })
 const isLoading = ref(true)
 
 const checkUserSession = async () => {
@@ -20,21 +20,12 @@ const checkUserSession = async () => {
 
     if (data.authenticated) {
       username.value = data.user
-      localStorage.setItem('username', username.value)
 
-      const avatarUrl = data.profilePicture || data.avatar || data.profile_pic || null
-
-      if (avatarUrl) {
-        sessionStorage.setItem('profilePicture', avatarUrl)
-        profilePicture.value = avatarUrl
-      } else {
-        sessionStorage.removeItem('profilePicture')
-        profilePicture.value = null
-      }
+      const avatarUrl = data.profilePicture || null
+      profilePicture.value = avatarUrl
     } else {
       username.value = null
       profilePicture.value = null
-      sessionStorage.removeItem('profilePicture')
     }
   } catch (error) {
     console.error('Errore durante il recupero della sessione:', error)
@@ -85,7 +76,7 @@ onUnmounted(() => {
       </button>
 
       <router-link class="navbar-brand desktop-brand-only" to="/" @click="closeHeader">
-        <img src="@/assets/logo.svg" alt="FrameLog" width="32" height="32" />
+        <img src="/logo.svg" alt="FrameLog" width="32" height="32" />
         <span class="fw-bold brand-text">
           <span class="brand-frame">Frame</span><span class="brand-log">Log</span>
         </span>
@@ -192,7 +183,6 @@ onUnmounted(() => {
 <style scoped>
 .navbar-brand {
   transition: var(--transition-standard);
-  letter-spacing: -0.5px;
 }
 
 .brand-text {

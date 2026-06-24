@@ -1,13 +1,12 @@
-<script setup lang="ts">
+<script setup>
 import Footer from './components/footer.vue';
 import Header from './components/header.vue';
-
 </script>
 
 <template>
-  <div>
-    <Header />
+  <Header />
+  <main class="min-h-screen">
     <NuxtPage />
-    <Footer />
-  </div>
+  </main>
+  <Footer />
 </template>

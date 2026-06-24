@@ -1,14 +1,12 @@
 <template>
-  <div class="theme-switch-container">
-    <span class="theme-emoji">
+  <div class="flex items-center gap-2">
+    <span class="text-xl select-none inline-block transition-transform duration-300">
       {{ !isDark ? '☀️' : '🌙' }}
     </span>
 
-    <label class="theme-switch" for="theme-checkbox">
-      <input type="checkbox" id="theme-checkbox" :checked="isDark" @change="toggleTheme" />
-      <div class="slider round">
-        <div class="ball"></div>
-      </div>
+    <label class="inline-block h-6.5 relative w-12 cursor-pointer m-0" for="theme-checkbox">
+      <input type="checkbox" id="theme-checkbox" :checked="isDark" @change="toggleTheme" class="hidden peer" />
+      <div class="bg-muted-teal absolute top-0 bottom-0 left-0 right-0 rounded-full transition-colors duration-300 peer-checked:bg-mint-leaf peer-checked:after:translate-x-5.5 after:content-[''] after:absolute after:bottom-0.75 after:left-0.75 after:h-5 after:w-5 after:rounded-full after:bg-white dark:after:bg-[#1e293b] after:shadow-md after:transition-transform after:duration-300"></div>
     </label>
   </div>
 </template>
@@ -21,7 +19,6 @@ const isDark = ref(false)
 const applyTheme = (theme) => {
   document.documentElement.setAttribute('data-theme', theme)
   isDark.value = theme === 'dark'
-  localStorage.setItem('frameLog-theme', theme)
 }
 
 const toggleTheme = (e) => {
@@ -30,7 +27,7 @@ const toggleTheme = (e) => {
 }
 
 onMounted(() => {
-  const savedTheme = localStorage.getItem('frameLog-theme')
+  const savedTheme = document.documentElement.getAttribute('data-theme')
   if (savedTheme) {
     applyTheme(savedTheme)
   } else {
@@ -39,66 +36,3 @@ onMounted(() => {
   }
 })
 </script>
-
-<style scoped>
-.theme-switch-container {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.theme-emoji {
-  font-size: 1.2rem;
-  user-select: none;
-  line-height: 1;
-  display: inline-block;
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.theme-switch {
-  display: inline-block;
-  height: 26px;
-  position: relative;
-  width: 48px;
-  cursor: pointer;
-  margin: 0;
-}
-
-.theme-switch input {
-  display: none;
-}
-
-.slider {
-  background-color: var(--muted-teal);
-  bottom: 0;
-  left: 0;
-  position: absolute;
-  right: 0;
-  top: 0;
-  transition: var(--transition-standard);
-}
-
-.slider.round {
-  border-radius: 34px;
-}
-
-.ball {
-  background-color: var(--bg-card);
-  bottom: 3px;
-  height: 20px;
-  left: 3px;
-  position: absolute;
-  transition: var(--transition-standard);
-  width: 20px;
-  border-radius: 50%;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-input:checked + .slider {
-  background-color: var(--mint-leaf);
-}
-
-input:checked + .slider .ball {
-  transform: translateX(22px);
-}
-</style>

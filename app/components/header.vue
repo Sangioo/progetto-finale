@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
-import ThemeToggle from './ThemeToggle.vue'
+import themeToggle from './theme_toggle.vue'
 
 const API_URL = import.meta.env.VITE_API_URL
 const CHECK_SESSION = import.meta.env.VITE_SESSION_ENDPOINT
@@ -152,7 +152,7 @@ onUnmounted(() => {
         <ul class="flex flex-col gap-1 laptop:flex-row laptop:items-center laptop:gap-1">
           <li>
             <nuxt-link
-              class="block rounded-xl px-4 py-2 text-sm font-semibold text-slate-600 transition hover:bg-alabaster-grey hover:text-evergreen laptop:text-base"
+              class="block rounded-xl px-4 py-2 text-sm font-semibold text-slate-600 transition hover:bg-alabaster-grey hover:text-evergreen"
               @click="closeHeader"
               to="/"
             >
@@ -161,7 +161,7 @@ onUnmounted(() => {
           </li>
           <li>
             <nuxt-link
-              class="block rounded-xl px-4 py-2 text-sm font-semibold text-slate-600 transition hover:bg-alabaster-grey hover:text-evergreen laptop:text-base"
+              class="block rounded-xl px-4 py-2 text-sm font-semibold text-slate-600 transition hover:bg-alabaster-grey hover:text-evergreen"
               @click="closeHeader"
               to="/watchlist"
             >
@@ -170,7 +170,7 @@ onUnmounted(() => {
           </li>
           <li>
             <nuxt-link
-              class="block rounded-xl px-4 py-2 text-sm font-semibold text-slate-600 transition hover:bg-alabaster-grey hover:text-evergreen laptop:text-base"
+              class="block rounded-xl px-4 py-2 text-sm font-semibold text-slate-600 transition hover:bg-alabaster-grey hover:text-evergreen"
               @click="closeHeader"
               to="/watched"
             >
@@ -179,7 +179,7 @@ onUnmounted(() => {
           </li>
           <li>
             <nuxt-link
-              class="block rounded-xl px-4 py-2 text-sm font-semibold text-slate-600 transition hover:bg-alabaster-grey hover:text-evergreen laptop:text-base"
+              class="block rounded-xl px-4 py-2 text-sm font-semibold text-slate-600 transition hover:bg-alabaster-grey hover:text-evergreen"
               @click="closeHeader"
               to="/live"
             >
@@ -189,7 +189,7 @@ onUnmounted(() => {
         </ul>
 
         <div class="flex flex-col gap-3 laptop:flex-row laptop:items-center laptop:gap-3">
-          <ThemeToggle />
+          <themeToggle />
 
           <!-- Loading indicator -->
           <div v-if="isLoading" class="flex items-center justify-center px-2 py-1">
@@ -202,7 +202,7 @@ onUnmounted(() => {
             <nuxt-link
               to="/profile"
               @click="closeHeader"
-              class="inline-flex items-center gap-3 rounded-xl px-3 py-2 no-underline transition hover:bg-alabaster-grey"
+              class="inline-flex items-center gap-3 rounded-xl px-3 py-1 no-underline transition hover:bg-alabaster-grey"
             >
               <span class="text-sm font-semibold text-evergreen">{{ username }}</span>
 

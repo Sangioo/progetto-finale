@@ -2,7 +2,7 @@
 import { computed, onMounted, ref, nextTick } from 'vue'
 import Sidebar from '@/components/sidebar.vue'
 import MovieCard from '@/components/moviecard.vue'
-import BasePopup from '@/components/BasePopup.vue'
+import BasePopup from '~/components/base_popup.vue'
 
 const API_URL = import.meta.env.VITE_API_URL
 const DISCOVER_ENDPOINT = import.meta.env.VITE_DISCOVER_ENDPOINT

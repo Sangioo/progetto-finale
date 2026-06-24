@@ -1,8 +1,8 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import BasePopup from '@/components/BasePopup.vue'
-import ReviewPopup from '@/components/ReviewPopup.vue'
+import BasePopup from '~/components/base_popup.vue'
+import ReviewPopup from '~/components/review_popup.vue'
 
 const API_URL = import.meta.env.VITE_API_URL
 const IMAGE_URL = import.meta.env.VITE_IMAGE_URL

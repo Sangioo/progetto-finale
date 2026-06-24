@@ -8,6 +8,7 @@ const CHECK_SESSION = import.meta.env.VITE_SESSION_ENDPOINT
 const username = useCookie('username', { default: () => null })
 const profilePicture = useCookie('profilePicture', { default: () => null })
 const isLoading = ref(true)
+const isMenuOpen = ref(false)
 
 const checkUserSession = async () => {
   try {
@@ -39,12 +40,11 @@ const handleDynamicUpdate = () => {
 }
 
 const closeHeader = () => {
-  const navbarMenu = document.getElementById('mainNavbar')
-  const toggleButton = document.getElementById('navbarToggleButton')
+  isMenuOpen.value = false
+}
 
-  if (navbarMenu && navbarMenu.classList.contains('show') && toggleButton) {
-    toggleButton.click()
-  }
+const toggleMenu = () => {
+  isMenuOpen.value = !isMenuOpen.value
 }
 
 onMounted(() => {
@@ -58,55 +58,76 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <nav class="navbar navbar-expand-lg custom-navbar shadow-sm">
-    <div class="container navbar-container-flex">
-      <button
-        class="mobile-toggler-left"
-        type="button"
-        data-bs-toggle="collapse"
-        data-bs-target="#mainNavbar"
-        aria-controls="mainNavbar"
-        aria-expanded="false"
-        aria-label="Toggle navigation"
-        id="navbarToggleButton"
-      >
-        <span class="bar"></span>
-        <span class="bar"></span>
-        <span class="bar"></span>
-      </button>
+  <nav class="sticky top-0 z-1000 border-b border-muted-teal/20 bg-white shadow-md backdrop-blur-xl">
+    <div class="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-3 laptop:max-w-330 4k:max-w-550">
+      <div class="flex items-center gap-3">
+        <!-- Mobile menu button -->
+        <button
+          class="inline-flex h-10 w-10 items-center justify-center text-evergreen transition hover:border-mint-leaf hover:bg-alabaster-grey focus:outline-none focus:ring-2 focus:ring-mint-leaf/30 laptop:hidden"
+          type="button"
+          :aria-expanded="isMenuOpen"
+          aria-controls="mainNavbar"
+          aria-label="Toggle navigation"
+          @click="toggleMenu"
+        >
+          <span class="flex h-4 w-4 flex-col justify-between">
+            <span
+              class="h-0.5 w-full rounded-full bg-current transition"
+              :class="isMenuOpen ? 'translate-y-1.75 rotate-45' : ''"
+            ></span>
+            <span
+              class="h-0.5 w-full rounded-full bg-current transition"
+              :class="isMenuOpen ? 'opacity-0' : ''"
+            ></span>
+            <span
+              class="h-0.5 w-full rounded-full bg-current transition"
+              :class="isMenuOpen ? '-translate-y-1.75 -rotate-45' : ''"
+            ></span>
+          </span>
+        </button>
 
-      <router-link class="navbar-brand desktop-brand-only" to="/" @click="closeHeader">
-        <img src="/logo.svg" alt="FrameLog" width="32" height="32" />
-        <span class="fw-bold brand-text">
-          <span class="brand-frame">Frame</span><span class="brand-log">Log</span>
-        </span>
-      </router-link>
+        <!-- Brand -->
+        <nuxt-link
+          class="group inline-flex items-center gap-3 text-xl font-bold tracking-tight laptop:text-2xl 4k:text-3xl"
+          to="/"
+          @click="closeHeader"
+        >
+          <img src="/logo.svg" alt="FrameLog" class="hidden h-8 w-8 laptop:block" />
+          <span class="inline-flex items-center">
+            <span class="text-evergreen">Frame</span><span class="text-mint-leaf transition duration-300 group-hover:text-evergreen">Log</span>
+          </span>
+        </nuxt-link>
+      </div>
 
-      <router-link class="navbar-brand mobile-brand-only" to="/" @click="closeHeader">
-        <span class="fw-bold fs-4 brand-text">
-          <span class="brand-frame">Frame</span><span class="brand-log">Log</span>
-        </span>
-      </router-link>
-
-      <div class="mobile-profile-right">
-        <router-link v-if="username" to="/profile" @click="closeHeader" class="mobile-avatar-link">
-          <div class="header-avatar-wrapper m-0">
+      <!-- Mobile user profile -->
+      <div class="flex items-center gap-3 laptop:hidden">
+        <!-- User avatar -->
+        <nuxt-link v-if="username" to="/profile" @click="closeHeader" class="inline-flex">
+          <div class="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full border-2 border-muted-teal bg-evergreen transition hover:scale-105 hover:border-mint-leaf">
             <img
               v-if="profilePicture"
               :src="profilePicture"
               alt="Foto Profilo"
-              class="header-avatar-img"
+              class="h-full w-full object-cover"
             />
-            <div v-else class="header-avatar-placeholder">
+            <span v-else class="text-sm font-bold text-alabaster-grey">
               {{ username?.charAt(0).toUpperCase() }}
-            </div>
+            </span>
           </div>
-        </router-link>
-        <router-link v-else to="/login" @click="closeHeader" class="mobile-profile-icon-fallback">
+        </nuxt-link>
+
+        <!-- Fallback -->
+        <nuxt-link
+          v-else
+          to="/login"
+          @click="closeHeader"
+          class="inline-flex h-9 w-9 items-center justify-center rounded-full border-2 border-muted-teal text-evergreen transition hover:border-mint-leaf hover:bg-alabaster-grey"
+          aria-label="Vai al login"
+        >
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
+            width="20"
+            height="20"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
@@ -117,385 +138,107 @@ onUnmounted(() => {
             <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
             <circle cx="12" cy="7" r="4"></circle>
           </svg>
-        </router-link>
+        </nuxt-link>
       </div>
 
-      <div class="collapse navbar-collapse" id="mainNavbar">
-        <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4 layout-nav-links">
-          <li class="nav-item">
-            <router-link class="nav-link" @click="closeHeader" to="/">Home</router-link>
-          </li>
-          <li class="nav-item">
-            <router-link class="nav-link" @click="closeHeader" to="/watchlist"
-              >Watchlist</router-link
+      <!-- Main navigation -->
+      <div
+        id="mainNavbar"
+        :class="[
+          isMenuOpen ? 'flex' : 'hidden',
+          'w-full flex-col gap-4 border-t border-muted-teal/20 pt-4 laptop:flex laptop:w-auto laptop:flex-1 laptop:flex-row laptop:items-center laptop:justify-between laptop:border-t-0 laptop:pt-0',
+        ]"
+      >
+        <ul class="flex flex-col gap-1 laptop:flex-row laptop:items-center laptop:gap-1">
+          <li>
+            <nuxt-link
+              class="block rounded-xl px-4 py-2 text-sm font-semibold text-slate-600 transition hover:bg-alabaster-grey hover:text-evergreen laptop:text-base"
+              @click="closeHeader"
+              to="/"
             >
+              Home
+            </nuxt-link>
           </li>
-          <li class="nav-item">
-            <router-link class="nav-link" @click="closeHeader" to="/watched">Watched</router-link>
+          <li>
+            <nuxt-link
+              class="block rounded-xl px-4 py-2 text-sm font-semibold text-slate-600 transition hover:bg-alabaster-grey hover:text-evergreen laptop:text-base"
+              @click="closeHeader"
+              to="/watchlist"
+            >
+              Watchlist
+            </nuxt-link>
           </li>
-          <li class="nav-item">
-            <router-link class="nav-link" @click="closeHeader" to="/live">Live</router-link>
+          <li>
+            <nuxt-link
+              class="block rounded-xl px-4 py-2 text-sm font-semibold text-slate-600 transition hover:bg-alabaster-grey hover:text-evergreen laptop:text-base"
+              @click="closeHeader"
+              to="/watched"
+            >
+              Watched
+            </nuxt-link>
+          </li>
+          <li>
+            <nuxt-link
+              class="block rounded-xl px-4 py-2 text-sm font-semibold text-slate-600 transition hover:bg-alabaster-grey hover:text-evergreen laptop:text-base"
+              @click="closeHeader"
+              to="/live"
+            >
+              Live
+            </nuxt-link>
           </li>
         </ul>
 
-        <div class="d-flex align-items-center gap-3 actions-wrapper">
+        <div class="flex flex-col gap-3 laptop:flex-row laptop:items-center laptop:gap-3">
           <ThemeToggle />
 
-          <div v-if="isLoading" class="spinner-border spinner-border-sm text-mint" role="status">
-            <span class="visually-hidden">Caricamento...</span>
+          <!-- Loading indicator -->
+          <div v-if="isLoading" class="flex items-center justify-center px-2 py-1">
+            <span class="h-5 w-5 animate-spin rounded-full border-2 border-mint-leaf border-t-transparent"></span>
+            <span class="sr-only">Caricamento...</span>
           </div>
 
-          <div v-else-if="username" class="d-flex align-items-center gap-2 desktop-profile-only">
-            <router-link
+          <!-- User profile -->
+          <div v-else-if="username" class="hidden items-center gap-2 laptop:flex">
+            <nuxt-link
               to="/profile"
               @click="closeHeader"
-              class="d-flex align-items-center gap-3 text-decoration-none nav-profile-link"
+              class="inline-flex items-center gap-3 rounded-xl px-3 py-2 no-underline transition hover:bg-alabaster-grey"
             >
-              <span class="username-display">{{ username }}</span>
+              <span class="text-sm font-semibold text-evergreen">{{ username }}</span>
 
-              <div class="header-avatar-wrapper">
+              <div class="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full border-2 border-muted-teal bg-evergreen transition">
                 <img
                   v-if="profilePicture"
                   :src="profilePicture"
                   alt="Foto Profilo"
-                  class="header-avatar-img"
+                  class="h-full w-full object-cover"
                 />
-                <div v-else class="header-avatar-placeholder">
+                <span v-else class="text-sm font-bold text-alabaster-grey">
                   {{ username?.charAt(0).toUpperCase() }}
-                </div>
+                </span>
               </div>
-            </router-link>
+            </nuxt-link>
           </div>
 
-          <div v-else class="d-flex gap-2 authentication-buttons">
-            <router-link class="btn btn-outline-custom btn-sm" @click="closeHeader" to="/login"
-              >Login</router-link
+          <!-- Login/Register links -->
+          <div v-else class="flex flex-col gap-2 mobilel:flex-row mobilel:justify-end laptop:gap-2">
+            <nuxt-link
+              class="inline-flex items-center justify-center rounded-lg border border-muted-teal px-4 py-2 text-sm font-semibold text-evergreen transition hover:border-evergreen hover:bg-alabaster-grey"
+              @click="closeHeader"
+              to="/login"
             >
-            <router-link class="btn btn-custom-primary btn-sm" @click="closeHeader" to="/register"
-              >Register</router-link
+              Login
+            </nuxt-link>
+            <nuxt-link
+              class="inline-flex items-center justify-center rounded-lg border border-mint-leaf bg-mint-leaf px-4 py-2 text-sm font-semibold text-white transition hover:border-evergreen hover:bg-evergreen"
+              @click="closeHeader"
+              to="/register"
             >
+              Register
+            </nuxt-link>
           </div>
         </div>
       </div>
     </div>
   </nav>
 </template>
-<style scoped>
-.navbar-brand {
-  transition: var(--transition-standard);
-}
-
-.brand-text {
-  display: inline-flex;
-  font-size: 1.5rem;
-}
-
-.brand-frame {
-  color: var(--text-main);
-  transition: color 0.3s ease;
-}
-
-.brand-log {
-  color: var(--mint-leaf);
-}
-
-.navbar-brand:hover .brand-frame,
-.navbar-brand:focus .brand-frame {
-  color: var(--mint-leaf);
-}
-
-.text-mint {
-  color: var(--mint-leaf) !important;
-}
-
-.navbar-container-flex {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-}
-
-.mobile-toggler-left {
-  display: none;
-  flex-direction: column;
-  justify-content: center;
-  gap: 5px;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  padding: 8px 4px;
-  width: 36px;
-  height: 36px;
-  z-index: 101;
-}
-
-.mobile-toggler-left .bar {
-  width: 22px;
-  height: 2.5px;
-  background-color: var(--evergreen);
-  border-radius: 4px;
-  transition: var(--transition-standard);
-}
-
-.mobile-profile-right {
-  display: none;
-  align-items: center;
-  justify-content: center;
-  z-index: 101;
-}
-
-.mobile-profile-icon-fallback {
-  color: var(--evergreen);
-  display: flex;
-  align-items: center;
-  padding: 4px;
-}
-
-.mobile-brand-only {
-  display: none;
-}
-
-.layout-nav-links {
-  gap: 0.25rem;
-}
-
-.nav-item {
-  padding: 0;
-  display: flex;
-  align-items: center;
-}
-
-.nav-link {
-  color: var(--text-muted);
-  font-weight: 600;
-  font-size: 0.95rem;
-  padding: 0.5rem 0.9rem;
-  border-radius: 8px;
-  position: relative;
-  transition: var(--transition-standard);
-}
-
-.nav-link:hover,
-.nav-link:focus {
-  color: var(--evergreen);
-  background-color: var(--alabaster-grey);
-}
-
-.nav-link.router-link-active {
-  color: var(--mint-leaf);
-  background-color: rgba(88, 179, 104, 0.08);
-}
-
-.nav-link.router-link-active::after {
-  content: '';
-  position: absolute;
-  bottom: 2px;
-  left: 0.9rem;
-  right: 0.9rem;
-  height: 2px;
-  background-color: var(--mint-leaf);
-  border-radius: 2px;
-}
-
-.nav-profile-link {
-  padding: 0.25rem 0.5rem;
-  border-radius: 8px;
-  transition: var(--transition-standard);
-}
-
-.nav-profile-link:hover {
-  background-color: var(--alabaster-grey);
-}
-
-.username-display {
-  color: var(--evergreen);
-  font-weight: 600;
-  font-size: 0.95rem;
-}
-
-.header-avatar-wrapper {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: var(--evergreen);
-  border: 2px solid var(--muted-teal);
-  transition: var(--transition-standard);
-}
-
-.nav-profile-link:hover .header-avatar-wrapper {
-  border-color: var(--mint-leaf);
-  transform: scale(1.04);
-}
-
-.header-avatar-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.header-avatar-placeholder {
-  color: var(--bg-card);
-  font-weight: 700;
-  font-size: 0.9rem;
-}
-
-.btn-custom-primary {
-  background-color: var(--mint-leaf);
-  border-color: var(--mint-leaf);
-  color: var(--bg-card);
-  font-weight: 600;
-  padding: 0.45rem 1.1rem;
-  border-radius: 8px;
-  transition: var(--transition-standard);
-}
-
-.btn-custom-primary:hover,
-.btn-custom-primary:focus {
-  background-color: var(--evergreen);
-  border-color: var(--evergreen);
-  color: var(--bg-card);
-  box-shadow: 0 4px 12px rgba(2, 39, 4, 0.15);
-}
-
-.btn-outline-custom {
-  color: var(--evergreen);
-  border-color: var(--muted-teal);
-  font-weight: 600;
-  padding: 0.45rem 1.1rem;
-  border-radius: 8px;
-  transition: var(--transition-standard);
-}
-
-.btn-outline-custom:hover,
-.btn-outline-custom:focus {
-  background-color: var(--alabaster-grey);
-  border-color: var(--evergreen);
-  color: var(--evergreen);
-}
-
-@media (min-width: 2560px) {
-  .container {
-    max-width: 2200px;
-  }
-
-  .brand-text {
-    font-size: 1.85rem;
-  }
-}
-
-@media (min-width: 992px) and (max-width: 2559px) {
-  .container {
-    max-width: 1320px;
-  }
-}
-
-@media (max-width: 991px) {
-  .mobile-toggler-left {
-    display: flex;
-  }
-
-  .mobile-profile-right {
-    display: flex;
-  }
-
-  .mobile-brand-only {
-    display: block;
-  }
-
-  .desktop-brand-only {
-    display: none;
-  }
-
-  .desktop-profile-only {
-    display: none;
-  }
-
-  .navbar-collapse {
-    width: 100%;
-    order: 4;
-  }
-
-  .layout-nav-links {
-    padding: 1rem 0 0.5rem 0;
-    border-top: 1px solid rgba(162, 178, 170, 0.15);
-    margin-top: 0.75rem;
-  }
-
-  .nav-link {
-    padding: 0.6rem 1rem;
-  }
-
-  .nav-link.router-link-active::after {
-    left: 4px;
-    right: auto;
-    width: 3px;
-    height: 50%;
-    top: 25%;
-    bottom: auto;
-  }
-
-  .actions-wrapper {
-    padding: 0.75rem 0 0.5rem 0;
-    border-top: 1px solid rgba(162, 178, 170, 0.15);
-    justify-content: space-between;
-    width: 100%;
-  }
-
-  .authentication-buttons {
-    display: flex;
-    gap: 10px;
-    flex-grow: 1;
-    justify-content: flex-end;
-  }
-}
-
-@media (max-width: 425px) {
-  .brand-text {
-    font-size: 1.35rem;
-  }
-
-  .custom-navbar {
-    padding: 0.5rem 0;
-  }
-}
-
-@media (max-width: 375px) {
-  .brand-text {
-    font-size: 1.25rem;
-  }
-
-  .mobile-toggler-left {
-    width: 32px;
-    height: 32px;
-  }
-
-  .header-avatar-wrapper {
-    width: 32px;
-    height: 32px;
-  }
-}
-
-@media (max-width: 320px) {
-  .brand-text {
-    font-size: 1.15rem;
-  }
-
-  .container {
-    padding-left: 0.75rem;
-    padding-right: 0.75rem;
-  }
-
-  .authentication-buttons {
-    gap: 6px;
-  }
-
-  .btn-sm {
-    padding: 0.4rem 0.75rem;
-    font-size: 0.8rem;
-  }
-}
-</style>

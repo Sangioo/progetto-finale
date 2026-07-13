@@ -1,132 +1,51 @@
 <script setup>
-import { reactive, ref, onMounted, watch } from 'vue'
-import { useRouter } from 'vue-router'
-
-const API_URL = import.meta.env.VITE_API_URL
-const REGISTER_ENDPOINT = import.meta.env.VITE_REGISTER_ENDPOINT
-const SESSION_ENDPOINT = import.meta.env.VITE_SESSION_ENDPOINT
-
-const router = useRouter()
-
-const recaptchaSiteKey = '6Lf40eIsAAAAAJboGYjtnjybpK1z12kTdEQICwC2'
-
-const userData = reactive({
-  username: '',
-  email: '',
-  password: '',
-  recaptchaToken: '',
+definePageMeta({
+  auth: {
+    unauthenticatedOnly: true,
+    navigateAuthenticatedTo: '/',
+  }
 })
 
-const errorMessage = ref('')
+const supabase = useSupabaseClient()
+
+const email = ref('')
+const username = ref('')
+const password = ref('')
 const isLoading = ref(false)
-const typingPassword = ref(false)
-const hasMaiusc = ref(false)
-const hasMinusc = ref(false)
-const hasNum = ref(false)
-const hasSpecial = ref(false)
-const isLong = ref(false)
+const errorMsg = ref('')
+const successMsg = ref('')
 const confirmPassword = ref('')
-const passwordsMatch = ref(true)
 
-const renderCaptcha = () => {
-  if (window.grecaptcha) {
-    window.grecaptcha.ready(() => {
-      window.grecaptcha.render('recaptcha-container', {
-        sitekey: recaptchaSiteKey,
-        callback: (token) => {
-          userData.recaptchaToken = token
-          errorMessage.value = ''
-        },
-        'expired-callback': () => {
-          userData.recaptchaToken = ''
-        },
-      })
-    })
-  }
-}
+const typingPassword = ref(false)
+const passwordsMatch = computed(() => password.value === confirmPassword.value)
+const hasMaiusc = computed(() => /[A-Z]/.test(password.value))
+const hasMinusc = computed(() => /[a-z]/.test(password.value))
+const hasNum = computed(() => /[0-9]/.test(password.value))
+const hasSpecial = computed(() => /[!@#$%^&*(),.?":{}|<>]/.test(password.value))
+const isLong = computed(() => password.value.length >= 8)
 
-onMounted(async () => {
-  if (!window.grecaptcha) {
-    const script = document.createElement('script')
-    script.src = 'https://www.google.com/recaptcha/api.js?render=explicit'
-    script.async = true
-    script.defer = true
-    document.head.appendChild(script)
-    script.onload = renderCaptcha
-  } else {
-    renderCaptcha()
-  }
-
+const handleSignup = async () => {
   try {
-    const res = await fetch(`${API_URL}/${SESSION_ENDPOINT}`, { credentials: 'include' })
-    const data = await res.json()
-    if (data.authenticated) router.push('/home')
-  } catch (err) {
-    console.error('Errore nel controllo della sessione:', err)
-  }
-})
+    isLoading.value = true
+    errorMsg.value = ''
+    successMsg.value = ''
 
-watch(
-  () => userData.password,
-  (newPassword) => {
-    hasMaiusc.value = /[A-Z]/.test(newPassword)
-    hasMinusc.value = /[a-z]/.test(newPassword)
-    hasNum.value = /\d/.test(newPassword)
-    hasSpecial.value = /[!@#$%^&*_+\-=;':"\\|,.<>\/?]/.test(newPassword)
-    isLong.value = newPassword.length >= 8
-    typingPassword.value = newPassword.length > 0
-
-    passwordsMatch.value = confirmPassword.value === newPassword
-  },
-)
-
-watch(confirmPassword, (newConfirm) => {
-  passwordsMatch.value = newConfirm === userData.password
-})
-
-function isPasswordValid() {
-  return hasMaiusc.value && hasMinusc.value && hasNum.value && hasSpecial.value && isLong.value
-}
-
-const handleRegister = async () => {
-  if (!userData.recaptchaToken) {
-    errorMessage.value = 'Per favore, conferma che non sei un robot.'
-    return
-  }
-
-  if (!isPasswordValid()) {
-    errorMessage.value = 'La password non soddisfa i requisiti richiesti.'
-    return
-  }
-
-  if (!passwordsMatch.value || confirmPassword.value === '') {
-    errorMessage.value = 'Le password non corrispondono.'
-    return
-  }
-
-  isLoading.value = true
-  errorMessage.value = ''
-
-  try {
-    const response = await fetch(`${API_URL}/${REGISTER_ENDPOINT}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(userData),
+    const { data, error } = await supabase.auth.signUp({
+      email: email.value,
+      password: password.value,
     })
 
-    const data = await response.json()
-
-    if (response.ok && data.success) {
-      router.push('/login')
+    if (error) {
+      errorMsg.value = error.message
     } else {
-      errorMessage.value = data.message || 'Errore durante la registrazione.'
-      if (window.grecaptcha) {
-        window.grecaptcha.reset()
-        userData.recaptchaToken = ''
-      }
+      successMsg.value = 'Registrazione completata! Controlla la tua casella email per confermare l\'account.'
+
+      email.value = ''
+      password.value = ''
     }
-  } catch (err) {
-    errorMessage.value = 'Errore di connessione al server.'
+  } catch (error) {
+    errorMsg.value = 'Si è verificato un errore inaspettato.'
+    console.error(error)
   } finally {
     isLoading.value = false
   }
@@ -140,192 +59,103 @@ const handleRegister = async () => {
         <h1 class="auth-title text-evergreen">Crea il tuo account</h1>
         <p class="auth-subtitle">Inizia a tenere traccia dei film che ami.</p>
 
-        <form @submit.prevent="handleRegister" class="form-grid" novalidate>
+        <form @submit.prevent="handleSignup" class="form-grid" novalidate>
           <div class="form-group">
             <label for="username" class="form-label">Username</label>
-            <input
-              v-model="userData.username"
-              type="text"
-              class="form-control"
-              id="username"
-              placeholder="es. user1234"
-              required
-            />
+            <input v-model="username" type="text" class="form-control" id="username" placeholder="es. user1234"
+              required />
           </div>
 
           <div class="form-group">
             <label for="email" class="form-label">Email</label>
-            <input
-              v-model="userData.email"
-              type="email"
-              class="form-control"
-              id="email"
-              placeholder="nome@email.com"
-              required
-            />
+            <input v-model="email" type="email" class="form-control" id="email" placeholder="user@example.com"
+              required />
           </div>
 
           <div class="form-group">
             <label for="password" class="form-label">Password</label>
-            <input
-              v-model="userData.password"
-              type="password"
-              class="form-control"
-              id="password"
-              placeholder="********"
-              required
-            />
+            <input v-model="password" type="password" class="form-control" id="password" placeholder="********" required
+              @input="typingPassword = true" />
           </div>
 
           <div v-if="typingPassword" class="password-requirements-container">
             <ul class="password-requirements">
               <li :class="{ ok: hasMaiusc, ko: !hasMaiusc }">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  fill="currentColor"
-                  viewBox="0 0 16 16"
-                  v-if="hasMaiusc"
-                >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"
+                  v-if="hasMaiusc">
                   <path
-                    d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"
-                  ></path>
+                    d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z">
+                  </path>
                 </svg>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  fill="currentColor"
-                  viewBox="0 0 16 16"
-                  v-else
-                >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"
+                  v-else>
                   <path
-                    d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293z"
-                  /></svg
-                >Almeno una lettera maiuscola
+                    d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293z" />
+                </svg>Almeno una lettera maiuscola
               </li>
 
               <li :class="{ ok: hasMinusc, ko: !hasMinusc }">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  fill="currentColor"
-                  viewBox="0 0 16 16"
-                  v-if="hasMinusc"
-                >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"
+                  v-if="hasMinusc">
                   <path
-                    d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"
-                  ></path>
+                    d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z">
+                  </path>
                 </svg>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  fill="currentColor"
-                  viewBox="0 0 16 16"
-                  v-else
-                >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"
+                  v-else>
                   <path
-                    d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293z"
-                  /></svg
-                >Almeno una lettera minuscola
+                    d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293z" />
+                </svg>Almeno una lettera minuscola
               </li>
 
               <li :class="{ ok: hasNum, ko: !hasNum }">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  fill="currentColor"
-                  viewBox="0 0 16 16"
-                  v-if="hasNum"
-                >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"
+                  v-if="hasNum">
                   <path
-                    d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"
-                  ></path>
+                    d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z">
+                  </path>
                 </svg>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  fill="currentColor"
-                  viewBox="0 0 16 16"
-                  v-else
-                >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"
+                  v-else>
                   <path
-                    d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293z"
-                  /></svg
-                >Almeno un numero
+                    d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293z" />
+                </svg>Almeno un numero
               </li>
 
               <li :class="{ ok: hasSpecial, ko: !hasSpecial }">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  fill="currentColor"
-                  viewBox="0 0 16 16"
-                  v-if="hasSpecial"
-                >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"
+                  v-if="hasSpecial">
                   <path
-                    d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"
-                  ></path>
+                    d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z">
+                  </path>
                 </svg>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  fill="currentColor"
-                  viewBox="0 0 16 16"
-                  v-else
-                >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"
+                  v-else>
                   <path
-                    d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293z"
-                  /></svg
-                >Almeno un carattere speciale
+                    d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293z" />
+                </svg>Almeno un carattere speciale
               </li>
 
               <li :class="{ ok: isLong, ko: !isLong }">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  fill="currentColor"
-                  viewBox="0 0 16 16"
-                  v-if="isLong"
-                >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"
+                  v-if="isLong">
                   <path
-                    d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"
-                  ></path>
+                    d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z">
+                  </path>
                 </svg>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  fill="currentColor"
-                  viewBox="0 0 16 16"
-                  v-else
-                >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"
+                  v-else>
                   <path
-                    d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293z"
-                  /></svg
-                >Almeno 8 caratteri
+                    d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293z" />
+                </svg>Almeno 8 caratteri
               </li>
             </ul>
           </div>
 
           <div class="form-group">
             <label for="confirmPassword" class="form-label">Conferma Password</label>
-            <input
-              v-model="confirmPassword"
-              type="password"
-              class="form-control"
-              id="confirmPassword"
-              placeholder="********"
-              required
-            />
+            <input v-model="confirmPassword" type="password" class="form-control" id="confirmPassword"
+              placeholder="********" required />
             <div class="error-text" v-if="!passwordsMatch && confirmPassword.length > 0">
               Le password non corrispondono.
             </div>
@@ -339,8 +169,8 @@ const handleRegister = async () => {
             {{ isLoading ? 'Creazione account...' : 'Registrati' }}
           </button>
 
-          <div v-if="errorMessage" class="custom-alert" role="alert">
-            {{ errorMessage }}
+          <div v-if="errorMsg" class="custom-alert" role="alert">
+            {{ errorMsg }}
           </div>
         </form>
 

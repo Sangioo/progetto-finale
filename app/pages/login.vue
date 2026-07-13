@@ -1,4 +1,43 @@
 <script setup>
+import { ref } from 'vue'
+
+definePageMeta({
+  auth: {
+    unauthenticatedOnly: true,
+    navigateAuthenticatedTo: '/',
+  }
+})
+const supabase = useSupabaseClient()
+
+const email = ref('')
+const username = ref('')
+const password = ref('')
+const isLoading = ref(false)
+const errorMsg = ref('')
+
+const handleLogin = async () => {
+  try {
+    isLoading.value = true
+    errorMsg.value = ''
+
+    const { error } = await supabase.auth.signInWithPassword({
+      email: email.value,
+      password: password.value,
+    })
+
+    if (error) {
+      errorMsg.value = error.message
+    } else {
+      await navigateTo('/')
+    }
+  } catch (error) {
+    errorMsg.value = 'Si è verificato un errore durante il login.'
+    console.error('Errore durante il login:', error)
+  } finally {
+    isLoading.value = false
+  }
+}
+/*
 import { reactive, ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 
@@ -26,7 +65,7 @@ onMounted(async () => {
   }
 })
 
-const handleLogin = async () => {
+const handleLogin1 = async () => {
   isLoading.value = true
   errorMessage.value = ''
 
@@ -51,6 +90,7 @@ const handleLogin = async () => {
     isLoading.value = false
   }
 }
+*/
 </script>
 
 <template>
@@ -62,35 +102,29 @@ const handleLogin = async () => {
 
         <form @submit.prevent="handleLogin" class="d-grid gap-3">
           <div>
+            <label for="email" class="form-label">Email</label>
+            <input v-model="email" type="email" class="form-control" id="email" placeholder="es. user@example.com"
+              required />
+          </div>
+
+          <div>
             <label for="username" class="form-label">Username</label>
-            <input
-              v-model="credentials.username"
-              type="text"
-              class="form-control"
-              id="username"
-              placeholder="es. user1234"
-              required
-            />
+            <input v-model="username" type="text" class="form-control" id="username" placeholder="es. user1234"
+              required />
           </div>
 
           <div>
             <label for="password" class="form-label">Password</label>
-            <input
-              v-model="credentials.password"
-              type="password"
-              class="form-control"
-              id="password"
-              placeholder="********"
-              required
-            />
+            <input v-model="password" type="password" class="form-control" id="password" placeholder="********"
+              required />
           </div>
 
           <button class="btn btn-primary mt-2" type="submit" :disabled="isLoading">
             {{ isLoading ? 'Connessione...' : 'Login' }}
           </button>
 
-          <div v-if="errorMessage" class="alert alert-danger" role="alert">
-            {{ errorMessage }}
+          <div v-if="errorMsg" class="alert alert-danger" role="alert">
+            {{ errorMsg }}
           </div>
         </form>
 

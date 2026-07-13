@@ -31,4 +31,9 @@ export default defineNuxtConfig({
 		},
 		types: "~/types/database.types.ts",
 	},
+
+	runtimeConfig: {
+		TMDB_API_KEY:
+			"eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI2N2Y0ZTcwNjE0NmYxYzllYmVlZTU4ZThmM2NhYWYzZiIsIm5iZiI6MTc3NzY0MTMzMC40NzYsInN1YiI6IjY5ZjRhNzcyMjNlNTkzMjA3MzU3ZTUxYyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.4zLIA2of702QQVdyrHN0u_XHLoyo7m8dD6rxdBYWM5s",
+	},
 });

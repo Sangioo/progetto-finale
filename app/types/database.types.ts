@@ -92,7 +92,7 @@ export type Database = {
           poster_path: string | null
           release_date: string | null
           title: string
-          vote_avg: number | null
+          vote_average: number | null
         }
         Insert: {
           backdrop_path?: string | null
@@ -104,7 +104,7 @@ export type Database = {
           poster_path?: string | null
           release_date?: string | null
           title?: string
-          vote_avg?: number | null
+          vote_average?: number | null
         }
         Update: {
           backdrop_path?: string | null
@@ -116,7 +116,7 @@ export type Database = {
           poster_path?: string | null
           release_date?: string | null
           title?: string
-          vote_avg?: number | null
+          vote_average?: number | null
         }
         Relationships: []
       }

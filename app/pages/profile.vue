@@ -8,13 +8,12 @@ const API_URL = import.meta.env.VITE_API_URL
 const IMAGE_URL = import.meta.env.VITE_IMAGE_URL
 const GET_REVIEWS = import.meta.env.VITE_GET_MYREVIEWS_ENDPOINT
 const DEL_REVIEW = import.meta.env.VITE_DEL_REVIEW_ENDPOINT
-const CHECK_SESSION = import.meta.env.VITE_SESSION_ENDPOINT
 const UPDATE_PASSWORD = import.meta.env.VITE_UPDATE_PASSWORD_ENDPOINT
 const UPLOAD_AVATAR = import.meta.env.VITE_ADD_PROFILE_PIC_ENDPOINT
 const DEL_AVATAR = import.meta.env.VITE_DEL_PROFILE_PIC_ENDPOINT
-const LOGOUT_ENDPOINT = import.meta.env.VITE_LOGOUT_ENDPOINT
 
 const router = useRouter()
+const supabase = useSupabaseClient()
 
 const userReviews = ref([])
 const currentUsername = ref('')
@@ -34,41 +33,6 @@ const isConfirmPopupOpen = ref(false)
 const isLogoutPopupOpen = ref(false)
 const isReadPopupOpen = ref(false)
 const selectedReviewToRead = ref(null)
-
-const initProfilo = async () => {
-  isFetchingReviews.value = true
-  try {
-    const resSession = await fetch(`${API_URL}/${CHECK_SESSION}`, {
-      method: 'GET',
-      credentials: 'include',
-    })
-    const dataSession = await resSession.json()
-
-    if (dataSession.authenticated) {
-      currentUsername.value = dataSession.user
-
-      const sessionAvatar = dataSession.profilePicture || null
-      if (sessionAvatar) {
-        const cacheBusterUrl = sessionAvatar.includes('?t=')
-          ? sessionAvatar
-          : `${sessionAvatar}?t=${new Date().getTime()}`
-        userAvatarUrl.value = cacheBusterUrl
-        sessionStorage.setItem('profilePicture', cacheBusterUrl)
-      } else {
-        userAvatarUrl.value = null
-        sessionStorage.removeItem('profilePicture')
-      }
-      await fetchUserReviews()
-    } else {
-      router.push('/login')
-    }
-  } catch (e) {
-    console.error(e)
-    showPopup('Errore', 'Impossibile verificare la sessione attuale.', 'error')
-  } finally {
-    isFetchingReviews.value = false
-  }
-}
 
 const fetchUserReviews = async () => {
   try {
@@ -222,19 +186,14 @@ const confirmLogout = async () => {
   isLogoutPopupOpen.value = false
   isActionLoading.value = true
   try {
-    const response = await fetch(`${API_URL}/${LOGOUT_ENDPOINT}`, {
-      method: 'POST',
-      credentials: 'include',
-    })
-    const data = await response.json()
+    const { error } = await supabase.auth.signOut()
 
-    if (data.success) {
-      sessionStorage.clear()
-      window.dispatchEvent(new Event('avatar-updated'))
-      router.push('/login')
-    } else {
-      showPopup('Errore', data.message || 'Impossibile effettuare il logout.', 'error')
+    if (error) {
+      showPopup('Errore', error.message || 'Errore durante il logout.', 'error')
+      return
     }
+    window.dispatchEvent(new Event('avatar-updated'))
+    navigateTo('/login')
   } catch (e) {
     showPopup('Errore', 'Errore di rete durante il logout.', 'error')
   } finally {
@@ -293,31 +252,19 @@ const goToFilm = (review) => {
   router.push(`/reviews`)
 }
 
-onMounted(initProfilo)
+onMounted(fetchUserReviews)
 </script>
 
 <template>
   <div class="profile-wrapper">
-    <BasePopup
-      :show="isPopupOpen"
-      :title="popupTitle"
-      :type="popupType"
-      @close="isPopupOpen = false"
-    >
+    <BasePopup :show="isPopupOpen" :title="popupTitle" :type="popupType" @close="isPopupOpen = false">
       <template #content>
         <div class="popup-premium-content">
           <div v-if="popupType === 'success'" class="modal-icon-success">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              class="check-icon"
-            >
-              <path
-                fill-rule="evenodd"
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="check-icon">
+              <path fill-rule="evenodd"
                 d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12Zm13.36-1.814a.75.75 0 1 0-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 0 0-1.06 1.06l2.25 2.25a.75.75 0 0 0 1.14-.094l3.748-5.25Z"
-                clip-path="evenodd"
-              />
+                clip-path="evenodd" />
             </svg>
           </div>
           <p class="popup-custom-text">{{ popupMessage }}</p>
@@ -330,12 +277,7 @@ onMounted(initProfilo)
       </template>
     </BasePopup>
 
-    <BasePopup
-      :show="isConfirmPopupOpen"
-      title="Conferma Rimozione"
-      type="error"
-      @close="isConfirmPopupOpen = false"
-    >
+    <BasePopup :show="isConfirmPopupOpen" title="Conferma Rimozione" type="error" @close="isConfirmPopupOpen = false">
       <template #content>
         <p class="popup-custom-text">
           Sei sicuro di voler rimuovere la tua foto profilo? Tornerai all'avatar standard con
@@ -348,12 +290,7 @@ onMounted(initProfilo)
       </template>
     </BasePopup>
 
-    <BasePopup
-      :show="isLogoutPopupOpen"
-      title="Conferma Disconnessione"
-      type="info"
-      @close="isLogoutPopupOpen = false"
-    >
+    <BasePopup :show="isLogoutPopupOpen" title="Conferma Disconnessione" type="info" @close="isLogoutPopupOpen = false">
       <template #content>
         <p class="popup-custom-text">
           Sei sicuro di voler uscire dal tuo account? Sarà necessario reinserire le tue credenziali
@@ -366,11 +303,7 @@ onMounted(initProfilo)
       </template>
     </BasePopup>
 
-    <ReviewPopup
-      :show="isReadPopupOpen"
-      :review="selectedReviewToRead"
-      @close="isReadPopupOpen = false"
-    />
+    <ReviewPopup :show="isReadPopupOpen" :review="selectedReviewToRead" @close="isReadPopupOpen = false" />
 
     <div class="profile-container">
       <header class="profile-card main-header-card">
@@ -381,35 +314,18 @@ onMounted(initProfilo)
               {{ currentUsername?.charAt(0).toUpperCase() }}
             </div>
             <div class="avatar-hover-overlay">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                fill="currentColor"
-                viewBox="0 0 16 16"
-              >
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
                 <path d="M10.5 8.5a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z" />
                 <path
-                  d="M2 4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-1.172a2 2 0 0 1-1.414-.586l-.828-.828A2 2 0 0 0 9.172 2H6.828a2 2 0 0 0-1.414.586l-.828.828A2 2 0 0 1 3.172 4H2zm.5 2a.5.5 0 1 1 0-1 .5.5 0 0 1 0 1zm9 2.5a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0z"
-                />
+                  d="M2 4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-1.172a2 2 0 0 1-1.414-.586l-.828-.828A2 2 0 0 0 9.172 2H6.828a2 2 0 0 0-1.414.586l-.828.828A2 2 0 0 1 3.172 4H2zm.5 2a.5.5 0 1 1 0-1 .5.5 0 0 1 0 1zm9 2.5a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0z" />
               </svg>
             </div>
-            <input
-              type="file"
-              ref="fileInput"
-              @change="handleAvatarUpload"
-              accept="image/png, image/jpeg"
-              class="hidden-input"
-            />
+            <input type="file" ref="fileInput" @change="handleAvatarUpload" accept="image/png, image/jpeg"
+              class="hidden-input" />
           </div>
 
-          <button
-            v-if="userAvatarUrl"
-            @click="handleRemoveAvatarClick"
-            class="btn-remove-avatar"
-            :disabled="isActionLoading"
-            title="Rimuovi foto profilo"
-          >
+          <button v-if="userAvatarUrl" @click="handleRemoveAvatarClick" class="btn-remove-avatar"
+            :disabled="isActionLoading" title="Rimuovi foto profilo">
             Rimuovi foto
           </button>
         </div>
@@ -420,27 +336,13 @@ onMounted(initProfilo)
         </div>
 
         <div class="header-actions-side">
-          <button
-            @click="handleLogoutClick"
-            class="btn-logout-header"
-            title="Disconnetti account"
-            :disabled="isActionLoading"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              fill="currentColor"
-              viewBox="0 0 16 16"
-            >
-              <path
-                fill-rule="evenodd"
-                d="M6 12.5a.5.5 0 0 0 .5.5h8a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5h-8a.5.5 0 0 0-.5.5v2a.5.5 0 0 1-1 0v-2A1.5 1.5 0 0 1 6.5 2h8A1.5 1.5 0 0 1 16 3.5v9a1.5 1.5 0 0 1-1.5 1.5h-8A1.5 1.5 0 0 1 5 12.5v-2a.5.5 0 0 1 1 0v2z"
-              />
-              <path
-                fill-rule="evenodd"
-                d="M.146 8.354a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L1.707 7.5H10.5a.5.5 0 0 1 0 1H1.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3z"
-              />
+          <button @click="handleLogoutClick" class="btn-logout-header" title="Disconnetti account"
+            :disabled="isActionLoading">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+              <path fill-rule="evenodd"
+                d="M6 12.5a.5.5 0 0 0 .5.5h8a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5h-8a.5.5 0 0 0-.5.5v2a.5.5 0 0 1-1 0v-2A1.5 1.5 0 0 1 6.5 2h8A1.5 1.5 0 0 1 16 3.5v9a1.5 1.5 0 0 1-1.5 1.5h-8A1.5 1.5 0 0 1 5 12.5v-2a.5.5 0 0 1 1 0v2z" />
+              <path fill-rule="evenodd"
+                d="M.146 8.354a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L1.707 7.5H10.5a.5.5 0 0 1 0 1H1.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3z" />
             </svg>
             <span>Disconnetti</span>
           </button>
@@ -497,26 +399,16 @@ onMounted(initProfilo)
             <div v-for="review in userReviews" :key="review.idFilm" class="dashboard-review-row">
               <div class="movie-details-side">
                 <div class="movie-thumb-wrapper" @click="goToFilm(review)">
-                  <img
-                    v-if="review.poster_path"
-                    :src="`${IMAGE_URL}${review.poster_path}`"
-                    :alt="review.title"
-                    class="movie-thumb-img"
-                  />
+                  <img v-if="review.poster_path" :src="`${IMAGE_URL}${review.poster_path}`" :alt="review.title"
+                    class="movie-thumb-img" />
                   <div v-else class="movie-thumb-placeholder">🎬</div>
 
                   <div class="movie-thumb-overlay">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="14"
-                      height="14"
-                      fill="currentColor"
-                      viewBox="0 0 16 16"
-                    >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor"
+                      viewBox="0 0 16 16">
                       <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z" />
                       <path
-                        d="M0 8s3-5.5 8-5.5 8 5.5 8 5.5-3 5.5-8 5.5S0 8 0 8zm8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z"
-                      />
+                        d="M0 8s3-5.5 8-5.5 8 5.5 8 5.5-3 5.5-8 5.5S0 8 0 8zm8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z" />
                     </svg>
                   </div>
                 </div>
@@ -531,11 +423,8 @@ onMounted(initProfilo)
                 </div>
               </div>
 
-              <div
-                class="review-body-side review-body-clickable"
-                @click="openReadReviewPopup(review)"
-                title="Leggi tutto"
-              >
+              <div class="review-body-side review-body-clickable" @click="openReadReviewPopup(review)"
+                title="Leggi tutto">
                 <div class="mini-score-badge" :class="getStatusClass(review.score)">
                   <span class="star-icon">★</span>
                   <span class="score-value">{{ review.score }}</span>
@@ -545,24 +434,14 @@ onMounted(initProfilo)
               </div>
 
               <div class="review-action-side">
-                <button
-                  @click="handleDeleteReview(review)"
-                  class="btn-delete-review-minimal"
-                  title="Elimina questa recensione"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="14"
-                    height="14"
-                    fill="currentColor"
-                    viewBox="0 0 16 16"
-                  >
+                <button @click="handleDeleteReview(review)" class="btn-delete-review-minimal"
+                  title="Elimina questa recensione">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor"
+                    viewBox="0 0 16 16">
                     <path
-                      d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5Zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5Zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6Z"
-                    />
+                      d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5Zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5Zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6Z" />
                     <path
-                      d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1ZM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118ZM2.5 3h11V2h-11v1Z"
-                    />
+                      d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1ZM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118ZM2.5 3h11V2h-11v1Z" />
                   </svg>
                   <span>Elimina</span>
                 </button>

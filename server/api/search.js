@@ -14,7 +14,7 @@ export default defineEventHandler(async (event) => {
 
 	try {
 		const response = await $fetch(
-			"https://api.themoviedb.org/3/discover/movie",
+			"https://api.themoviedb.org/3/search/movie",
 			{
 				method: "GET",
 				headers: {

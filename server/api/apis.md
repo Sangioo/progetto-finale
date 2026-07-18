@@ -6,13 +6,13 @@
 
 Discovery dei film dal database di TMDB.
 
-- [-] implementato
+- [x] implementato
 
 ### search
 
 Ricerca di film nel database di TMDB.
 
-- [ ] implementato
+- [x] implementato
 
 ## Watchlist
 
@@ -20,19 +20,19 @@ Ricerca di film nel database di TMDB.
 
 Ritorna la watchlist dell'utente.
 
-- [-] implementato
+- [x] implementato
 
 ### add_to_watchlist
 
 Aggiunge un film alla watchlist dell'utente.
 
-- [ ] implementato
+- [x] implementato
 
 ### delete_from_watchlist
 
 Rimuove un film dalla watchlist dell'utente.
 
-- [ ] implementato
+- [x] implementato
 
 ## Watched
 
@@ -40,33 +40,23 @@ Rimuove un film dalla watchlist dell'utente.
 
 Ritorna i film visti dall'utente.
 
-- [-] implementato
+- [x] implementato
 
 ### add_to_watched
 
 Aggiunge un film ai film visti dall'utente.
 
-- [ ] implementato
+- [x] implementato
 
 ### delete_from_watched
 
 Rimuove un film dai film visti dall'utente.
 
-- [ ] implementato
+- [x] implementato
 
 ## Authentication
 
-### login
-
-- [ ] implementato
-
-### logout
-
-- [ ] implementato
-
-### register
-
-- [ ] implementato
+implementazione dell'autenticazione tramite middleware Supabase.
 
 ## User
 

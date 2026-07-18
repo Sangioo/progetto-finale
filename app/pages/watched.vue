@@ -79,7 +79,6 @@ const handleReviewsClick = (movie) => {
 }
 
 onMounted(() => {
-  checkSession()
   getMovies()
 })
 </script>

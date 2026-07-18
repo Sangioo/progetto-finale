@@ -6,12 +6,11 @@ import BasePopup from '~/components/base_popup.vue'
 
 const API_URL = import.meta.env.VITE_API_URL
 const DISCOVER_ENDPOINT = import.meta.env.VITE_DISCOVER_ENDPOINT
-const SESSION_ENDPOINT = import.meta.env.VITE_SESSION_ENDPOINT
+const SEARCH_ENDPOINT = import.meta.env.VITE_SEARCH_ENDPOINT
 const ADD_TO_WATCHLIST_ENDPOINT = import.meta.env.VITE_ADD_TO_WATCHLIST_ENDPOINT
 const DELETE_FROM_WATCHLIST_ENDPOINT = import.meta.env.VITE_DELETE_FROM_WATCHLIST_ENDPOINT
 const ADD_TO_WATCHED_ENDPOINT = import.meta.env.VITE_ADD_TO_WATCHED_ENDPOINT
 const DELETE_FROM_WATCHED_ENDPOINT = import.meta.env.VITE_DELETE_FROM_WATCHED_ENDPOINT
-const SEARCH_ENDPOINT = import.meta.env.VITE_SEARCH_ENDPOINT
 
 const activeTab = ref('search')
 const movies = ref([[], [], [], [], []])
@@ -164,19 +163,6 @@ const handleReviewsClick = (movie) => {
   router.push(`/reviews`)
 }
 
-const checkSession = async () => {
-  try {
-    const response = await fetch(`${API_URL}/${SESSION_ENDPOINT}`, {
-      method: 'GET',
-      credentials: 'include',
-    })
-    const data = await response.json()
-    isAuthenticated.value = data.authenticated
-  } catch {
-    isAuthenticated.value = false
-  }
-}
-
 const handleLogin = () => {
   showAuthModal.value = false
   router.push('/login')
@@ -217,7 +203,6 @@ const handleResetFilters = () => {
 }
 
 onMounted(() => {
-  checkSession()
   loadMovies()
 })
 </script>
@@ -239,16 +224,10 @@ onMounted(() => {
 
     <main class="content" :class="{ 'full-width': activeTab === 'search' }">
       <div class="navigation-tabs">
-        <button
-          :class="['tab-button', { active: activeTab === 'search' }]"
-          @click="setTab('search')"
-        >
+        <button :class="['tab-button', { active: activeTab === 'search' }]" @click="setTab('search')">
           🔎 Ricerca Rapida
         </button>
-        <button
-          :class="['tab-button', { active: activeTab === 'filters' }]"
-          @click="setTab('filters')"
-        >
+        <button :class="['tab-button', { active: activeTab === 'filters' }]" @click="setTab('filters')">
           ✨ Esplorazione Avanzata
         </button>
       </div>
@@ -269,17 +248,8 @@ onMounted(() => {
         </div>
 
         <button v-if="activeTab === 'filters'" @click="handleResetFilters" class="btn-reset">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="18"
-            height="18"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2.5"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
             <path d="M3 3v5h5"></path>
           </svg>
@@ -290,32 +260,20 @@ onMounted(() => {
       <div v-if="activeTab === 'search'" class="search-hero-section">
         <form class="search-form" @submit.prevent="searchMovies">
           <div class="search-box">
-            <input
-              v-model="searchTerm"
-              type="text"
-              class="search-input"
-              placeholder="Scrivi il nome di un film ..."
-              autocomplete="off"
-              spellcheck="false"
-              name="search-box"
-              id="search-box"
-            />
+            <input v-model="searchTerm" type="text" class="search-input" placeholder="Scrivi il nome di un film ..."
+              autocomplete="off" spellcheck="false" name="search-box" id="search-box" />
             <button class="search-button" type="submit">Cerca</button>
           </div>
         </form>
       </div>
 
       <section ref="galleryRef" class="gallery">
-        <h3
-          v-if="activeTab === 'search' && !hasSearched && hasMovies && !isLoading"
-          class="section-title text-evergreen"
-        >
+        <h3 v-if="activeTab === 'search' && !hasSearched && hasMovies && !isLoading"
+          class="section-title text-evergreen">
           Titoli in evidenza
         </h3>
-        <h3
-          v-if="activeTab === 'search' && hasSearched && hasMovies && !isLoading"
-          class="section-title text-evergreen"
-        >
+        <h3 v-if="activeTab === 'search' && hasSearched && hasMovies && !isLoading"
+          class="section-title text-evergreen">
           Risultati per "{{ searchTerm }}"
         </h3>
 
@@ -324,16 +282,9 @@ onMounted(() => {
         </div>
 
         <div v-else-if="hasMovies" class="grid">
-          <MovieCard
-            v-for="movie in displayedMovies"
-            :key="movie.id"
-            :movie="movie"
-            @left-click="handleLeftClick(movie)"
-            @right-click="handleRightClick(movie)"
-            @reviews-click="handleReviewsClick(movie)"
-            :swl="movie.watchStatus === 0"
-            :swd="movie.watchStatus < 2"
-          />
+          <MovieCard v-for="movie in displayedMovies" :key="movie.id" :movie="movie"
+            @left-click="handleLeftClick(movie)" @right-click="handleRightClick(movie)"
+            @reviews-click="handleReviewsClick(movie)" :swl="movie.watchStatus === 0" :swd="movie.watchStatus < 2" />
         </div>
 
         <div v-else class="state-card-empty">
@@ -351,12 +302,7 @@ onMounted(() => {
           <button @click="goToPage(index - 1)" :disabled="index === 0" class="nav-arrow">
             &lsaquo;
           </button>
-          <button
-            v-for="n in 5"
-            :key="n"
-            @click="goToPage(n - 1)"
-            :class="['page-num', { active: index === n - 1 }]"
-          >
+          <button v-for="n in 5" :key="n" @click="goToPage(n - 1)" :class="['page-num', { active: index === n - 1 }]">
             {{ n }}
           </button>
           <button @click="goToPage(index + 1)" :disabled="index === 4" class="nav-arrow">
@@ -610,6 +556,7 @@ onMounted(() => {
 }
 
 @keyframes pulse-loading {
+
   0%,
   100% {
     opacity: 0.6;

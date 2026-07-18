@@ -4,20 +4,32 @@ import {
 } from "#supabase/server";
 
 export default defineEventHandler(async (event) => {
-	const supabase = serverSupabaseServiceRole(event);
+	const supabase = serverSupabaseServiceRole();
 	const user = await serverSupabaseUser(event);
-	console.log("User ID:", user.sub);
+	const movieId = event.context.params.movieId;
+	console.log("User ID:", user.sub, ", Movie ID:", movieId);
 
 	if (!user) {
 		return { success: false, message: "User not authenticated" };
 	}
+	if (!movieId) {
+		return { success: false, message: "Movie ID not provided" };
+	}
 
 	try {
-		const { data, error } = await supabase
-			.from("watch")
-			.select("movie:movies(*)")
-			.eq("user", user.sub)
-			.eq("watched", false);
+		const { data, error } = await supabase.from("watch").insert({
+			user: user.sub,
+			movie: movieId,
+			watched: false,
+		});
+
+		if (error.code === "23505") {
+			console.log("Movie already in watchlist");
+			return {
+				success: false,
+				message: "Movie already in watchlist",
+			};
+		}
 
 		if (error) {
 			console.error(error);
@@ -34,9 +46,12 @@ export default defineEventHandler(async (event) => {
 			return item;
 		});
 
-		return { success: true, movies };
+		return movies;
 	} catch (error) {
 		console.error(error);
-		return { success: false, message: "Error fetching movies from TMDB" };
+		return {
+			success: false,
+			message: "Error fetching watchlist from Supabase",
+		};
 	}
 });

@@ -29,7 +29,7 @@ const getMovies = async () => {
 
 async function deleteActionApi(endpoint, idFilm, successMsg) {
   try {
-    const url = `${API_URL}/${endpoint}?idFilm=${idFilm}`
+    const url = `${API_URL}/${endpoint}?movieId=${idFilm}`
     const response = await fetch(url, {
       method: 'GET',
       credentials: 'include',

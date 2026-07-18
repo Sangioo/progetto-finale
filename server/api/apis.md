@@ -84,9 +84,9 @@ Rimuove l'immagine del profilo dall'utente.
 
 Ritorna le recensioni dell'utente.
 
-- [ ] implementato
+- [x] implementato
 
-### get_reviews
+### get_movie_reviews
 
 Ritorna le recensioni di un film.
 

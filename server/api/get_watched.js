@@ -17,7 +17,7 @@ export default defineEventHandler(async (event) => {
 			.from("watch")
 			.select("movie:movies(*)")
 			.eq("user", user.sub)
-			.eq("watched", false);
+			.eq("watched", true);
 
 		if (error) {
 			console.error(error);

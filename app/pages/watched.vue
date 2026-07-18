@@ -1,34 +1,13 @@
 <script setup>
-import router from '@/router'
 import { onMounted, ref } from 'vue'
 import MovieCard from '@/components/moviecard.vue'
 
 const API_URL = import.meta.env.VITE_API_URL
-const SESSION_ENDPOINT = import.meta.env.VITE_SESSION_ENDPOINT
 const GET_WATCHED_ENDPOINT = import.meta.env.VITE_GET_WATCHED_ENDPOINT
 const DELETE_FROM_WATCHED_ENDPOINT = import.meta.env.VITE_DELETE_FROM_WATCHED_ENDPOINT
 
 const movies = ref([])
 const isLoading = ref(false)
-
-const checkSession = async () => {
-  try {
-    const response = await fetch(`${API_URL}/${SESSION_ENDPOINT}`, {
-      method: 'GET',
-      credentials: 'include',
-    })
-
-    const data = await response.json()
-
-    if (data.authenticated) {
-      console.log('Utente autenticato:', data.user)
-    } else {
-      router.push('/login')
-    }
-  } catch (error) {
-    console.error('Errore durante il controllo della sessione:', error)
-  }
-}
 
 const getMovies = async () => {
   isLoading.value = true
@@ -96,7 +75,7 @@ const handleReviewsClick = (movie) => {
     watchStatus: 2,
   }
   sessionStorage.setItem('selectedMovie', JSON.stringify(movieToSave))
-  router.push(`/reviews`)
+  navigateTo('/reviews')
 }
 
 onMounted(() => {
@@ -122,18 +101,12 @@ onMounted(() => {
         <span class="empty-icon">🎬</span>
         <h2 class="empty-title">Non hai film guardati.</h2>
         <p class="empty-subtitle">Una volta che li avrai guardati, li troverai qui.</p>
-        <router-link to="/" class="btn-primary-custom">Vai al Catalogo</router-link>
+        <nuxt-link to="/" class="btn-primary-custom">Vai al Catalogo</nuxt-link>
       </div>
 
       <div v-else class="movie-grid">
-        <MovieCard
-          v-for="movie in movies"
-          :key="movie.id"
-          :movie="movie"
-          @reviews-click="handleReviewsClick(movie)"
-          @right-click="deleteFromWatched(movie)"
-          :swd="false"
-        />
+        <MovieCard v-for="movie in movies" :key="movie.id" :movie="movie" @reviews-click="handleReviewsClick(movie)"
+          @right-click="deleteFromWatched(movie)" :swd="false" />
       </div>
     </div>
   </div>

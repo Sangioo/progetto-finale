@@ -9,7 +9,7 @@ export default defineEventHandler(async (event) => {
 	console.log("User ID:", user.sub);
 
 	if (!user) {
-		return { error: "User not authenticated" };
+		return { success: false, message: "User not authenticated" };
 	}
 
 	try {
@@ -21,7 +21,10 @@ export default defineEventHandler(async (event) => {
 
 		if (error) {
 			console.error(error);
-			return { error: "Error fetching watchlist from Supabase" };
+			return {
+				success: false,
+				message: "Error fetching watched movies from Supabase",
+			};
 		}
 		console.log("Data from Supabase:", data);
 		console.log(data.length, "movies returned from Supabase");
@@ -31,9 +34,9 @@ export default defineEventHandler(async (event) => {
 			return item;
 		});
 
-		return movies;
+		return { success: true, movies };
 	} catch (error) {
 		console.error(error);
-		return { error: "Error fetching movies from TMDB" };
+		return { success: false, message: "Error fetching movies from TMDB" };
 	}
 });

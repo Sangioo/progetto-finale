@@ -41,39 +41,39 @@ export type Database = {
     Tables: {
       messages: {
         Row: {
-          film: number
+          content: string
           id: number
-          message: string
+          movie: number
           spoiler: boolean
           time: string
-          user: number
+          user: string
         }
         Insert: {
-          film: number
+          content?: string
           id?: number
-          message?: string
+          movie: number
           spoiler?: boolean
           time?: string
-          user: number
+          user: string
         }
         Update: {
-          film?: number
+          content?: string
           id?: number
-          message?: string
+          movie?: number
           spoiler?: boolean
           time?: string
-          user?: number
+          user?: string
         }
         Relationships: [
           {
-            foreignKeyName: "messages_film_fkey"
-            columns: ["film"]
+            foreignKeyName: "messages_new_movie_fkey"
+            columns: ["movie"]
             isOneToOne: false
             referencedRelation: "movies"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "messages_user_fkey"
+            foreignKeyName: "messages_new_user_fkey"
             columns: ["user"]
             isOneToOne: false
             referencedRelation: "users"
@@ -122,36 +122,36 @@ export type Database = {
       }
       reviews: {
         Row: {
-          content: string | null
-          film: number
-          score: number | null
-          time: string | null
-          user: number
+          content: string
+          movie: number
+          score: number
+          time: string
+          user: string
         }
         Insert: {
-          content?: string | null
-          film: number
-          score?: number | null
-          time?: string | null
-          user: number
+          content?: string
+          movie: number
+          score: number
+          time: string
+          user: string
         }
         Update: {
-          content?: string | null
-          film?: number
-          score?: number | null
-          time?: string | null
-          user?: number
+          content?: string
+          movie?: number
+          score?: number
+          time?: string
+          user?: string
         }
         Relationships: [
           {
-            foreignKeyName: "reviews_film_fkey"
-            columns: ["film"]
+            foreignKeyName: "reviews_new_movie_fkey"
+            columns: ["movie"]
             isOneToOne: false
             referencedRelation: "movies"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "reviews_user_fkey"
+            foreignKeyName: "reviews_new_user_fkey"
             columns: ["user"]
             isOneToOne: false
             referencedRelation: "users"
@@ -161,33 +161,33 @@ export type Database = {
       }
       rooms: {
         Row: {
-          film: number
           last_update: string
+          movie: number
           time: string
-          user: number
+          user: string
         }
         Insert: {
-          film: number
           last_update?: string
+          movie: number
           time?: string
-          user: number
+          user: string
         }
         Update: {
-          film?: number
           last_update?: string
+          movie?: number
           time?: string
-          user?: number
+          user?: string
         }
         Relationships: [
           {
-            foreignKeyName: "rooms_film_fkey"
-            columns: ["film"]
+            foreignKeyName: "rooms_new_movie_fkey"
+            columns: ["movie"]
             isOneToOne: false
             referencedRelation: "movies"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "rooms_user_fkey"
+            foreignKeyName: "rooms_new_user_fkey"
             columns: ["user"]
             isOneToOne: false
             referencedRelation: "users"
@@ -198,53 +198,50 @@ export type Database = {
       users: {
         Row: {
           email: string
-          id: number
-          password: string
+          id: string
           profile_pic_ext: string | null
-          username: string
+          username: string | null
         }
         Insert: {
           email: string
-          id?: number
-          password: string
+          id: string
           profile_pic_ext?: string | null
-          username: string
+          username?: string | null
         }
         Update: {
           email?: string
-          id?: number
-          password?: string
+          id?: string
           profile_pic_ext?: string | null
-          username?: string
+          username?: string | null
         }
         Relationships: []
       }
       watch: {
         Row: {
-          film: number
-          user: number
+          movie: number
+          user: string
           watched: boolean
         }
         Insert: {
-          film: number
-          user: number
+          movie: number
+          user?: string
           watched?: boolean
         }
         Update: {
-          film?: number
-          user?: number
+          movie?: number
+          user?: string
           watched?: boolean
         }
         Relationships: [
           {
-            foreignKeyName: "watch_film_fkey"
-            columns: ["film"]
+            foreignKeyName: "watch_new_movie_fkey"
+            columns: ["movie"]
             isOneToOne: false
             referencedRelation: "movies"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "watch_user_fkey"
+            foreignKeyName: "watch_new_user_fkey"
             columns: ["user"]
             isOneToOne: false
             referencedRelation: "users"

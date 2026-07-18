@@ -1,7 +1,6 @@
 <script setup>
 import { onMounted, ref } from 'vue'
 import MovieCard from '@/components/moviecard.vue'
-import router from '@/router'
 
 const API_URL = import.meta.env.VITE_API_URL
 const SESSION_ENDPOINT = import.meta.env.VITE_SESSION_ENDPOINT
@@ -11,19 +10,6 @@ const ADD_TO_WATCHED_ENDPOINT = import.meta.env.VITE_ADD_TO_WATCHED_ENDPOINT
 
 const movies = ref([])
 const isLoading = ref(false)
-
-const checkSession = async () => {
-  try {
-    const response = await fetch(`${API_URL}/${SESSION_ENDPOINT}`, {
-      method: 'GET',
-      credentials: 'include',
-    })
-    const data = await response.json()
-    if (!data.authenticated) router.push('/login')
-  } catch (error) {
-    console.error('Errore sessione:', error)
-  }
-}
 
 const getMovies = async () => {
   isLoading.value = true
@@ -93,11 +79,10 @@ const handleReviewsClick = (movie) => {
     watchStatus: 1,
   }
   sessionStorage.setItem('selectedMovie', JSON.stringify(movieToSave))
-  router.push(`/reviews`)
+  navigateTo('/reviews')
 }
 
 onMounted(() => {
-  checkSession()
   getMovies()
 })
 </script>
@@ -123,16 +108,8 @@ onMounted(() => {
       </div>
 
       <div v-else class="movie-grid">
-        <MovieCard
-          v-for="movie in movies"
-          :key="movie.id"
-          :movie="movie"
-          @reviews-click="handleReviewsClick(movie)"
-          @left-click="deleteFromWatchlist(movie)"
-          @right-click="addToWatched(movie)"
-          :swl="false"
-          :swd="true"
-        />
+        <MovieCard v-for="movie in movies" :key="movie.id" :movie="movie" @reviews-click="handleReviewsClick(movie)"
+          @left-click="deleteFromWatchlist(movie)" @right-click="addToWatched(movie)" :swl="false" :swd="true" />
       </div>
     </div>
   </div>

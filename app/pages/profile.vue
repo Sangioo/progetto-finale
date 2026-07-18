@@ -19,7 +19,16 @@ const userReviews = ref([])
 const currentUsername = ref('')
 const isFetchingReviews = ref(false)
 
-const userAvatarUrl = ref(sessionStorage.getItem('profilePicture') || null)
+const userAvatarUrl = useState('userAvatarUrl', () => {
+  if (import.meta.client) {
+    try {
+      return localStorage.getItem('profilePicture') || null
+    } catch {
+      return null
+    }
+  }
+  return null
+})
 const fileInput = ref(null)
 const vecchiaPassword = ref('')
 const nuovaPassword = ref('')
@@ -36,7 +45,7 @@ const selectedReviewToRead = ref(null)
 
 const fetchUserReviews = async () => {
   try {
-    const response = await fetch(`${API_URL}/${GET_REVIEWS}?user=${currentUsername.value}`, {
+    const response = await fetch(`${API_URL}/${GET_REVIEWS}`, {
       method: 'GET',
       credentials: 'include',
     })
@@ -58,7 +67,7 @@ const handleDeleteReview = async (review) => {
   }
 
   try {
-    const response = await fetch(`${API_URL}/${DEL_REVIEW}?idFilm=${parseInt(idFilm, 10)}`, {
+    const response = await fetch(`${API_URL}/${DEL_REVIEW}?movieId=${parseInt(idFilm, 10)}`, {
       method: 'GET',
       credentials: 'include',
     })
@@ -98,7 +107,9 @@ const handleAvatarUpload = async (event) => {
       const newAvatarUrl = `${data.profilePicture}?t=${cacheBuster}`
 
       userAvatarUrl.value = newAvatarUrl
-      sessionStorage.setItem('profilePicture', newAvatarUrl)
+      if (import.meta.client) {
+        localStorage.setItem('profilePicture', newAvatarUrl)
+      }
 
       window.dispatchEvent(new Event('avatar-updated'))
 
@@ -130,7 +141,9 @@ const confirmRemoveAvatar = async () => {
 
     if (data.success) {
       userAvatarUrl.value = null
-      sessionStorage.removeItem('profilePicture')
+      if (import.meta.client) {
+        localStorage.removeItem('profilePicture')
+      }
 
       window.dispatchEvent(new Event('avatar-updated'))
       showPopup('Successo', 'Foto profilo rimossa!', 'success')

@@ -64,7 +64,7 @@ implementazione dell'autenticazione tramite middleware Supabase.
 
 Aggiorna la password dell'utente.
 
-- [ ] implementato
+- [x] implementato
 
 ### upload_profile_picture
 

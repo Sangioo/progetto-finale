@@ -10,7 +10,7 @@ const GET_REVIEWS = import.meta.env.VITE_GET_MYREVIEWS_ENDPOINT
 const DEL_REVIEW = import.meta.env.VITE_DEL_REVIEW_ENDPOINT
 const UPDATE_PASSWORD = import.meta.env.VITE_UPDATE_PASSWORD_ENDPOINT
 const UPLOAD_AVATAR = import.meta.env.VITE_UPLOAD_PROFILE_PICTURE_ENDPOINT
-const DEL_AVATAR = import.meta.env.VITE_DEL_PROFILE_PIC_ENDPOINT
+const DEL_AVATAR = import.meta.env.VITE_DELETE_PROFILE_PICTURE_ENDPOINT
 
 const router = useRouter()
 const supabase = useSupabaseClient()

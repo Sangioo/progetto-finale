@@ -9,7 +9,7 @@ const IMAGE_URL = import.meta.env.VITE_IMAGE_URL
 const GET_REVIEWS = import.meta.env.VITE_GET_MYREVIEWS_ENDPOINT
 const DEL_REVIEW = import.meta.env.VITE_DEL_REVIEW_ENDPOINT
 const UPDATE_PASSWORD = import.meta.env.VITE_UPDATE_PASSWORD_ENDPOINT
-const UPLOAD_AVATAR = import.meta.env.VITE_ADD_PROFILE_PIC_ENDPOINT
+const UPLOAD_AVATAR = import.meta.env.VITE_UPLOAD_PROFILE_PIC_ENDPOINT
 const DEL_AVATAR = import.meta.env.VITE_DEL_PROFILE_PIC_ENDPOINT
 
 const router = useRouter()
@@ -91,7 +91,7 @@ const handleAvatarUpload = async (event) => {
   if (!file) return
 
   const formData = new FormData()
-  formData.append('profile_pic', file)
+  formData.append('profile_picture', file)
 
   isActionLoading.value = true
   try {
@@ -169,8 +169,8 @@ const handleCambiaPassword = async () => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        vecchia: vecchiaPassword.value,
-        nuova: nuovaPassword.value,
+        password: vecchiaPassword.value,
+        newPassword: nuovaPassword.value,
       }),
       credentials: 'include',
     })

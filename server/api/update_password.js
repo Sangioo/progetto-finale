@@ -4,7 +4,7 @@ import {
 } from "#supabase/server";
 
 export default defineEventHandler(async (event) => {
-	const supabase = serverSupabaseServiceRole();
+	const supabase = serverSupabaseServiceRole(event);
 	const user = await serverSupabaseUser(event);
 	const body = await readBody(event);
 	const { newPassword } = body;
@@ -31,8 +31,6 @@ export default defineEventHandler(async (event) => {
 				message: "Error updating password in Supabase",
 			};
 		}
-
-		console.log("Data from Supabase:", data);
 
 		return { success: true, message: "Password updated successfully" };
 	} catch (error) {

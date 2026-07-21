@@ -9,7 +9,7 @@ const IMAGE_URL = import.meta.env.VITE_IMAGE_URL
 const GET_REVIEWS = import.meta.env.VITE_GET_MYREVIEWS_ENDPOINT
 const DEL_REVIEW = import.meta.env.VITE_DEL_REVIEW_ENDPOINT
 const UPDATE_PASSWORD = import.meta.env.VITE_UPDATE_PASSWORD_ENDPOINT
-const UPLOAD_AVATAR = import.meta.env.VITE_UPLOAD_PROFILE_PIC_ENDPOINT
+const UPLOAD_AVATAR = import.meta.env.VITE_UPLOAD_PROFILE_PICTURE_ENDPOINT
 const DEL_AVATAR = import.meta.env.VITE_DEL_PROFILE_PIC_ENDPOINT
 
 const router = useRouter()
@@ -93,6 +93,8 @@ const handleAvatarUpload = async (event) => {
   const formData = new FormData()
   formData.append('profile_picture', file)
 
+  console.log(formData)
+
   isActionLoading.value = true
   try {
     const response = await fetch(`${API_URL}/${UPLOAD_AVATAR}`, {
@@ -102,9 +104,8 @@ const handleAvatarUpload = async (event) => {
     })
     const data = await response.json()
 
-    if (data.success && data.profilePicture) {
-      const cacheBuster = new Date().getTime()
-      const newAvatarUrl = `${data.profilePicture}?t=${cacheBuster}`
+    if (data.success) {
+      const newAvatarUrl = data.path
 
       userAvatarUrl.value = newAvatarUrl
       if (import.meta.client) {

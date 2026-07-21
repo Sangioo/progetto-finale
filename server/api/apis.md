@@ -70,7 +70,7 @@ Aggiorna la password dell'utente.
 
 Carica un'immagine del profilo per l'utente.
 
-- [ ] implementato
+- [x] implementato
 
 ### delete_profile_picture
 

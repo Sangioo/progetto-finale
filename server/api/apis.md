@@ -76,7 +76,7 @@ Carica un'immagine del profilo per l'utente.
 
 Rimuove l'immagine del profilo dall'utente.
 
-- [ ] implementato
+- [x] implementato
 
 ## Reviews
 

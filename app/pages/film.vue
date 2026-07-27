@@ -31,10 +31,20 @@ const isLoadingReviewAnimation = ref(false)
 const isErrorOpen = ref(false)
 const errorMessage = ref('')
 
-const currentUserAvatar = ref(sessionStorage.getItem('profilePicture') || null)
+const currentUserAvatar = ref(null)
 const isAuthenticated = ref(false)
 
 const isLocked = computed(() => !isAuthenticated.value)
+
+const syncAvatarFromStorage = () => {
+  if (!import.meta.client) return
+
+  try {
+    currentUserAvatar.value = localStorage.getItem('profilePicture') || null
+  } catch {
+    currentUserAvatar.value = null
+  }
+}
 
 const checkSession = async () => {
   try {
@@ -64,7 +74,7 @@ const getSessionUsername = () => {
 }
 
 const handleAvatarDynamicUpdate = () => {
-  currentUserAvatar.value = sessionStorage.getItem('profilePicture')
+  syncAvatarFromStorage()
 }
 
 const getAvatarUrl = (rev) => {
@@ -304,6 +314,7 @@ const formatDate = (timestamp) => {
 }
 
 onMounted(() => {
+  syncAvatarFromStorage()
   checkSession()
   if (movie.value && movie.value.watchStatus !== undefined) {
     localWatchStatus.value = movie.value.watchStatus
@@ -332,18 +343,11 @@ onUnmounted(() => {
           </div>
         </div>
       </Transition>
-      <ReviewPopup
-        :show="isReviewPopupOpen"
-        :review="selectedReviewForPopup"
-        @close="isReviewPopupOpen = false"
-      />
+      <ReviewPopup :show="isReviewPopupOpen" :review="selectedReviewForPopup" @close="isReviewPopupOpen = false" />
     </Teleport>
 
-    <div
-      class="backdrop-overlay"
-      v-if="movie?.backdrop_path"
-      :style="{ backgroundImage: `url(${IMAGE_URL}${movie.backdrop_path})` }"
-    ></div>
+    <div class="backdrop-overlay" v-if="movie?.backdrop_path"
+      :style="{ backgroundImage: `url(${IMAGE_URL}${movie.backdrop_path})` }"></div>
 
     <div class="content-container">
       <main class="main-content-area">
@@ -352,11 +356,7 @@ onUnmounted(() => {
         <div class="movie-hero-flex">
           <aside class="poster-section">
             <div class="poster-card">
-              <img
-                v-if="movie?.poster_path"
-                :src="`${IMAGE_URL}${movie.poster_path}`"
-                :alt="movie?.title"
-              />
+              <img v-if="movie?.poster_path" :src="`${IMAGE_URL}${movie.poster_path}`" :alt="movie?.title" />
               <div v-else class="no-poster">🎬</div>
               <div class="floating-badge" :class="getStatusClass(movie?.vote_average)">
                 ★ {{ movie?.vote_average?.toFixed(1) || '0.0' }}
@@ -380,17 +380,12 @@ onUnmounted(() => {
             </header>
 
             <div class="action-toolbar">
-              <button
-                @click="handleLiveRoomAction"
-                class="btn-live-room"
-                :class="{ 'live-active': movie?.isLive }"
-                :disabled="isLoadingRoom"
-              >
+              <button @click="handleLiveRoomAction" class="btn-live-room" :class="{ 'live-active': movie?.isLive }"
+                :disabled="isLoadingRoom">
                 <span class="live-indicator" v-if="movie?.isLive"></span>
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="btn-icon-live">
                   <path
-                    d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4zM14 13h-3v3H9v-3H6v-2h3V8h2v3h3v2z"
-                  />
+                    d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4zM14 13h-3v3H9v-3H6v-2h3V8h2v3h3v2z" />
                 </svg>
                 <span>{{
                   isLoadingRoom
@@ -402,35 +397,24 @@ onUnmounted(() => {
               </button>
 
               <div class="action-group-secondary">
-                <button
-                  class="btn-action"
-                  :class="{ 'is-active-wl': !swl && !isLocked, locked: isLocked }"
-                  @click="toggleWatchlist"
-                  :hidden="!swd && !isLocked"
-                  :title="
-                    isLocked
+                <button class="btn-action" :class="{ 'is-active-wl': !swl && !isLocked, locked: isLocked }"
+                  @click="toggleWatchlist" :hidden="!swd && !isLocked" :title="isLocked
                       ? 'Accedi per gestire la watchlist'
                       : swl
                         ? 'Aggiungi alla Watchlist'
                         : 'Rimuovi dalla Watchlist'
-                  "
-                >
+                    ">
                   <span class="icon">{{ !swl && !isLocked ? '−' : '+' }}</span>
                   <span class="label">Watchlist</span>
                 </button>
 
-                <button
-                  class="btn-action"
-                  :class="{ 'is-active-seen': !swd && !isLocked, locked: isLocked }"
-                  @click="toggleWatched"
-                  :title="
-                    isLocked
+                <button class="btn-action" :class="{ 'is-active-seen': !swd && !isLocked, locked: isLocked }"
+                  @click="toggleWatched" :title="isLocked
                       ? 'Accedi per segnare come visto'
                       : swd
                         ? 'Segna come Visto'
                         : 'Rimuovi da Visti'
-                  "
-                >
+                    ">
                   <span class="icon">{{ !swd && !isLocked ? '✓' : '👁' }}</span>
                   <span class="label">Visto</span>
                 </button>
@@ -468,39 +452,22 @@ onUnmounted(() => {
 
             <div class="editor-body">
               <div class="textarea-wrapper">
-                <textarea
-                  v-model="recensioneTesto"
-                  placeholder="Scrivi qui la tua recensione..."
-                  maxlength="1000"
-                  :disabled="isLoading"
-                ></textarea>
+                <textarea v-model="recensioneTesto" placeholder="Scrivi qui la tua recensione..." maxlength="1000"
+                  :disabled="isLoading"></textarea>
                 <div class="char-count">{{ recensioneTesto.length }}/1000</div>
               </div>
 
               <div class="rating-box-professional">
                 <div class="rating-interactive-side">
                   <span class="rating-label">Seleziona la tua valutazione</span>
-                  <div
-                    class="stars-container"
-                    :class="{ 'is-disabled': isLoading }"
-                    @mouseleave="hoverVoteStars = null"
-                  >
+                  <div class="stars-container" :class="{ 'is-disabled': isLoading }"
+                    @mouseleave="hoverVoteStars = null">
                     <template v-for="star in 5" :key="star">
                       <div class="star-item">
-                        <span
-                          class="star-half left"
-                          :class="{ active: displayVoteStars >= star - 0.5 }"
-                          @mouseover="hoverVoteStars = star - 0.5"
-                          @click="setRating(star - 0.5)"
-                          >★</span
-                        >
-                        <span
-                          class="star-half right"
-                          :class="{ active: displayVoteStars >= star }"
-                          @mouseover="hoverVoteStars = star"
-                          @click="setRating(star)"
-                          >★</span
-                        >
+                        <span class="star-half left" :class="{ active: displayVoteStars >= star - 0.5 }"
+                          @mouseover="hoverVoteStars = star - 0.5" @click="setRating(star - 0.5)">★</span>
+                        <span class="star-half right" :class="{ active: displayVoteStars >= star }"
+                          @mouseover="hoverVoteStars = star" @click="setRating(star)">★</span>
                       </div>
                     </template>
                   </div>
@@ -510,29 +477,17 @@ onUnmounted(() => {
                   <div class="voto-neutro-badge" :class="getStatusClass(voteForBackend)">
                     <span class="voto-label-mini">Voto</span>
                     <div class="voto-numbers">
-                      <input
-                        type="number"
-                        class="voto-input"
-                        :value="voteForBackend"
-                        @input="handleInputRating"
-                        @blur="handleInputBlur"
-                        min="0"
-                        max="10"
-                        step="1"
-                        :disabled="isLoading"
-                        title="Modifica a mano il voto"
-                      />
+                      <input type="number" class="voto-input" :value="voteForBackend" @input="handleInputRating"
+                        @blur="handleInputBlur" min="0" max="10" step="1" :disabled="isLoading"
+                        title="Modifica a mano il voto" />
                       <span class="voto-max">/10</span>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <button
-                @click="handleInviaRecensione"
-                class="btn-submit-evergreen"
-                :disabled="isLoading || !recensioneTesto.trim()"
-              >
+              <button @click="handleInviaRecensione" class="btn-submit-evergreen"
+                :disabled="isLoading || !recensioneTesto.trim()">
                 <span v-if="isLoading">Invio in corso...</span>
                 <span v-else>Pubblica Recensione</span>
               </button>
@@ -571,27 +526,18 @@ onUnmounted(() => {
 
           <div v-if="reviewsList.length > 0">
             <TransitionGroup name="fade-list" tag="div" class="list-container">
-              <div
-                v-for="rev in reviewsList"
-                :key="rev.id || rev.data_creazione"
-                class="comment-item clickable"
-                @click="apriPopupRecensione(rev)"
-              >
+              <div v-for="rev in reviewsList" :key="rev.id || rev.data_creazione" class="comment-item clickable"
+                @click="apriPopupRecensione(rev)">
                 <div class="comment-top">
                   <div class="user-info">
                     <div class="avatar-mini">
-                      <img
-                        v-if="
-                          (rev.profile_pic_ext ||
-                            rev.username?.toLowerCase().trim() ===
-                              getSessionUsername().toLowerCase().trim()) &&
-                          !rev.hasError
-                        "
-                        :src="getAvatarUrl(rev)"
-                        alt="Avatar utente"
-                        class="avatar-mini-img"
-                        @error="rev.hasError = true"
-                      />
+                      <img v-if="
+                        (rev.profile_pic_ext ||
+                          rev.username?.toLowerCase().trim() ===
+                          getSessionUsername().toLowerCase().trim()) &&
+                        !rev.hasError
+                      " :src="getAvatarUrl(rev)" alt="Avatar utente" class="avatar-mini-img"
+                        @error="rev.hasError = true" />
                       <template v-else>
                         {{ rev.username?.charAt(0).toUpperCase() }}
                       </template>
@@ -638,18 +584,14 @@ onUnmounted(() => {
   opacity: 0.28;
   pointer-events: none;
   z-index: 0;
-  mask-image: linear-gradient(
-    to bottom,
-    rgba(0, 0, 0, 1) 40%,
-    rgba(0, 0, 0, 0.4) 75%,
-    rgba(0, 0, 0, 0) 100%
-  );
-  -webkit-mask-image: linear-gradient(
-    to bottom,
-    rgba(0, 0, 0, 1) 40%,
-    rgba(0, 0, 0, 0.4) 75%,
-    rgba(0, 0, 0, 0) 100%
-  );
+  mask-image: linear-gradient(to bottom,
+      rgba(0, 0, 0, 1) 40%,
+      rgba(0, 0, 0, 0.4) 75%,
+      rgba(0, 0, 0, 0) 100%);
+  -webkit-mask-image: linear-gradient(to bottom,
+      rgba(0, 0, 0, 1) 40%,
+      rgba(0, 0, 0, 0.4) 75%,
+      rgba(0, 0, 0, 0) 100%);
 }
 
 .content-container {

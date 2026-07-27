@@ -19,16 +19,17 @@ const userReviews = ref([])
 const currentUsername = ref('')
 const isFetchingReviews = ref(false)
 
-const userAvatarUrl = useState('userAvatarUrl', () => {
-  if (import.meta.client) {
-    try {
-      return localStorage.getItem('profilePicture') || null
-    } catch {
-      return null
-    }
+const userAvatarUrl = ref(null)
+
+const syncAvatarFromStorage = () => {
+  if (!import.meta.client) return
+
+  try {
+    userAvatarUrl.value = localStorage.getItem('profilePicture') || null
+  } catch {
+    userAvatarUrl.value = null
   }
-  return null
-})
+}
 const fileInput = ref(null)
 const vecchiaPassword = ref('')
 const nuovaPassword = ref('')
@@ -266,7 +267,10 @@ const goToFilm = (review) => {
   router.push(`/reviews`)
 }
 
-onMounted(fetchUserReviews)
+onMounted(() => {
+  syncAvatarFromStorage()
+  fetchUserReviews()
+})
 </script>
 
 <template>

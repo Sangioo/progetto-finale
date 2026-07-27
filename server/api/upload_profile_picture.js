@@ -80,12 +80,28 @@ export default defineEventHandler(async (event) => {
 			.getPublicUrl(filePath);
 		const profilePicture = publicUrlData.publicUrl;
 
-		const { data, error } = await supabase.auth.admin.updateUserById(
-			user.sub,
+		const { error: userTableError } = await supabase.from("users").upsert(
 			{
-				user_metadata: { profile_picture: profilePicture },
+				id: user.sub,
+				email: user.email,
+				username: user?.user_metadata?.username || null,
+				profile_pic_url: profilePicture,
 			},
+			{ onConflict: "id" },
 		);
+
+		if (userTableError) {
+			console.error(userTableError);
+			await supabase.storage.from(AVATAR_BUCKET).remove([filePath]);
+			return {
+				success: false,
+				message: "Error updating profile picture in Supabase",
+			};
+		}
+
+		const { error } = await supabase.auth.admin.updateUserById(user.sub, {
+			user_metadata: { profile_picture: profilePicture },
+		});
 
 		if (error) {
 			console.error(error);

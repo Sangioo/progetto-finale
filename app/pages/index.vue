@@ -160,12 +160,12 @@ const handleRightClick = async (movie) => {
 
 const handleReviewsClick = (movie) => {
   sessionStorage.setItem('selectedMovie', JSON.stringify(movie))
-  router.push(`/reviews`)
+  navigateTo(`/film`)
 }
 
 const handleLogin = () => {
   showAuthModal.value = false
-  router.push('/login')
+  navigateTo('/login')
 }
 
 const closeAuthModal = () => {

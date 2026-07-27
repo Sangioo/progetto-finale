@@ -24,13 +24,8 @@
     <div v-else class="rooms-grid">
       <div v-for="room in rooms" :key="room.idFilm" class="room-card" @click="joinRoom(room)">
         <div class="poster-wrapper">
-          <img
-            v-if="room.poster_path"
-            :src="getPosterUrl(room.poster_path)"
-            :alt="room.title"
-            class="movie-poster"
-            @error="handleImageError"
-          />
+          <img v-if="room.poster_path" :src="getPosterUrl(room.poster_path)" :alt="room.title" class="movie-poster"
+            @error="handleImageError" />
           <div v-else class="poster-placeholder">
             <span>🎬</span>
           </div>
@@ -43,12 +38,10 @@
         <div class="room-details">
           <h3 class="movie-title" :title="room.title">{{ room.title }}</h3>
           <div class="movie-meta">
-            <span v-if="room.vote_average" class="movie-score"
-              >⭐ {{ Number(room.vote_average).toFixed(1) }}</span
-            >
+            <span v-if="room.vote_average" class="movie-score">⭐ {{ Number(room.vote_average).toFixed(1) }}</span>
             <span v-if="room.release_date" class="movie-year">{{
               room.release_date.substring(0, 4)
-            }}</span>
+              }}</span>
           </div>
 
           <div class="room-stats">
@@ -63,9 +56,6 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
-import { useRouter } from 'vue-router'
-
-const router = useRouter()
 
 const API_URL = import.meta.env.VITE_API_URL
 const IMAGE_URL = import.meta.env.VITE_IMAGE_URL
@@ -129,7 +119,7 @@ const joinRoom = async (room) => {
 
     const roomId = data.room_id || room.idFilm
     sessionStorage.setItem('currentRoomId', roomId)
-    router.push('/room')
+    navigateTo('/room')
   } catch (err) {
     console.error("Errore durante l'accesso alla stanza:", err)
     alert(err.message || 'Impossibile accedere alla Live Room.')

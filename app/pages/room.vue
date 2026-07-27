@@ -24,15 +24,10 @@
         </div>
 
         <div v-else class="messages-list">
-          <div
-            v-for="(msg, index) in messages"
-            :key="index"
-            class="message-item"
-            :class="{
-              'is-spoiler': msg.spoiler == 1 && !msg.revealed,
-              'is-me': msg.username == currentUsername,
-            }"
-          >
+          <div v-for="(msg, index) in messages" :key="index" class="message-item" :class="{
+            'is-spoiler': msg.spoiler == 1 && !msg.revealed,
+            'is-me': msg.username == currentUsername,
+          }">
             <div class="message-meta">
               <span class="message-username">
                 {{ msg.username == currentUsername ? 'Tu' : msg.username }}
@@ -58,14 +53,8 @@
 
       <footer class="input-area">
         <form @submit.prevent="sendMessage" class="message-form">
-          <input
-            v-model="newMessage"
-            type="text"
-            placeholder="Scrivi un messaggio (max 500 caratteri)..."
-            maxlength="500"
-            class="message-input"
-            :disabled="isSending"
-          />
+          <input v-model="newMessage" type="text" placeholder="Scrivi un messaggio (max 500 caratteri)..."
+            maxlength="500" class="message-input" :disabled="isSending" />
 
           <div class="form-actions">
             <div class="left-actions">
@@ -74,12 +63,7 @@
                 <span class="checkbox-text">Spoiler</span>
               </label>
 
-              <button
-                type="button"
-                @click="isSidebarOpen = true"
-                class="toggle-users-button"
-                title="Mostra spettatori"
-              >
+              <button type="button" @click="isSidebarOpen = true" class="toggle-users-button" title="Mostra spettatori">
                 👥 <span class="badge-count">{{ Object.keys(activeUsers).length }}</span>
               </button>
             </div>
@@ -117,13 +101,10 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted, nextTick } from 'vue'
-import { useRouter } from 'vue-router'
 
 const API_URL = import.meta.env.VITE_API_URL
 const CHAT_ENDPOINT = import.meta.env.VITE_CHAT_ENDPOINT
 const STOP_WATCHING_ENDPOINT = import.meta.env.VITE_STOP_WATCHING_ENDPOINT
-
-const router = useRouter()
 
 const currentUsername = ref(localStorage.getItem('username') || 'Tu')
 const messages = ref([])
@@ -155,7 +136,7 @@ const fetchChatData = async (isNew = false) => {
 
     if (response.status === 401) {
       clearInterval(pollingInterval)
-      router.push('/login')
+      navigateTo('/login')
       return
     }
 
@@ -262,7 +243,7 @@ const leaveRoom = async () => {
     console.error("Errore durante l'uscita dalla stanza:", err)
     console.error("Errore durante l'uscita dalla stanza:", err)
   } finally {
-    router.push('/live')
+    navigateTo('/live')
   }
 }
 

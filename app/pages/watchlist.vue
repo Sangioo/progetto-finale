@@ -3,7 +3,6 @@ import { onMounted, ref } from 'vue'
 import MovieCard from '@/components/moviecard.vue'
 
 const API_URL = import.meta.env.VITE_API_URL
-const SESSION_ENDPOINT = import.meta.env.VITE_SESSION_ENDPOINT
 const GET_WATCHLIST_ENDPOINT = import.meta.env.VITE_GET_WATCHLIST_ENDPOINT
 const DELETE_FROM_WATCHLIST_ENDPOINT = import.meta.env.VITE_DELETE_FROM_WATCHLIST_ENDPOINT
 const ADD_TO_WATCHED_ENDPOINT = import.meta.env.VITE_ADD_TO_WATCHED_ENDPOINT

@@ -1,6 +1,6 @@
 <script setup>
 import { computed, onUnmounted, ref, onMounted } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute } from 'vue-router'
 import ReviewPopup from '~/components/review_popup.vue'
 
 const IMAGE_URL = import.meta.env.VITE_IMAGE_URL
@@ -16,7 +16,6 @@ const ADD_TO_WATCHED_ENDPOINT = import.meta.env.VITE_ADD_TO_WATCHED_ENDPOINT
 const DELETE_FROM_WATCHED_ENDPOINT = import.meta.env.VITE_DELETE_FROM_WATCHED_ENDPOINT
 
 const route = useRoute()
-const router = useRouter()
 
 const userVoteStars = ref(3)
 const hoverVoteStars = ref(null)
@@ -243,7 +242,7 @@ const handleLiveRoomAction = async () => {
 
     const roomId = data.room_id || movie.value.id
     sessionStorage.setItem('currentRoomId', roomId)
-    router.push('/room')
+    navigateTo('/room')
   } catch (err) {
     console.error("Errore durante l'attivazione della Live Room:", err)
     errorMessage.value = err.message || 'Impossibile creare o accedere alla Live Room.'
@@ -351,7 +350,7 @@ onUnmounted(() => {
 
     <div class="content-container">
       <main class="main-content-area">
-        <button @click="router.back()" class="btn-back-top">← Torna ai film</button>
+        <button @click="navigateTo('/')" class="btn-back-top">← Torna ai film</button>
 
         <div class="movie-hero-flex">
           <aside class="poster-section">
@@ -399,10 +398,10 @@ onUnmounted(() => {
               <div class="action-group-secondary">
                 <button class="btn-action" :class="{ 'is-active-wl': !swl && !isLocked, locked: isLocked }"
                   @click="toggleWatchlist" :hidden="!swd && !isLocked" :title="isLocked
-                      ? 'Accedi per gestire la watchlist'
-                      : swl
-                        ? 'Aggiungi alla Watchlist'
-                        : 'Rimuovi dalla Watchlist'
+                    ? 'Accedi per gestire la watchlist'
+                    : swl
+                      ? 'Aggiungi alla Watchlist'
+                      : 'Rimuovi dalla Watchlist'
                     ">
                   <span class="icon">{{ !swl && !isLocked ? '−' : '+' }}</span>
                   <span class="label">Watchlist</span>
@@ -410,10 +409,10 @@ onUnmounted(() => {
 
                 <button class="btn-action" :class="{ 'is-active-seen': !swd && !isLocked, locked: isLocked }"
                   @click="toggleWatched" :title="isLocked
-                      ? 'Accedi per segnare come visto'
-                      : swd
-                        ? 'Segna come Visto'
-                        : 'Rimuovi da Visti'
+                    ? 'Accedi per segnare come visto'
+                    : swd
+                      ? 'Segna come Visto'
+                      : 'Rimuovi da Visti'
                     ">
                   <span class="icon">{{ !swd && !isLocked ? '✓' : '👁' }}</span>
                   <span class="label">Visto</span>

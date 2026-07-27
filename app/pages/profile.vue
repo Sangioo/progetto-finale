@@ -1,6 +1,5 @@
 <script setup>
 import { ref, onMounted, watch } from 'vue'
-import { useRouter } from 'vue-router'
 import BasePopup from '~/components/base_popup.vue'
 import ReviewPopup from '~/components/review_popup.vue'
 
@@ -12,7 +11,6 @@ const UPDATE_PASSWORD = import.meta.env.VITE_UPDATE_PASSWORD_ENDPOINT
 const UPLOAD_AVATAR = import.meta.env.VITE_UPLOAD_PROFILE_PICTURE_ENDPOINT
 const DEL_AVATAR = import.meta.env.VITE_DELETE_PROFILE_PICTURE_ENDPOINT
 
-const router = useRouter()
 const supabase = useSupabaseClient()
 const user = useSupabaseUser()
 
@@ -288,7 +286,7 @@ const goToFilm = (review) => {
     watchStatus: 2,
   }
   sessionStorage.setItem('selectedMovie', JSON.stringify(movieToSave))
-  router.push(`/reviews`)
+  navigateTo(`/film`)
 }
 
 watch(user, syncUsername, { immediate: true })
@@ -499,7 +497,7 @@ onMounted(() => {
             <div class="empty-bubble">✍️</div>
             <h4>Ancora nessuna recensione</h4>
             <br />
-            <button @click="router.push('/')" class="btn-redirect-home">Esplora Film</button>
+            <button @click="navigateTo('/')" class="btn-redirect-home">Esplora Film</button>
           </div>
         </section>
       </div>

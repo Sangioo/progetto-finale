@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import BasePopup from '~/components/base_popup.vue'
 import ReviewPopup from '~/components/review_popup.vue'
@@ -14,12 +14,36 @@ const DEL_AVATAR = import.meta.env.VITE_DELETE_PROFILE_PICTURE_ENDPOINT
 
 const router = useRouter()
 const supabase = useSupabaseClient()
+const user = useSupabaseUser()
 
 const userReviews = ref([])
 const currentUsername = ref('')
 const isFetchingReviews = ref(false)
 
 const userAvatarUrl = ref(null)
+
+const syncUsername = () => {
+  const metadataUsername = user.value?.user_metadata?.username
+  if (metadataUsername) {
+    currentUsername.value = metadataUsername
+    return
+  }
+
+  if (!import.meta.client) return
+
+  try {
+    const storedUser = sessionStorage.getItem('user')
+    if (storedUser && storedUser !== 'undefined' && storedUser !== 'null') {
+      const parsedUser = JSON.parse(storedUser)
+      currentUsername.value = parsedUser.username || ''
+      return
+    }
+  } catch {
+    // Fallback to empty username.
+  }
+
+  currentUsername.value = ''
+}
 
 const syncAvatarFromStorage = () => {
   if (!import.meta.client) return
@@ -267,9 +291,13 @@ const goToFilm = (review) => {
   router.push(`/reviews`)
 }
 
+watch(user, syncUsername, { immediate: true })
+
 onMounted(() => {
+  syncUsername()
   syncAvatarFromStorage()
   fetchUserReviews()
+  console.log('User:', user.value)
 })
 </script>
 

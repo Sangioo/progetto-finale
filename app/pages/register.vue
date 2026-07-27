@@ -33,6 +33,11 @@ const handleSignup = async () => {
     const { data, error } = await supabase.auth.signUp({
       email: email.value,
       password: password.value,
+      options: {
+        data: {
+          username: username.value,
+        },
+      },
     })
 
     if (error) {

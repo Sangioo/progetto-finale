@@ -10,7 +10,6 @@ definePageMeta({
 const supabase = useSupabaseClient()
 
 const email = ref('')
-const username = ref('')
 const password = ref('')
 const isLoading = ref(false)
 const errorMsg = ref('')
@@ -37,60 +36,6 @@ const handleLogin = async () => {
     isLoading.value = false
   }
 }
-/*
-import { reactive, ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-
-const API_URL = import.meta.env.VITE_API_URL
-const LOGIN_ENDPOINT = import.meta.env.VITE_LOGIN_ENDPOINT
-const SESSION_ENDPOINT = import.meta.env.VITE_SESSION_ENDPOINT
-
-const router = useRouter()
-const credentials = reactive({ username: '', password: '' })
-const errorMessage = ref('')
-const isLoading = ref(false)
-
-onMounted(async () => {
-  try {
-    const res = await fetch(`${API_URL}/${SESSION_ENDPOINT}`, {
-      credentials: 'include',
-    })
-    const data = await res.json()
-
-    if (data.authenticated) {
-      router.push('/')
-    }
-  } catch (err) {
-    console.error('Errore nel controllo della sessione:', err)
-  }
-})
-
-const handleLogin1 = async () => {
-  isLoading.value = true
-  errorMessage.value = ''
-
-  try {
-    const response = await fetch(`${API_URL}/${LOGIN_ENDPOINT}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
-      body: JSON.stringify(credentials),
-    })
-
-    const data = await response.json()
-
-    if (response.ok && data.success) {
-      window.location.href = '/'
-    } else {
-      errorMessage.value = data.message || 'Credenziali non valide.'
-    }
-  } catch (err) {
-    errorMessage.value = 'Errore di connessione.'
-  } finally {
-    isLoading.value = false
-  }
-}
-*/
 </script>
 
 <template>
@@ -104,12 +49,6 @@ const handleLogin1 = async () => {
           <div>
             <label for="email" class="form-label">Email</label>
             <input v-model="email" type="email" class="form-control" id="email" placeholder="es. user@example.com"
-              required />
-          </div>
-
-          <div>
-            <label for="username" class="form-label">Username</label>
-            <input v-model="username" type="text" class="form-control" id="username" placeholder="es. user1234"
               required />
           </div>
 

@@ -6,9 +6,9 @@ import {
 export default defineEventHandler(async (event) => {
 	const supabase = serverSupabaseServiceRole(event);
 	const user = await serverSupabaseUser(event);
-	const movieId = event.context.params.movieId;
-	const content = event.context.params.content;
-	const score = event.context.params.score;
+	const movieId = getQuery(event).movieId;
+	const content = getQuery(event).content;
+	const score = getQuery(event).score;
 
 	if (!user) {
 		return { success: false, message: "User not authenticated" };
@@ -26,8 +26,7 @@ export default defineEventHandler(async (event) => {
 			.from("reviews")
 			.select("*")
 			.eq("user", user.sub)
-			.eq("movie", movieId)
-			.single();
+			.eq("movie", movieId);
 
 		if (userError) {
 			console.error(userError);
@@ -37,7 +36,7 @@ export default defineEventHandler(async (event) => {
 			};
 		}
 
-		if (userData) {
+		if (userData.length > 0) {
 			return {
 				success: false,
 				message: "User has already reviewed this movie",

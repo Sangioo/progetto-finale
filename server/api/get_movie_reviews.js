@@ -2,9 +2,8 @@ import { serverSupabaseServiceRole } from "#supabase/server";
 
 export default defineEventHandler(async (event) => {
 	const supabase = serverSupabaseServiceRole(event);
-	const movieId = event.context.params.movieId;
+	const movieId = getQuery(event).movieId;
 
-	console.log("Fetching reviews for movie ID:", movieId);
 	if (!movieId) {
 		console.error("Movie ID is missing in the request parameters.");
 		return {
@@ -17,7 +16,7 @@ export default defineEventHandler(async (event) => {
 		const { data, error } = await supabase
 			.from("reviews")
 			.select("*")
-			.eq("movie_id", movieId);
+			.eq("movie", movieId);
 
 		if (error) {
 			console.error(error);

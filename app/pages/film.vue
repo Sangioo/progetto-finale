@@ -45,20 +45,6 @@ const syncAvatarFromStorage = () => {
   }
 }
 
-const checkSession = async () => {
-  try {
-    const response = await fetch(`${API_URL}/${SESSION_ENDPOINT}`, {
-      method: 'GET',
-      credentials: 'include',
-    })
-    const data = await response.json()
-    isAuthenticated.value = data.authenticated
-  } catch (error) {
-    console.error('Errore durante la verifica della sessione:', error)
-    isAuthenticated.value = false
-  }
-}
-
 const getSessionUsername = () => {
   const val = sessionStorage.getItem('user')
   if (val && val !== 'undefined' && val !== 'null') {
@@ -130,11 +116,12 @@ const swd = computed(() => localWatchStatus.value !== 2)
 const loadReviews = async () => {
   isFetchingReviews.value = true
   try {
-    const response = await fetch(`${API_URL}/${GET_REVIEWS}?idFilm=${movie.value.id}`, {
+    const response = await fetch(`${API_URL}/${GET_REVIEWS}?movieId=${movie.value.id}`, {
       method: 'GET',
       credentials: 'include',
     })
-    const data = await response.json()
+    const payload = await response.json()
+    const data = payload.data || []
     reviewsList.value = Array.isArray(data) ? data.map((rev) => ({ ...rev, hasError: false })) : []
   } catch (e) {
     console.error('Errore caricamento recensioni:', e)
@@ -148,7 +135,7 @@ const handleInviaRecensione = async () => {
 
   isLoading.value = true
   const params = new URLSearchParams({
-    idFilm: movie.value.id,
+    movieId: movie.value.id,
     score: Math.round(userVoteStars.value * 2),
     content: recensioneTesto.value.trim(),
   })
@@ -183,7 +170,7 @@ const handleInviaRecensione = async () => {
 
 async function callActionApi(endpoint, idFilm) {
   try {
-    const url = `${API_URL}/${endpoint}?idFilm=${idFilm}`
+    const url = `${API_URL}/${endpoint}?movieId=${idFilm}`
     const response = await fetch(url, { method: 'GET', credentials: 'include' })
     if (!response.ok) throw new Error('Azione fallita')
   } catch (error) {
@@ -314,7 +301,6 @@ const formatDate = (timestamp) => {
 
 onMounted(() => {
   syncAvatarFromStorage()
-  checkSession()
   if (movie.value && movie.value.watchStatus !== undefined) {
     localWatchStatus.value = movie.value.watchStatus
   }

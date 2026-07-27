@@ -22,6 +22,28 @@ export default defineEventHandler(async (event) => {
 	}
 
 	try {
+		const { data: userData, error: userError } = await supabase
+			.from("reviews")
+			.select("*")
+			.eq("user", user.sub)
+			.eq("movie", movieId)
+			.single();
+
+		if (userError) {
+			console.error(userError);
+			return {
+				success: false,
+				message: "Error checking existing review",
+			};
+		}
+
+		if (userData) {
+			return {
+				success: false,
+				message: "User has already reviewed this movie",
+			};
+		}
+
 		const { data, error } = await supabase.from("reviews").insert({
 			user: user.sub,
 			movie: movieId,

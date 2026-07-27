@@ -96,7 +96,7 @@ Ritorna le recensioni di un film.
 
 Aggiunge una recensione per un film.
 
-- [ ] implementato
+- [x] implementato
 
 ### delete_review
 

@@ -9,7 +9,7 @@ export default defineEventHandler(async (event) => {
 	try {
 		const { data, error } = await supabase
 			.from("reviews")
-			.select("movies:movies(*)")
+			.select("movies:movies(*), content, score, time")
 			.eq("user", user.sub)
 			.order("time", { ascending: false });
 

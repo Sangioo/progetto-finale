@@ -74,7 +74,6 @@ const fetchUserReviews = async () => {
     })
     const payload = await response.json()
     const data = payload.data || []
-
     userReviews.value = Array.isArray(data) ? data : data.reviews || []
   } catch (e) {
     console.error(e)
@@ -116,8 +115,6 @@ const handleAvatarUpload = async (event) => {
 
   const formData = new FormData()
   formData.append('profile_picture', file)
-
-  console.log(formData)
 
   isActionLoading.value = true
   try {
@@ -296,7 +293,6 @@ onMounted(() => {
   syncUsername()
   syncAvatarFromStorage()
   fetchUserReviews()
-  console.log('User:', user.value)
 })
 </script>
 
@@ -444,8 +440,8 @@ onMounted(() => {
             <div v-for="review in userReviews" :key="review.idFilm" class="dashboard-review-row">
               <div class="movie-details-side">
                 <div class="movie-thumb-wrapper" @click="goToFilm(review)">
-                  <img v-if="review.poster_path" :src="`${IMAGE_URL}${review.poster_path}`" :alt="review.title"
-                    class="movie-thumb-img" />
+                  <img v-if="review.movies.poster_path" :src="`${IMAGE_URL}${review.movies.poster_path}`"
+                    :alt="review.title" class="movie-thumb-img" />
                   <div v-else class="movie-thumb-placeholder">🎬</div>
 
                   <div class="movie-thumb-overlay">
@@ -460,7 +456,7 @@ onMounted(() => {
 
                 <div class="movie-meta-titles">
                   <span class="movie-link-title" @click="goToFilm(review)">
-                    {{ review.title || 'Dettagli Film' }}
+                    {{ review.movies.title || 'Dettagli Film' }}
                   </span>
                   <span class="meta-date">
                     {{ formatDate(review.time) }}

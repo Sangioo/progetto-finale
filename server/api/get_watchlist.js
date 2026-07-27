@@ -6,7 +6,6 @@ import {
 export default defineEventHandler(async (event) => {
 	const supabase = serverSupabaseServiceRole(event);
 	const user = await serverSupabaseUser(event);
-	console.log("User ID:", user.sub);
 
 	if (!user) {
 		return { success: false, message: "User not authenticated" };
@@ -26,8 +25,6 @@ export default defineEventHandler(async (event) => {
 				message: "Error fetching watchlist from Supabase",
 			};
 		}
-		console.log("Data from Supabase:", data);
-		console.log(data.length, "movies returned from Supabase");
 
 		const movies = data.map((item) => {
 			item.genre_ids = JSON.parse(item.genre_ids);

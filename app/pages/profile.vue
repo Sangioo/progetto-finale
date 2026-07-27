@@ -72,7 +72,8 @@ const fetchUserReviews = async () => {
       method: 'GET',
       credentials: 'include',
     })
-    const data = await response.json()
+    const payload = await response.json()
+    const data = payload.data || []
 
     userReviews.value = Array.isArray(data) ? data : data.reviews || []
   } catch (e) {

@@ -6,8 +6,7 @@ import {
 export default defineEventHandler(async (event) => {
 	const supabase = serverSupabaseServiceRole();
 	const user = await serverSupabaseUser(event);
-	const movieId = event.context.params.movieId;
-	console.log("User ID:", user.sub, ", Movie ID:", movieId);
+	const movieId = getQuery(event).movieId;
 
 	if (!user) {
 		return { success: false, message: "User not authenticated" };

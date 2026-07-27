@@ -102,7 +102,7 @@ Aggiunge una recensione per un film.
 
 Cancella una recensione per un film.
 
-- [ ] implementato
+- [x] implementato
 
 ## Chat
 

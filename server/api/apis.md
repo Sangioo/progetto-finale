@@ -90,7 +90,7 @@ Ritorna le recensioni dell'utente.
 
 Ritorna le recensioni di un film.
 
-- [ ] implementato
+- [x] implementato
 
 ### add_review
 

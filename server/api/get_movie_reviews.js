@@ -15,7 +15,7 @@ export default defineEventHandler(async (event) => {
 	try {
 		const { data, error } = await supabase
 			.from("reviews")
-			.select("*")
+			.select("*, reviewer:users(username, profile_pic_url)")
 			.eq("movie", movieId);
 
 		if (error) {
@@ -25,7 +25,13 @@ export default defineEventHandler(async (event) => {
 				message: "Error fetching movie reviews from Supabase",
 			};
 		}
-		return { success: true, data };
+		const enrichedData = data.map(({ reviewer, ...review }) => ({
+			...review,
+			username: reviewer?.username || null,
+			profile_pic_url: reviewer?.profile_pic_url || null,
+		}));
+
+		return { success: true, data: enrichedData };
 	} catch (error) {
 		console.error("Error fetching movie reviews:", error);
 		throw error;

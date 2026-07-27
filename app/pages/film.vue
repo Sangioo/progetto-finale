@@ -289,7 +289,7 @@ const getStatusClass = (val) => {
 
 const formatDate = (timestamp) => {
   if (!timestamp) return ''
-  const dateObj = new Date(Number(timestamp))
+  const dateObj = new Date(timestamp)
   return dateObj.toLocaleString('it-IT', {
     day: '2-digit',
     month: '2-digit',
@@ -511,18 +511,13 @@ onUnmounted(() => {
 
           <div v-if="reviewsList.length > 0">
             <TransitionGroup name="fade-list" tag="div" class="list-container">
-              <div v-for="rev in reviewsList" :key="rev.id || rev.data_creazione" class="comment-item clickable"
+              <div v-for="rev in reviewsList" :key="rev.id || rev.time" class="comment-item clickable"
                 @click="apriPopupRecensione(rev)">
                 <div class="comment-top">
                   <div class="user-info">
                     <div class="avatar-mini">
-                      <img v-if="
-                        (rev.profile_pic_ext ||
-                          rev.username?.toLowerCase().trim() ===
-                          getSessionUsername().toLowerCase().trim()) &&
-                        !rev.hasError
-                      " :src="getAvatarUrl(rev)" alt="Avatar utente" class="avatar-mini-img"
-                        @error="rev.hasError = true" />
+                      <img v-if="rev.profile_pic_url" :src="rev.profile_pic_url" alt="Avatar utente"
+                        class="avatar-mini-img" @error="rev.hasError = true" />
                       <template v-else>
                         {{ rev.username?.charAt(0).toUpperCase() }}
                       </template>
@@ -530,7 +525,7 @@ onUnmounted(() => {
 
                     <div class="user-text">
                       <span class="username">{{ rev.username }}</span>
-                      <span class="date">{{ formatDate(rev.data_creazione) }}</span>
+                      <span class="date">{{ formatDate(rev.time) }}</span>
                     </div>
                   </div>
                   <div class="score-pill" :class="getStatusClass(rev.score)">

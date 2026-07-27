@@ -2,10 +2,11 @@ import { serverSupabaseServiceRole } from "#supabase/server";
 
 export default defineEventHandler(async (event) => {
 	const supabase = serverSupabaseServiceRole(event);
-	const { movieId } = event.context.params.movieId;
+	const movieId = event.context.params.movieId;
 
+	console.log("Fetching reviews for movie ID:", movieId);
 	if (!movieId) {
-		console.log("Movie ID is missing in the request parameters.");
+		console.error("Movie ID is missing in the request parameters.");
 		return {
 			success: false,
 			message: "Movie ID is required",

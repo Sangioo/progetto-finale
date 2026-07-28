@@ -8,7 +8,6 @@ const API_URL = import.meta.env.VITE_API_URL
 const BASE_URL = import.meta.env.VITE_BASE_URL
 const GET_REVIEWS = import.meta.env.VITE_GET_REVIEWS_ENDPOINT
 const ADD_REVIEW = import.meta.env.VITE_ADD_REVIEW_ENDPOINT
-const SESSION_ENDPOINT = import.meta.env.VITE_SESSION_ENDPOINT
 const START_WATCHING_ENDPOINT = import.meta.env.VITE_START_WATCHING_ENDPOINT
 const ADD_TO_WATCHLIST_ENDPOINT = import.meta.env.VITE_ADD_TO_WATCHLIST_ENDPOINT
 const DELETE_FROM_WATCHLIST_ENDPOINT = import.meta.env.VITE_DELETE_FROM_WATCHLIST_ENDPOINT
@@ -45,37 +44,8 @@ const syncAvatarFromStorage = () => {
   }
 }
 
-const getSessionUsername = () => {
-  const val = sessionStorage.getItem('user')
-  if (val && val !== 'undefined' && val !== 'null') {
-    try {
-      const parsed = JSON.parse(val)
-      return parsed.username || ''
-    } catch (e) {
-      return val
-    }
-  }
-  return ''
-}
-
 const handleAvatarDynamicUpdate = () => {
   syncAvatarFromStorage()
-}
-
-const getAvatarUrl = (rev) => {
-  if (!rev.username) return ''
-  const name = rev.username.toLowerCase().trim()
-  const localUser = getSessionUsername().toLowerCase().trim()
-
-  if (name === localUser && currentUserAvatar.value) {
-    return currentUserAvatar.value
-  }
-
-  if (!rev.profile_pic_ext) return ''
-  const ext = rev.profile_pic_ext.replace(/^\./, '').trim()
-  const folder = ext.includes('/') ? '' : 'img/'
-  const cacheBuster = new Date().getTime()
-  return `${BASE_URL}/uploads/${folder}${rev.username}.${ext}?t=${cacheBuster}`
 }
 
 const displayVoteStars = computed(() =>
@@ -213,26 +183,41 @@ const toggleWatched = async () => {
   await callActionApi(endpoint, movie.value.id)
 }
 
+// const handleLiveRoomAction = async () => {
+//   if (!movie.value || !movie.value.id) return
+
+//   isLoadingRoom.value = true
+//   const params = new URLSearchParams({ idFilm: movie.value.id })
+
+//   try {
+//     const response = await fetch(`${API_URL}/${START_WATCHING_ENDPOINT}?${params.toString()}`, {
+//       method: 'GET',
+//     })
+//     const data = await response.json()
+//     if (!response.ok || data.error)
+//       throw new Error(data.error || 'Impossibile avviare la Live Room')
+
+//     const roomId = data.room_id || movie.value.id
+//     sessionStorage.setItem('currentRoomId', roomId)
+//     navigateTo('/room')
+//   } catch (err) {
+//     console.error("Errore durante l'attivazione della Live Room:", err)
+//     errorMessage.value = err.message || 'Impossibile creare o accedere alla Live Room.'
+//     isErrorOpen.value = true
+//   } finally {
+//     isLoadingRoom.value = false
+//   }
+// }
+
 const handleLiveRoomAction = async () => {
   if (!movie.value || !movie.value.id) return
-
   isLoadingRoom.value = true
-  const params = new URLSearchParams({ idFilm: movie.value.id })
 
   try {
-    const response = await fetch(`${API_URL}/${START_WATCHING_ENDPOINT}?${params.toString()}`, {
-      method: 'GET',
-    })
-    const data = await response.json()
-    if (!response.ok || data.error)
-      throw new Error(data.error || 'Impossibile avviare la Live Room')
-
-    const roomId = data.room_id || movie.value.id
-    sessionStorage.setItem('currentRoomId', roomId)
-    navigateTo('/room')
-  } catch (err) {
-    console.error("Errore durante l'attivazione della Live Room:", err)
-    errorMessage.value = err.message || 'Impossibile creare o accedere alla Live Room.'
+    navigateTo({ path: '/room', query: { idFilm: movie.value.id } })
+  } catch (error) {
+    console.error("Errore durante l'attivazione della Live Room:", error)
+    errorMessage.value = error.message || 'Impossibile creare o accedere alla Live Room.'
     isErrorOpen.value = true
   } finally {
     isLoadingRoom.value = false

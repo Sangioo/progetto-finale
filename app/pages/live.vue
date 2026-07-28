@@ -56,6 +56,7 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
+import { createClient } from '@supabase/supabase-js'
 
 const API_URL = import.meta.env.VITE_API_URL
 const IMAGE_URL = import.meta.env.VITE_IMAGE_URL
@@ -66,6 +67,12 @@ const rooms = ref([])
 const isLoading = ref(true)
 const error = ref(null)
 let refreshInterval = null
+
+const runtimeConfig = useRuntimeConfig()
+const supabase = createClient(
+  runtimeConfig.public.supabaseUrl,
+  runtimeConfig.public.supabaseKey
+)
 
 const getPosterUrl = (path) => {
   if (!path) return ''
@@ -126,13 +133,21 @@ const joinRoom = async (room) => {
   }
 }
 
+const channel = supabase
+  .channel('schema-db-changes')
+  .on('postgres_changes', { event: '*', schema: 'public', table: 'rooms' },
+    (payload) => {
+      console.log('Change received!', payload)
+    })
+  .subscribe()
+
 onMounted(() => {
-  fetchLiveRooms()
-  refreshInterval = setInterval(fetchLiveRooms, 3000)
+  // fetchLiveRooms()
+  // refreshInterval = setInterval(fetchLiveRooms, 3000)
 })
 
 onUnmounted(() => {
-  if (refreshInterval) clearInterval(refreshInterval)
+  // if (refreshInterval) clearInterval(refreshInterval)
 })
 </script>
 

@@ -101,12 +101,14 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted, nextTick } from 'vue'
+import { createClient } from '@supabase/supabase-js'
+import { useRoute } from 'vue-router'
 
-const API_URL = import.meta.env.VITE_API_URL
-const CHAT_ENDPOINT = import.meta.env.VITE_CHAT_ENDPOINT
-const STOP_WATCHING_ENDPOINT = import.meta.env.VITE_STOP_WATCHING_ENDPOINT
+const route = useRoute()
 
-const currentUsername = ref(localStorage.getItem('username') || 'Tu')
+const user = useSupabaseUser()
+
+const currentUsername = ref(user.value?.user_metadata?.username)
 const messages = ref([])
 const activeUsers = ref({})
 const newMessage = ref('')
@@ -117,133 +119,71 @@ const error = ref(null)
 const messagesAreaRef = ref(null)
 const isSidebarOpen = ref(false)
 
-let pollingInterval = null
+const runtimeConfig = useRuntimeConfig()
+const supabase = createClient(
+  runtimeConfig.public.supabaseUrl,
+  runtimeConfig.public.supabaseKey
+)
+
+const channel = supabase.channel(`room:${route.query.idFilm}:messages`, {
+  config: {
+    broadcast: {
+      self: true,
+    },
+  },
+})
+
+const subscribeToChannel = () => {
+  channel
+    .on('broadcast', { event: '*' }, (payload) => {
+      if (payload.event === 'new_message') {
+        messages.value.push(payload.payload)
+        scrollToBottom()
+      } else if (payload.event === 'user_joined' || payload.event === 'user_left') {
+        activeUsers.value = payload.payload.activeUsers
+      }
+    })
+    .subscribe((status) => {
+      console.log('Channel status:', status)
+    })
+}
+
+const unsubscribeFromChannel = () => {
+  channel.unsubscribe()
+}
+
+const sendMessageToChannel = async (message) => {
+  try {
+    await channel.send({
+      type: 'broadcast',
+      event: 'new_message',
+      payload: message,
+    })
+  } catch (error) {
+    console.error('Errore durante l\'invio del messaggio al canale:', error)
+  }
+}
+
+const sendMessage = () => {
+  const textToSend = newMessage.value.trim()
+
+  sendMessageToChannel({
+    username: currentUsername.value,
+    message: textToSend,
+    timestamp: Math.floor(Date.now()),
+    spoiler: sendAsSpoiler.value ? 1 : 0,
+  })
+}
+
+const leaveRoom = () => {
+  unsubscribeFromChannel()
+  navigateTo('/live')
+}
 
 const scrollToBottom = async () => {
   await nextTick()
   if (messagesAreaRef.value) {
     messagesAreaRef.value.scrollTop = messagesAreaRef.value.scrollHeight
-  }
-}
-
-const fetchChatData = async (isNew = false) => {
-  try {
-    const urlParam = isNew ? '?new=true' : ''
-    const response = await fetch(`${API_URL}/${CHAT_ENDPOINT}${urlParam}`, {
-      method: 'GET',
-      credentials: 'include',
-    })
-
-    if (response.status === 401) {
-      clearInterval(pollingInterval)
-      navigateTo('/login')
-      return
-    }
-
-    if (!response.ok) throw new Error(`Errore HTTP: ${response.status}`)
-    if (!response.ok) throw new Error(`Errore HTTP: ${response.status}`)
-
-    const data = await response.json()
-
-    if (data.success) {
-      if (data.title) {
-        if (data.title.length >= 36) {
-          document.getElementById('title').innerHTML = data.title.slice(0, 35) + ' ...'
-        } else {
-          document.getElementById('title').innerHTML = data.title
-        }
-      }
-
-      error.value = null
-      activeUsers.value = data.active_users
-
-      if (data.messages && data.messages.length > 0) {
-        const formattedNewMessages = data.messages.map((msg) => ({
-          ...msg,
-          revealed: false,
-        }))
-
-        if (isNew) {
-          messages.value.push(...formattedNewMessages.reverse())
-          await scrollToBottom()
-        } else {
-          messages.value = formattedNewMessages.reverse()
-          await scrollToBottom()
-        }
-      }
-    } else {
-      error.value = data.message || 'Impossibile sincronizzare la chat.'
-      error.value = data.message || 'Impossibile sincronizzare la chat.'
-    }
-  } catch (err) {
-    console.error('Errore durante il recupero della chat:', err)
-    if (!isNew) error.value = 'Errore di connessione. Impossibile caricare la chat.'
-    console.error('Errore durante il recupero della chat:', err)
-    if (!isNew) error.value = 'Errore di connessione. Impossibile caricare la chat.'
-  } finally {
-    isLoading.value = false
-  }
-}
-
-const sendMessage = async () => {
-  if (!newMessage.value.trim() || isSending.value) return
-
-  isSending.value = false
-  const textToSend = newMessage.value.trim()
-  const spoilerFlag = sendAsSpoiler.value ? '&spoiler=1' : ''
-
-  try {
-    isSending.value = true
-
-    const response = await fetch(
-      `${API_URL}/chat/message.php?content=${encodeURIComponent(textToSend)}${spoilerFlag}`,
-      {
-        method: 'GET',
-        credentials: 'include',
-      },
-    )
-
-    if (!response.ok) throw new Error('Impossibile inviare il messaggio')
-    if (!response.ok) throw new Error('Impossibile inviare il messaggio')
-
-    const data = await response.json()
-
-    if (data.success) {
-      messages.value.push({
-        username: currentUsername.value,
-        username: currentUsername.value,
-        message: textToSend,
-        timestamp: Math.floor(Date.now()),
-        isSpoiler: sendAsSpoiler.value,
-        revealed: true,
-      })
-
-      newMessage.value = ''
-      sendAsSpoiler.value = false
-      await scrollToBottom()
-    }
-  } catch (err) {
-    console.error("Errore durante l'invio del messaggio:", err)
-    alert('Impossibile inviare il messaggio. Riprova.')
-    console.error("Errore durante l'invio del messaggio:", err)
-    alert('Impossibile inviare il messaggio. Riprova.')
-  } finally {
-    isSending.value = false
-  }
-}
-
-const leaveRoom = async () => {
-  try {
-    clearInterval(pollingInterval)
-    await fetch(`${API_URL}/${STOP_WATCHING_ENDPOINT}`, {
-      method: 'GET',
-      credentials: 'include',
-    })
-  } catch (err) {
-    console.error("Errore durante l'uscita dalla stanza:", err)
-    console.error("Errore durante l'uscita dalla stanza:", err)
-  } finally {
-    navigateTo('/live')
   }
 }
 
@@ -254,15 +194,34 @@ const formatTime = (timestamp) => {
 }
 
 onMounted(async () => {
-  await fetchChatData(false)
-  pollingInterval = setInterval(() => {
-    fetchChatData(true)
-  }, 2000)
+  console.log(route.query.idFilm)
+  const { data, error } = await supabase
+    .from('rooms')
+    .insert([
+      {
+        movie: route.query.idFilm,
+        user: user.value.sub,
+      }
+    ])
+  if (error) {
+    console.error('Errore durante l\'unione alla stanza:', error)
+  } else {
+    console.log('Unito alla stanza con successo:', data)
+  }
+  subscribeToChannel()
 })
 
 onUnmounted(() => {
-  if (pollingInterval) {
-    clearInterval(pollingInterval)
+  unsubscribeFromChannel()
+  const { data, error } = supabase
+    .from('rooms')
+    .delete()
+    .eq('movie', route.query.idFilm)
+    .eq('user', user.value.sub)
+  if (error) {
+    console.error('Errore durante l\'uscita dalla stanza:', error)
+  } else {
+    console.log('Uscito dalla stanza con successo:', data)
   }
 })
 </script>

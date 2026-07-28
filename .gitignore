@@ -16,7 +16,9 @@ logs
 # Misc
 .DS_Store
 .fleet
+.agents
 .idea
+skills-lock.json
 
 # Local env files
 .env

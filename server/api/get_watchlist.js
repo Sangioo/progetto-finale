@@ -14,7 +14,7 @@ export default defineEventHandler(async (event) => {
 	try {
 		const { data, error } = await supabase
 			.from("watch")
-			.select("movie:movies(*)")
+			.select("movies:movies(*)")
 			.eq("user", user.sub)
 			.eq("watched", false);
 
@@ -27,13 +27,17 @@ export default defineEventHandler(async (event) => {
 		}
 
 		const movies = data.map((item) => {
-			item.genre_ids = JSON.parse(item.genre_ids);
+			item.movies.genre_ids = JSON.parse(item.movies.genre_ids);
+			item = item.movies; // Extract the movies object from the wrapper
 			return item;
 		});
 
 		return { success: true, movies };
 	} catch (error) {
 		console.error(error);
-		return { success: false, message: "Error fetching movies from TMDB" };
+		return {
+			success: false,
+			message: "Error fetching movies from Supabase",
+		};
 	}
 });

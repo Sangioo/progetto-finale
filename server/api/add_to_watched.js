@@ -4,7 +4,7 @@ import {
 } from "#supabase/server";
 
 export default defineEventHandler(async (event) => {
-	const supabase = serverSupabaseServiceRole();
+	const supabase = serverSupabaseServiceRole(event);
 	const user = await serverSupabaseUser(event);
 	const movieId = getQuery(event).movieId;
 

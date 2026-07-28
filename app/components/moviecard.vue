@@ -1,8 +1,8 @@
 <script setup>
 const props = defineProps({
   movie: { type: Object, required: true },
-  swl: { type: Boolean, default: true },
-  swd: { type: Boolean, default: true },
+  inWatchlist: { type: Boolean, default: false },
+  inWatched: { type: Boolean, default: false },
   isLocked: { type: Boolean, default: false },
 })
 const emit = defineEmits(['left-click', 'right-click', 'reviews-click'])
@@ -15,7 +15,7 @@ const handleCardClick = () => {
 
 <template>
   <div
-    class="group bg-white radius-3xl overflow-hidden flex flex-col transition-all duration-300 border border-alabaster-grey shadow relative cursor-pointer hover:shadow-lg hover:transform hover:-translate-y-2"
+    class="group bg-white rounded-2xl overflow-hidden flex flex-col transition-all duration-300 border border-alabaster-grey shadow relative cursor-pointer hover:shadow-lg hover:transform hover:-translate-y-2"
     @click="handleCardClick">
     <div class="relative aspect-2/3 overflow-hidden">
       <img :src="movie.poster_path ? `${IMAGE_URL}${movie.poster_path}` : '/placeholder.png'"
@@ -50,19 +50,15 @@ const handleCardClick = () => {
       <div class="flex gap-2">
         <button
           class="flex-1 flex flex-col items-center py-2 px-0 bg-transparent border border-alabaster-grey rounded-xl cursor-pointer transition-all duration-300 text-gray-500 hover:bg-alabaster-grey hover:border-mint-leaf hover:text-evergreen"
-          :class="{ 'bg-evergreen border-evergreen text-white': !swl && !isLocked, 'cursor-not-allowed opacity-60 filter-grayscale hover:shadow-sm': isLocked }"
-          @click.stop="emit('left-click', movie.id)" :hidden="!swd && !isLocked"
-          :title="isLocked ? 'Accedi per gestire la watchlist' : swl ? 'Aggiungi' : 'Rimuovi'">
-          <span class="text-lg font-bold">{{ !swl && !isLocked ? '-' : '+' }}</span>
+          @click.stop="emit('left-click', movie.id)" :hidden="inWatched" :title="!inWatchlist ? 'Aggiungi' : 'Rimuovi'">
+          <span class="text-lg font-bold">{{ inWatchlist ? '-' : '+' }}</span>
           <span class="text-xs font-bold uppercase tracking-[0.5px]">Watchlist</span>
         </button>
 
         <button
           class="flex-1 flex flex-col items-center py-2 px-0 bg-transparent border border-alabaster-grey rounded-xl cursor-pointer transition-all duration-300 text-gray-500 hover:bg-alabaster-grey hover:border-mint-leaf hover:text-evergreen"
-          :class="{ 'bg-mint-leaf border-mint-leaf text-white': !swd && !isLocked, 'cursor-not-allowed opacity-60 filter-grayscale hover:shadow-sm': isLocked }"
-          @click.stop="emit('right-click', movie.id)"
-          :title="isLocked ? 'Accedi per segnare come visto' : swd ? 'Visto' : 'Rimosso'">
-          <span class="text-lg font-bold">{{ !swd && !isLocked ? '✓' : '👁' }}</span>
+          @click.stop="emit('right-click', movie.id)" :title="!inWatched ? 'Visto' : 'Rimosso'">
+          <span class="text-lg font-bold">{{ inWatched ? '✓' : '👁' }}</span>
           <span class="text-xs font-bold uppercase tracking-[0.5px]">Visto</span>
         </button>
       </div>

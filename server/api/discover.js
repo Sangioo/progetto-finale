@@ -1,4 +1,7 @@
-import { serverSupabaseServiceRole } from "#supabase/server";
+import {
+	serverSupabaseServiceRole,
+	serverSupabaseUser,
+} from "#supabase/server";
 
 export default defineEventHandler(async (event) => {
 	const defaultParams = {
@@ -9,6 +12,7 @@ export default defineEventHandler(async (event) => {
 
 	const supabase = serverSupabaseServiceRole(event);
 	const config = useRuntimeConfig();
+	const user = await serverSupabaseUser(event);
 
 	const query = { ...defaultParams, ...getQuery(event) };
 
@@ -42,14 +46,32 @@ export default defineEventHandler(async (event) => {
 		const { data, error } = await supabase
 			.from("movies")
 			.upsert(movies)
-			.select();
+			.select("*, watch:watch(*)")
+			.eq("user", user.sub);
 
 		if (error) {
 			console.error(error);
 			return { error: "Error inserting movies into Supabase" };
 		}
 
-		return data;
+		const toReturn = data.map((movie) => {
+			const watched = movie?.watch[0]?.watched;
+			let watchStatus;
+			if (watchStatus === undefined) {
+				watchStatus = 0;
+			} else if (watched) {
+				watchStatus = 2;
+			} else {
+				watchStatus = 1;
+			}
+			return {
+				...movie,
+				watchStatus,
+			};
+		});
+
+		console.log(toReturn);
+		return toReturn;
 	} catch (error) {
 		console.error("Error fetching discover movies:", error);
 		throw error;

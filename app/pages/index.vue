@@ -4,13 +4,17 @@ import Sidebar from '@/components/sidebar.vue'
 import MovieCard from '@/components/moviecard.vue'
 import BasePopup from '~/components/base_popup.vue'
 
-const API_URL = import.meta.env.VITE_API_URL
-const DISCOVER_ENDPOINT = import.meta.env.VITE_DISCOVER_ENDPOINT
-const SEARCH_ENDPOINT = import.meta.env.VITE_SEARCH_ENDPOINT
-const ADD_TO_WATCHLIST_ENDPOINT = import.meta.env.VITE_ADD_TO_WATCHLIST_ENDPOINT
-const DELETE_FROM_WATCHLIST_ENDPOINT = import.meta.env.VITE_DELETE_FROM_WATCHLIST_ENDPOINT
-const ADD_TO_WATCHED_ENDPOINT = import.meta.env.VITE_ADD_TO_WATCHED_ENDPOINT
-const DELETE_FROM_WATCHED_ENDPOINT = import.meta.env.VITE_DELETE_FROM_WATCHED_ENDPOINT
+const runtimeConfig = useRuntimeConfig()
+
+const API_URL = runtimeConfig.public.apiUrl
+const DISCOVER_ENDPOINT = runtimeConfig.public.discover
+const SEARCH_ENDPOINT = runtimeConfig.public.search
+const ADD_TO_WATCHLIST_ENDPOINT = runtimeConfig.public.addToWatchlist
+const DELETE_FROM_WATCHLIST_ENDPOINT = runtimeConfig.public.deleteFromWatchlist
+const ADD_TO_WATCHED_ENDPOINT = runtimeConfig.public.addToWatched
+const DELETE_FROM_WATCHED_ENDPOINT = runtimeConfig.public.deleteFromWatched
+
+const user = useSupabaseUser()
 
 const activeTab = ref('search')
 const movies = ref([[], [], [], [], []])
@@ -20,7 +24,7 @@ const isLoading = ref(false)
 const fetchError = ref('')
 const index = ref(0)
 const filters = ref({})
-const isAuthenticated = ref(false)
+const isAuthenticated = ref(user.value !== null && user.value !== undefined)
 const showAuthModal = ref(false)
 const authModalMessage = ref('')
 const searchTerm = ref('')
@@ -76,6 +80,8 @@ async function loadMovies(appliedFilters = {}) {
     const payload = await response.json()
     movies.value[index.value] = payload.results || (Array.isArray(payload) ? payload : [])
 
+    console.log('Movies loaded:', movies.value[index.value])
+
     if (!hasSearched.value) {
       totalResults.value =
         payload.total_results ??
@@ -128,7 +134,7 @@ const searchMovies = async () => {
 
 async function callActionApi(endpoint, idFilm) {
   try {
-    const url = `${API_URL}/${endpoint}?idFilm=${idFilm}`
+    const url = `${API_URL}/${endpoint}?movieId=${idFilm}`
     const response = await fetch(url, { method: 'GET', credentials: 'include' })
     if (!response.ok) throw new Error('Azione fallita')
   } catch (error) {
@@ -284,7 +290,8 @@ onMounted(() => {
         <div v-else-if="hasMovies" class="grid">
           <MovieCard v-for="movie in displayedMovies" :key="movie.id" :movie="movie"
             @left-click="handleLeftClick(movie)" @right-click="handleRightClick(movie)"
-            @reviews-click="handleReviewsClick(movie)" :swl="movie.watchStatus === 0" :swd="movie.watchStatus < 2" />
+            @reviews-click="handleReviewsClick(movie)" :inWatchlist="movie.watchStatus === 1"
+            :inWatched="movie.watchStatus === 2" />
         </div>
 
         <div v-else class="state-card-empty">

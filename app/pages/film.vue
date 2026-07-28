@@ -29,8 +29,9 @@ const isLoadingReviewAnimation = ref(false)
 const isErrorOpen = ref(false)
 const errorMessage = ref('')
 
+const user = useSupabaseUser()
 const currentUserAvatar = ref(null)
-const isAuthenticated = ref(false)
+const isAuthenticated = ref(user.value.sub !== null && user.value.sub !== undefined)
 
 const isLocked = computed(() => !isAuthenticated.value)
 
@@ -65,7 +66,7 @@ const movie = computed(() => {
   }
   return (
     parsedMovie || {
-      id: route.params.id,
+      id: null,
       title: 'Dettagli Film',
       poster_path: null,
       backdrop_path: null,
@@ -285,6 +286,7 @@ const formatDate = (timestamp) => {
 }
 
 onMounted(() => {
+  console.log(user.value)
   syncAvatarFromStorage()
   if (movie.value && movie.value.watchStatus !== undefined) {
     localWatchStatus.value = movie.value.watchStatus

@@ -2,9 +2,10 @@
 import { onMounted, ref } from 'vue'
 import MovieCard from '@/components/moviecard.vue'
 
-const API_URL = import.meta.env.VITE_API_URL
-const GET_WATCHED_ENDPOINT = import.meta.env.VITE_GET_WATCHED_ENDPOINT
-const DELETE_FROM_WATCHED_ENDPOINT = import.meta.env.VITE_DELETE_FROM_WATCHED_ENDPOINT
+const runtimeConfig = useRuntimeConfig()
+const API_URL = runtimeConfig.public.apiUrl
+const GET_WATCHED_ENDPOINT = runtimeConfig.public.getWatchedEndpoint
+const DELETE_FROM_WATCHED_ENDPOINT = runtimeConfig.public.deleteFromWatchedEndpoint
 
 const movies = ref([])
 const isLoading = ref(false)
@@ -21,7 +22,8 @@ const getMovies = async () => {
       throw new Error(`Errore nella risposta: ${response.status}`)
     }
 
-    const data = await response.json()
+    const payload = await response.json()
+    const data = payload.movies || []
     movies.value = Array.isArray(data) ? data : []
     console.log('Film Watched ricevuti:', data)
   } catch (error) {

@@ -2,10 +2,11 @@
 import { onMounted, ref } from 'vue'
 import MovieCard from '@/components/moviecard.vue'
 
-const API_URL = import.meta.env.VITE_API_URL
-const GET_WATCHLIST_ENDPOINT = import.meta.env.VITE_GET_WATCHLIST_ENDPOINT
-const DELETE_FROM_WATCHLIST_ENDPOINT = import.meta.env.VITE_DELETE_FROM_WATCHLIST_ENDPOINT
-const ADD_TO_WATCHED_ENDPOINT = import.meta.env.VITE_ADD_TO_WATCHED_ENDPOINT
+const runtimeConfig = useRuntimeConfig()
+const API_URL = runtimeConfig.public.apiUrl
+const GET_WATCHLIST_ENDPOINT = runtimeConfig.public.getWatchlistEndpoint
+const ADD_TO_WATCHED_ENDPOINT = runtimeConfig.public.addToWatchedEndpoint
+const DELETE_FROM_WATCHLIST_ENDPOINT = runtimeConfig.public.deleteFromWatchlistEndpoint
 
 const movies = ref([])
 const isLoading = ref(false)
@@ -17,7 +18,9 @@ const getMovies = async () => {
       method: 'GET',
       credentials: 'include',
     })
-    const data = await response.json()
+    const payload = await response.json()
+    const data = payload.movies || []
+    console.log('Watchlist data:', data)
     movies.value = Array.isArray(data) ? data : []
   } catch (error) {
     console.error('Errore recupero watchlist:', error)

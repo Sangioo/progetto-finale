@@ -17,27 +17,18 @@ export default defineEventHandler(async (event) => {
 	}
 
 	try {
-		const { data, error } = await supabase.auth.admin.updateUserById(
-			user.sub,
-			{
-				password: newPassword,
-			},
-		);
+		const { error } = await supabase.auth.admin.updateUserById(user.sub, {
+			password: newPassword,
+		});
 
-		if (error) {
-			console.error(error);
-			return {
-				success: false,
-				message: "Error updating password in Supabase",
-			};
-		}
+		if (error) throw error;
 
 		return { success: true, message: "Password updated successfully" };
-	} catch (error) {
-		console.error(error);
+	} catch (err) {
+		console.error(err);
 		return {
 			success: false,
-			message: "Error updating password in Supabase",
+			message: err.message || "Error updating password in Supabase",
 		};
 	}
 });

@@ -49,10 +49,7 @@ export default defineEventHandler(async (event) => {
 			.select("*, watch(*)")
 			.eq("watch.user", user.sub);
 
-		if (error) {
-			console.error(error);
-			return { error: "Error inserting movies into Supabase" };
-		}
+		if (error) throw error;
 
 		const toReturn = data.map((movie) => {
 			const watched = movie?.watch[0]?.watched;
@@ -70,15 +67,12 @@ export default defineEventHandler(async (event) => {
 			};
 		});
 
-		toReturn.forEach((movie) =>
-			console.log(
-				`Movie: ${movie.title}, Watch: ${movie.watch[0]?.watched}, WatchStatus: ${movie.watchStatus}`,
-			),
-		);
-
 		return toReturn;
-	} catch (error) {
-		console.error("Error fetching discover movies:", error);
-		throw error;
+	} catch (err) {
+		console.error(err);
+		return {
+			success: false,
+			message: err.message || "Error fetching discover movies",
+		};
 	}
 });

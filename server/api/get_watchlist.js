@@ -18,13 +18,7 @@ export default defineEventHandler(async (event) => {
 			.eq("user", user.sub)
 			.eq("watched", false);
 
-		if (error) {
-			console.error(error);
-			return {
-				success: false,
-				message: "Error fetching watchlist from Supabase",
-			};
-		}
+		if (error) throw error;
 
 		const movies = data.map((item) => {
 			item.movies.genre_ids = JSON.parse(item.movies.genre_ids);
@@ -34,11 +28,11 @@ export default defineEventHandler(async (event) => {
 		});
 
 		return { success: true, movies };
-	} catch (error) {
-		console.error(error);
+	} catch (err) {
+		console.error(err);
 		return {
 			success: false,
-			message: "Error fetching movies from Supabase",
+			message: err.message || "Error fetching watchlist from Supabase",
 		};
 	}
 });

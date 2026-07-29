@@ -13,16 +13,14 @@ export default defineEventHandler(async (event) => {
 			.eq("user", user.sub)
 			.order("time", { ascending: false });
 
-		if (error) {
-			console.error(error);
-			return {
-				success: false,
-				message: "Error fetching reviews from Supabase",
-			};
-		}
+		if (error) throw error;
+
 		return { success: true, data };
-	} catch (error) {
-		console.error("Error fetching reviews:", error);
-		throw error;
+	} catch (err) {
+		console.error(err);
+		return {
+			success: false,
+			message: err.message || "Error fetching user reviews from Supabase",
+		};
 	}
 });

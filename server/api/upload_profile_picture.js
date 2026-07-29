@@ -34,10 +34,10 @@ export default defineEventHandler(async (event) => {
 		(part) => part.name === "profile_picture",
 	);
 
-	if (!user?.sub) {
+	if (!user) {
 		return {
 			success: false,
-			message: "User ID not provided",
+			message: "User not authenticated",
 		};
 	}
 
@@ -67,13 +67,7 @@ export default defineEventHandler(async (event) => {
 				upsert: true,
 			});
 
-		if (uploadError) {
-			console.error(uploadError);
-			return {
-				success: false,
-				message: "Error uploading profile picture to Supabase Storage",
-			};
-		}
+		if (uploadError) throw uploadError;
 
 		const { data: publicUrlData } = supabase.storage
 			.from(AVATAR_BUCKET)
@@ -91,12 +85,8 @@ export default defineEventHandler(async (event) => {
 		);
 
 		if (userTableError) {
-			console.error(userTableError);
 			await supabase.storage.from(AVATAR_BUCKET).remove([filePath]);
-			return {
-				success: false,
-				message: "Error updating profile picture in Supabase",
-			};
+			throw userTableError;
 		}
 
 		const { error } = await supabase.auth.admin.updateUserById(user.sub, {
@@ -104,12 +94,8 @@ export default defineEventHandler(async (event) => {
 		});
 
 		if (error) {
-			console.error(error);
 			await supabase.storage.from(AVATAR_BUCKET).remove([filePath]);
-			return {
-				success: false,
-				message: "Error updating profile picture in Supabase",
-			};
+			throw error;
 		}
 
 		return {
@@ -117,11 +103,12 @@ export default defineEventHandler(async (event) => {
 			message: "Profile picture updated successfully",
 			path: publicUrlData.publicUrl,
 		};
-	} catch (error) {
-		console.error(error);
+	} catch (err) {
+		console.error(err);
 		return {
 			success: false,
-			message: "Error updating profile picture in Supabase",
+			message:
+				err.message || "Error updating profile picture in Supabase",
 		};
 	}
 });

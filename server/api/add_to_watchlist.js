@@ -16,41 +16,27 @@ export default defineEventHandler(async (event) => {
 	}
 
 	try {
-		const { data, error } = await supabase.from("watch").insert({
+		const { error } = await supabase.from("watch").insert({
 			user: user.sub,
 			movie: movieId,
 			watched: false,
 		});
 
 		if (error.code === "23505") {
-			console.log("Movie already in watchlist");
 			return {
 				success: false,
 				message: "Movie already in watchlist",
 			};
 		}
 
-		if (error) {
-			console.error(error);
-			return {
-				success: false,
-				message: "Error fetching watchlist from Supabase",
-			};
-		}
-		console.log("Data from Supabase:", data);
-		console.log(data.length, "movies returned from Supabase");
+		if (error) throw error;
 
-		const movies = data.map((item) => {
-			item.genre_ids = JSON.parse(item.genre_ids);
-			return item;
-		});
-
-		return movies;
-	} catch (error) {
-		console.error(error);
+		return { success: true, message: "Movie added to watchlist" };
+	} catch (err) {
+		console.error(err);
 		return {
 			success: false,
-			message: "Error fetching watchlist from Supabase",
+			message: err.message || "Error adding movie to watchlist",
 		};
 	}
 });

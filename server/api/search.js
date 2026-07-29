@@ -44,14 +44,14 @@ export default defineEventHandler(async (event) => {
 			.upsert(movies)
 			.select();
 
-		if (error) {
-			console.error(error);
-			return { error: "Error inserting movies into Supabase" };
-		}
+		if (error) throw error;
 
 		return data;
-	} catch (error) {
-		console.error("Error fetching discover movies:", error);
-		throw error;
+	} catch (err) {
+		console.error(err);
+		return {
+			success: false,
+			message: err.message || "Error searching movies from TMDB",
+		};
 	}
 });

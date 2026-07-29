@@ -28,39 +28,26 @@ export default defineEventHandler(async (event) => {
 			.eq("user", user.sub)
 			.eq("movie", movieId);
 
-		if (userError) {
-			console.error(userError);
-			return {
-				success: false,
-				message: "Error checking existing review",
-			};
-		}
+		if (userError) throw userError;
 
-		if (userData.length > 0) {
-			return {
-				success: false,
-				message: "User has already reviewed this movie",
-			};
-		}
+		if (userData.length > 0)
+			throw new Error("User has already reviewed this movie");
 
-		const { data, error } = await supabase.from("reviews").insert({
+		const { error } = await supabase.from("reviews").insert({
 			user: user.sub,
 			movie: movieId,
 			content: content,
 			score: score,
 		});
 
-		if (error) {
-			console.error(error);
-			return {
-				success: false,
-				message: "Error fetching movie reviews from Supabase",
-			};
-		}
+		if (error) throw error;
 
-		return data;
-	} catch (error) {
-		console.error("Error fetching movie reviews:", error);
-		throw error;
+		return { success: true, message: "Review added successfully" };
+	} catch (err) {
+		console.error(err);
+		return {
+			success: false,
+			message: err.message || "Error adding review",
+		};
 	}
 });

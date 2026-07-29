@@ -5,7 +5,6 @@ export default defineEventHandler(async (event) => {
 	const movieId = getQuery(event).movieId;
 
 	if (!movieId) {
-		console.error("Movie ID is missing in the request parameters.");
 		return {
 			success: false,
 			message: "Movie ID is required",
@@ -18,13 +17,8 @@ export default defineEventHandler(async (event) => {
 			.select("*, reviewer:users(username, profile_pic_url)")
 			.eq("movie", movieId);
 
-		if (error) {
-			console.error(error);
-			return {
-				success: false,
-				message: "Error fetching movie reviews from Supabase",
-			};
-		}
+		if (error) throw error;
+
 		const enrichedData = data.map(({ reviewer, ...review }) => ({
 			...review,
 			username: reviewer?.username || null,
@@ -32,8 +26,12 @@ export default defineEventHandler(async (event) => {
 		}));
 
 		return { success: true, data: enrichedData };
-	} catch (error) {
-		console.error("Error fetching movie reviews:", error);
-		throw error;
+	} catch (err) {
+		console.error("Error fetching movie reviews:", err);
+		return {
+			success: false,
+			message:
+				err.message || "Error fetching movie reviews from Supabase",
+		};
 	}
 });

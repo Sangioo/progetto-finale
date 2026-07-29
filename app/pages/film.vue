@@ -5,12 +5,12 @@ import ReviewPopup from '~/components/review_popup.vue'
 const runtimeConfig = useRuntimeConfig()
 const IMAGE_URL = runtimeConfig.public.imageUrl
 const API_URL = runtimeConfig.public.apiUrl
-const GET_REVIEWS = runtimeConfig.public.getReviewsEndpoint
-const ADD_REVIEW = runtimeConfig.public.addReviewEndpoint
-const ADD_TO_WATCHLIST_ENDPOINT = runtimeConfig.public.addToWatchlistEndpoint
-const DELETE_FROM_WATCHLIST_ENDPOINT = runtimeConfig.public.deleteFromWatchlistEndpoint
-const ADD_TO_WATCHED_ENDPOINT = runtimeConfig.public.addToWatchedEndpoint
-const DELETE_FROM_WATCHED_ENDPOINT = runtimeConfig.public.deleteFromWatchedEndpoint
+const GET_REVIEWS = runtimeConfig.public.getReviews
+const ADD_REVIEW = runtimeConfig.public.addReview
+const ADD_TO_WATCHLIST_ENDPOINT = runtimeConfig.public.addToWatchlist
+const DELETE_FROM_WATCHLIST_ENDPOINT = runtimeConfig.public.deleteFromWatchlist
+const ADD_TO_WATCHED_ENDPOINT = runtimeConfig.public.addToWatched
+const DELETE_FROM_WATCHED_ENDPOINT = runtimeConfig.public.deleteFromWatched
 
 
 const userVoteStars = ref(3)

@@ -3,13 +3,14 @@ import { ref, onMounted, watch } from 'vue'
 import BasePopup from '~/components/base_popup.vue'
 import ReviewPopup from '~/components/review_popup.vue'
 
-const API_URL = import.meta.env.VITE_API_URL
-const IMAGE_URL = import.meta.env.VITE_IMAGE_URL
-const GET_REVIEWS = import.meta.env.VITE_GET_MYREVIEWS_ENDPOINT
-const DEL_REVIEW = import.meta.env.VITE_DEL_REVIEW_ENDPOINT
-const UPDATE_PASSWORD = import.meta.env.VITE_UPDATE_PASSWORD_ENDPOINT
-const UPLOAD_AVATAR = import.meta.env.VITE_UPLOAD_PROFILE_PICTURE_ENDPOINT
-const DEL_AVATAR = import.meta.env.VITE_DELETE_PROFILE_PICTURE_ENDPOINT
+const runtimeConfig = useRuntimeConfig()
+const API_URL = runtimeConfig.public.apiUrl
+const IMAGE_URL = runtimeConfig.public.imageUrl
+const GET_REVIEWS = runtimeConfig.public.getMyReviewsEndpoint
+const DEL_REVIEW = runtimeConfig.public.deleteReviewEndpoint
+const UPDATE_PASSWORD = runtimeConfig.public.updatePasswordEndpoint
+const UPLOAD_AVATAR = runtimeConfig.public.uploadProfilePictureEndpoint
+const DEL_AVATAR = runtimeConfig.public.deleteProfilePictureEndpoint
 
 const supabase = useSupabaseClient()
 const user = useSupabaseUser()
@@ -47,7 +48,7 @@ const syncAvatarFromStorage = () => {
   if (!import.meta.client) return
 
   try {
-    userAvatarUrl.value = localStorage.getItem('profilePicture') || null
+    userAvatarUrl.value = sessionStorage.getItem('profilePicture') || null
   } catch {
     userAvatarUrl.value = null
   }
@@ -130,7 +131,7 @@ const handleAvatarUpload = async (event) => {
 
       userAvatarUrl.value = newAvatarUrl
       if (import.meta.client) {
-        localStorage.setItem('profilePicture', newAvatarUrl)
+        sessionStorage.setItem('profilePicture', newAvatarUrl)
       }
 
       window.dispatchEvent(new Event('avatar-updated'))
@@ -164,7 +165,7 @@ const confirmRemoveAvatar = async () => {
     if (data.success) {
       userAvatarUrl.value = null
       if (import.meta.client) {
-        localStorage.removeItem('profilePicture')
+        sessionStorage.removeItem('profilePicture')
       }
 
       window.dispatchEvent(new Event('avatar-updated'))

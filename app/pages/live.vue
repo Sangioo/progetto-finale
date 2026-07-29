@@ -10,8 +10,8 @@
       <p>Caricando stanze attive...</p>
     </div>
 
-    <div v-else-if="error" class="error-state">
-      <p>{{ error }}</p>
+    <div v-else-if="errorMsg" class="error-state">
+      <p>{{ errorMsg }}</p>
       <button @click="fetchLiveRooms" class="retry-button">Retry</button>
     </div>
 
@@ -41,12 +41,11 @@
             <span v-if="room.vote_average" class="movie-score">⭐ {{ Number(room.vote_average).toFixed(1) }}</span>
             <span v-if="room.release_date" class="movie-year">{{
               room.release_date.substring(0, 4)
-              }}</span>
+            }}</span>
           </div>
 
           <div class="room-stats">
             <span class="spectators-count"> 👥 {{ room.activeUsers || 1 }} watching </span>
-            <span class="message-count"> {{ room.messageCount || 'No' }} messages </span>
           </div>
         </div>
       </div>
@@ -58,17 +57,13 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 import { createClient } from '@supabase/supabase-js'
 
-const API_URL = import.meta.env.VITE_API_URL
-const IMAGE_URL = import.meta.env.VITE_IMAGE_URL
-const LIVE_ROOMS_ENDPOINT = import.meta.env.VITE_LIVE_ENDPOINT
-const START_WATCHING_ENDPOINT = import.meta.env.VITE_START_WATCHING_ENDPOINT
+const runtimeConfig = useRuntimeConfig()
+const IMAGE_URL = runtimeConfig.public.imageUrl
 
 const rooms = ref([])
 const isLoading = ref(true)
-const error = ref(null)
-let refreshInterval = null
+const errorMsg = ref(null)
 
-const runtimeConfig = useRuntimeConfig()
 const supabase = createClient(
   runtimeConfig.public.supabaseUrl,
   runtimeConfig.public.supabaseKey
@@ -87,19 +82,23 @@ const handleImageError = (e) => {
 
 const fetchLiveRooms = async () => {
   try {
-    const response = await fetch(`${API_URL}/${LIVE_ROOMS_ENDPOINT}`, {
-      method: 'GET',
-      credentials: 'include',
+    const { data, error } = await supabase
+      .from('movies')
+      .select('*, rooms!inner(user)')
+
+    if (error) {
+      throw error
+    }
+
+    const activeRooms = data.map((movie) => {
+      return { ...movie, idFilm: movie.id, activeUsers: movie.rooms.length }
     })
 
-    if (!response.ok) throw new Error('Impossibile caricare le stanze live')
-
-    const data = await response.json()
-    rooms.value = data.rooms || []
-    error.value = null
+    rooms.value = activeRooms || []
+    errorMsg.value = null
   } catch (err) {
     console.error(err)
-    error.value = 'Devi essere loggato per accedere alle Live Rooms.'
+    errorMsg.value = 'Errore nel caricamento delle stanze live. Riprova più tardi.'
   } finally {
     isLoading.value = false
   }
@@ -107,47 +106,72 @@ const fetchLiveRooms = async () => {
 
 const joinRoom = async (room) => {
   if (!room || !room.idFilm) return
+  await navigateTo({ path: '/room', query: { movieId: room.idFilm } })
+}
 
-  try {
-    const params = new URLSearchParams({
-      idFilm: room.idFilm,
-    })
+const parsePayload = async (payload) => {
+  const { eventType, new: newRoom, old: oldRoom } = payload
 
-    const response = await fetch(`${API_URL}/${START_WATCHING_ENDPOINT}?${params.toString()}`, {
-      method: 'GET',
-      credentials: 'include',
-    })
+  if (eventType === 'INSERT' && newRoom) {
+    const existingRoomIndex = rooms.value.findIndex((room) => room.idFilm === newRoom.idFilm)
+    if (existingRoomIndex === -1) {
+      const { data, error } = await supabase
+        .from('movies')
+        .select('*')
+        .eq('id', newRoom.movie)
 
-    const data = await response.json()
+      if (error) {
+        console.error('Errore durante il recupero dei dettagli del film:', error)
+        return
+      }
 
-    if (!response.ok || data.error) {
-      throw new Error(data.error || 'Impossibile accedere alla Live Room')
+      if (data && data.length > 0) {
+        rooms.value.push({
+          ...data[0],
+          activeUsers: 1,
+        })
+      }
+    } else {
+      rooms.value[existingRoomIndex].activeUsers++
     }
-
-    const roomId = data.room_id || room.idFilm
-    sessionStorage.setItem('currentRoomId', roomId)
-    navigateTo('/room')
-  } catch (err) {
-    console.error("Errore durante l'accesso alla stanza:", err)
-    alert(err.message || 'Impossibile accedere alla Live Room.')
+  } else if (eventType === 'DELETE' && oldRoom) {
+    const roomIndex = rooms.value.findIndex((room) => room.idFilm === oldRoom.idFilm)
+    if (roomIndex === -1) return
+    rooms.value[roomIndex].activeUsers--
+    if (rooms.value[roomIndex].activeUsers <= 0) {
+      rooms.value.splice(roomIndex, 1)
+    }
   }
 }
 
 const channel = supabase
   .channel('schema-db-changes')
-  .on('postgres_changes', { event: '*', schema: 'public', table: 'rooms' },
+  .on('postgres_changes', { event: 'insert', schema: 'public', table: 'rooms' },
     (payload) => {
-      console.log('Change received!', payload)
+      console.log('Row inserted:', payload)
+      parsePayload(payload)
     })
-  .subscribe()
+  .on('postgres_changes', { event: 'delete', schema: 'public', table: 'rooms' },
+    (payload) => {
+      console.log('Row deleted:', payload)
+      parsePayload(payload)
+    })
 
 onMounted(() => {
-  // fetchLiveRooms()
-  // refreshInterval = setInterval(fetchLiveRooms, 3000)
+  fetchLiveRooms()
+  channel.subscribe((status, error) => {
+    if (error) {
+      console.error('Errore durante la sottoscrizione al canale:', error)
+    } else {
+      console.log('Sottoscritto al canale con successo:', status)
+    }
+  })
 })
 
 onUnmounted(() => {
-  // if (refreshInterval) clearInterval(refreshInterval)
+  if (channel) {
+    supabase.removeChannel(channel)
+  }
 })
 </script>
 

@@ -105,6 +105,7 @@ import { createClient } from '@supabase/supabase-js'
 import { useRoute } from 'vue-router'
 
 const route = useRoute()
+const movieId = ref(route.query.movieId || null)
 
 const user = useSupabaseUser()
 
@@ -125,7 +126,7 @@ const supabase = createClient(
   runtimeConfig.public.supabaseKey
 )
 
-const channel = supabase.channel(`room:${route.query.idFilm}:messages`, {
+const channel = supabase.channel(`room:${movieId.value}:messages`, {
   config: {
     broadcast: {
       self: true,
@@ -193,36 +194,42 @@ const formatTime = (timestamp) => {
   return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
 }
 
-onMounted(async () => {
-  console.log(route.query.idFilm)
-  const { data, error } = await supabase
+const enterRoom = async () => {
+  const { error } = await supabase
     .from('rooms')
     .insert([
       {
-        movie: route.query.idFilm,
+        movie: movieId.value,
         user: user.value.sub,
       }
     ])
   if (error) {
     console.error('Errore durante l\'unione alla stanza:', error)
   } else {
-    console.log('Unito alla stanza con successo:', data)
+    console.log('Unito con successo alla stanza', movieId.value)
   }
-  subscribeToChannel()
-})
+}
 
-onUnmounted(() => {
-  unsubscribeFromChannel()
-  const { data, error } = supabase
+const deleteRoom = async () => {
+  const { error } = await supabase
     .from('rooms')
     .delete()
-    .eq('movie', route.query.idFilm)
+    .eq('movie', movieId.value)
     .eq('user', user.value.sub)
   if (error) {
     console.error('Errore durante l\'uscita dalla stanza:', error)
   } else {
-    console.log('Uscito dalla stanza con successo:', data)
+    console.log('Uscito con successo dalla stanza', movieId.value)
   }
+}
+
+onMounted(async () => {
+  await enterRoom()
+  subscribeToChannel()
+})
+onUnmounted(async () => {
+  unsubscribeFromChannel()
+  await deleteRoom()
 })
 </script>
 

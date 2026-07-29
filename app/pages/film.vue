@@ -1,20 +1,17 @@
 <script setup>
 import { computed, onUnmounted, ref, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
 import ReviewPopup from '~/components/review_popup.vue'
 
-const IMAGE_URL = import.meta.env.VITE_IMAGE_URL
-const API_URL = import.meta.env.VITE_API_URL
-const BASE_URL = import.meta.env.VITE_BASE_URL
-const GET_REVIEWS = import.meta.env.VITE_GET_REVIEWS_ENDPOINT
-const ADD_REVIEW = import.meta.env.VITE_ADD_REVIEW_ENDPOINT
-const START_WATCHING_ENDPOINT = import.meta.env.VITE_START_WATCHING_ENDPOINT
-const ADD_TO_WATCHLIST_ENDPOINT = import.meta.env.VITE_ADD_TO_WATCHLIST_ENDPOINT
-const DELETE_FROM_WATCHLIST_ENDPOINT = import.meta.env.VITE_DELETE_FROM_WATCHLIST_ENDPOINT
-const ADD_TO_WATCHED_ENDPOINT = import.meta.env.VITE_ADD_TO_WATCHED_ENDPOINT
-const DELETE_FROM_WATCHED_ENDPOINT = import.meta.env.VITE_DELETE_FROM_WATCHED_ENDPOINT
+const runtimeConfig = useRuntimeConfig()
+const IMAGE_URL = runtimeConfig.public.imageUrl
+const API_URL = runtimeConfig.public.apiUrl
+const GET_REVIEWS = runtimeConfig.public.getReviewsEndpoint
+const ADD_REVIEW = runtimeConfig.public.addReviewEndpoint
+const ADD_TO_WATCHLIST_ENDPOINT = runtimeConfig.public.addToWatchlistEndpoint
+const DELETE_FROM_WATCHLIST_ENDPOINT = runtimeConfig.public.deleteFromWatchlistEndpoint
+const ADD_TO_WATCHED_ENDPOINT = runtimeConfig.public.addToWatchedEndpoint
+const DELETE_FROM_WATCHED_ENDPOINT = runtimeConfig.public.deleteFromWatchedEndpoint
 
-const route = useRoute()
 
 const userVoteStars = ref(3)
 const hoverVoteStars = ref(null)
@@ -184,45 +181,10 @@ const toggleWatched = async () => {
   await callActionApi(endpoint, movie.value.id)
 }
 
-// const handleLiveRoomAction = async () => {
-//   if (!movie.value || !movie.value.id) return
-
-//   isLoadingRoom.value = true
-//   const params = new URLSearchParams({ idFilm: movie.value.id })
-
-//   try {
-//     const response = await fetch(`${API_URL}/${START_WATCHING_ENDPOINT}?${params.toString()}`, {
-//       method: 'GET',
-//     })
-//     const data = await response.json()
-//     if (!response.ok || data.error)
-//       throw new Error(data.error || 'Impossibile avviare la Live Room')
-
-//     const roomId = data.room_id || movie.value.id
-//     sessionStorage.setItem('currentRoomId', roomId)
-//     navigateTo('/room')
-//   } catch (err) {
-//     console.error("Errore durante l'attivazione della Live Room:", err)
-//     errorMessage.value = err.message || 'Impossibile creare o accedere alla Live Room.'
-//     isErrorOpen.value = true
-//   } finally {
-//     isLoadingRoom.value = false
-//   }
-// }
-
 const handleLiveRoomAction = async () => {
   if (!movie.value || !movie.value.id) return
-  isLoadingRoom.value = true
 
-  try {
-    navigateTo({ path: '/room', query: { idFilm: movie.value.id } })
-  } catch (error) {
-    console.error("Errore durante l'attivazione della Live Room:", error)
-    errorMessage.value = error.message || 'Impossibile creare o accedere alla Live Room.'
-    isErrorOpen.value = true
-  } finally {
-    isLoadingRoom.value = false
-  }
+  await navigateTo({ path: '/room', query: { movieId: movie.value.id } })
 }
 
 const apriPopupRecensione = (rev) => {

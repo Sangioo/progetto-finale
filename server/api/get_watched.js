@@ -29,6 +29,7 @@ export default defineEventHandler(async (event) => {
 		const movies = data.map((item) => {
 			item.movies.genre_ids = JSON.parse(item.movies.genre_ids);
 			item = item.movies; // Extract the movie object from the wrapper
+			item.watchStatus = 2; // Set watchStatus to 2 for watched movies
 			return item;
 		});
 

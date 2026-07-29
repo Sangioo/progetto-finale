@@ -4,9 +4,9 @@ import MovieCard from '@/components/moviecard.vue'
 
 const runtimeConfig = useRuntimeConfig()
 const API_URL = runtimeConfig.public.apiUrl
-const GET_WATCHLIST_ENDPOINT = runtimeConfig.public.getWatchlistEndpoint
-const ADD_TO_WATCHED_ENDPOINT = runtimeConfig.public.addToWatchedEndpoint
-const DELETE_FROM_WATCHLIST_ENDPOINT = runtimeConfig.public.deleteFromWatchlistEndpoint
+const GET_WATCHLIST_ENDPOINT = runtimeConfig.public.getWatchlist
+const ADD_TO_WATCHED_ENDPOINT = runtimeConfig.public.addToWatched
+const DELETE_FROM_WATCHLIST_ENDPOINT = runtimeConfig.public.deleteFromWatchlist
 
 const movies = ref([])
 const isLoading = ref(false)
@@ -111,7 +111,8 @@ onMounted(() => {
 
       <div v-else class="movie-grid">
         <MovieCard v-for="movie in movies" :key="movie.id" :movie="movie" @reviews-click="handleReviewsClick(movie)"
-          @left-click="deleteFromWatchlist(movie)" @right-click="addToWatched(movie)" :swl="false" :swd="true" />
+          @left-click="deleteFromWatchlist(movie)" @right-click="addToWatched(movie)" :inWatchlist="true"
+          :inWatched="false" />
       </div>
     </div>
   </div>

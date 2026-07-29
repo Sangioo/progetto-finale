@@ -46,8 +46,8 @@ export default defineEventHandler(async (event) => {
 		const { data, error } = await supabase
 			.from("movies")
 			.upsert(movies)
-			.select("*, watch:watch(*)")
-			.eq("user", user.sub);
+			.select("*, watch(*)")
+			.eq("watch.user", user.sub);
 
 		if (error) {
 			console.error(error);
@@ -57,7 +57,7 @@ export default defineEventHandler(async (event) => {
 		const toReturn = data.map((movie) => {
 			const watched = movie?.watch[0]?.watched;
 			let watchStatus;
-			if (watchStatus === undefined) {
+			if (watched === undefined) {
 				watchStatus = 0;
 			} else if (watched) {
 				watchStatus = 2;
@@ -70,7 +70,12 @@ export default defineEventHandler(async (event) => {
 			};
 		});
 
-		console.log(toReturn);
+		toReturn.forEach((movie) =>
+			console.log(
+				`Movie: ${movie.title}, Watch: ${movie.watch[0]?.watched}, WatchStatus: ${movie.watchStatus}`,
+			),
+		);
+
 		return toReturn;
 	} catch (error) {
 		console.error("Error fetching discover movies:", error);

@@ -106,26 +106,4 @@ Cancella una recensione per un film.
 
 ## Chat
 
-### live
-
-- [ ] implementato
-
-### chat
-
-- [ ] implementato
-
-### message
-
-- [ ] implementato
-
-### start_watching
-
-- [ ] implementato
-
-### stop_watching
-
-- [ ] implementato
-
-### delete_room
-
-- [ ] implementato
+implementazione della chat tramite funzioni realtime di Supabase.

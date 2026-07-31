@@ -173,7 +173,7 @@ const sendMessage = () => {
 
 const leaveRoom = async () => {
   unsubscribeFromChannel()
-  await navigateTo('/live')
+  await navigateTo('/')
 }
 
 const scrollToBottom = async () => {

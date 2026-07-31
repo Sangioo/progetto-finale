@@ -73,12 +73,8 @@ const formattedDate = computed(() => {
             </div>
 
             <div class="flex-1 overflow-y-auto pr-3 mb-2">
-              <div class="review-text-group">
-                <strong class="block text-sm text-evergreen mb-2 font-bold uppercase tracking-wider">La tua
-                  recensione</strong>
-                <p class="text-base text-black m-0 leading-relaxed whitespace-pre-wrap wrap-break-word break-all">{{
-                  review?.content || review?.testo }}</p>
-              </div>
+              <p class="text-base text-black m-0 leading-relaxed whitespace-pre-wrap wrap-break-word break-all">{{
+                review?.content || review?.testo }}</p>
             </div>
 
             <button @click="emit('close')"

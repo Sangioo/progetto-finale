@@ -12,6 +12,7 @@ const DELETE_FROM_WATCHLIST_ENDPOINT = runtimeConfig.public.deleteFromWatchlist
 const ADD_TO_WATCHED_ENDPOINT = runtimeConfig.public.addToWatched
 const DELETE_FROM_WATCHED_ENDPOINT = runtimeConfig.public.deleteFromWatched
 
+const user = useSupabaseUser()
 
 const userVoteStars = ref(3)
 const hoverVoteStars = ref(null)
@@ -26,25 +27,10 @@ const isLoadingReviewAnimation = ref(false)
 const isErrorOpen = ref(false)
 const errorMessage = ref('')
 
-const user = useSupabaseUser()
-const currentUserAvatar = ref(null)
+const currentUserAvatar = ref(user.value?.user_metadata?.profile_picture || null)
 const isAuthenticated = ref(user.value.sub !== null && user.value.sub !== undefined)
 
 const isLocked = computed(() => !isAuthenticated.value)
-
-const syncAvatarFromStorage = () => {
-  if (!import.meta.client) return
-
-  try {
-    currentUserAvatar.value = localStorage.getItem('profilePicture') || null
-  } catch {
-    currentUserAvatar.value = null
-  }
-}
-
-const handleAvatarDynamicUpdate = () => {
-  syncAvatarFromStorage()
-}
 
 const displayVoteStars = computed(() =>
   hoverVoteStars.value !== null ? hoverVoteStars.value : userVoteStars.value,
@@ -243,17 +229,14 @@ const formatDate = (timestamp) => {
 }
 
 onMounted(() => {
-  syncAvatarFromStorage()
   if (movie.value && movie.value.watchStatus !== undefined) {
     localWatchStatus.value = movie.value.watchStatus
   }
   loadReviews()
-  window.addEventListener('avatar-updated', handleAvatarDynamicUpdate)
 })
 
 onUnmounted(() => {
   sessionStorage.removeItem('selectedMovie')
-  window.removeEventListener('avatar-updated', handleAvatarDynamicUpdate)
 })
 </script>
 

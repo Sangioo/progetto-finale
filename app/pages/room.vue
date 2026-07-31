@@ -3,19 +3,14 @@
     <div class="chat-section">
       <header class="chat-header">
         <div class="header-info">
-          <h1 class="room-title">Stanza: <span class="accent-text" id="title">Chat</span></h1>
+          <h1 class="room-title">Stanza: <span class="accent-text" id="title">chat</span></h1>
           <p class="room-subtitle">Goditi il film e chatta con la stanza</p>
         </div>
         <button @click="leaveRoom" class="leave-button">Esci dalla Stanza</button>
       </header>
 
       <div class="messages-area" ref="messagesAreaRef">
-        <div v-if="isLoading && messages.length === 0" class="loading-state">
-          <div class="spinner"></div>
-          <p>Caricamento della conversazione...</p>
-        </div>
-
-        <div v-else-if="error" class="error-state">
+        <div v-if="error" class="error-state">
           <p>{{ error }}</p>
         </div>
 
@@ -107,19 +102,18 @@ const route = useRoute()
 const movieId = ref(route.query.movieId || null)
 
 const user = useSupabaseUser()
+const supabase = useSupabaseClient()
 
 const currentUsername = ref(user.value?.user_metadata?.username)
 const messages = ref([])
 const activeUsers = ref({})
 const newMessage = ref('')
 const sendAsSpoiler = ref(false)
-const isLoading = ref(true)
 const isSending = ref(false)
 const error = ref(null)
 const messagesAreaRef = ref(null)
 const isSidebarOpen = ref(false)
 
-const supabase = useSupabaseClient()
 
 const channel = supabase.channel(`room:${movieId.value}:messages`, {
   config: {

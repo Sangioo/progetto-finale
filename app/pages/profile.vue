@@ -16,43 +16,10 @@ const supabase = useSupabaseClient()
 const user = useSupabaseUser()
 
 const userReviews = ref([])
-const currentUsername = ref('')
+const currentUsername = ref(user.value?.user_metadata?.username || '')
 const isFetchingReviews = ref(false)
 
-const userAvatarUrl = ref(null)
-
-const syncUsername = () => {
-  const metadataUsername = user.value?.user_metadata?.username
-  if (metadataUsername) {
-    currentUsername.value = metadataUsername
-    return
-  }
-
-  if (!import.meta.client) return
-
-  try {
-    const storedUser = sessionStorage.getItem('user')
-    if (storedUser && storedUser !== 'undefined' && storedUser !== 'null') {
-      const parsedUser = JSON.parse(storedUser)
-      currentUsername.value = parsedUser.username || ''
-      return
-    }
-  } catch {
-    // Fallback to empty username.
-  }
-
-  currentUsername.value = ''
-}
-
-const syncAvatarFromStorage = () => {
-  if (!import.meta.client) return
-
-  try {
-    userAvatarUrl.value = sessionStorage.getItem('profilePicture') || null
-  } catch {
-    userAvatarUrl.value = null
-  }
-}
+const userAvatarUrl = ref(user.value?.user_metadata?.profile_picture || null)
 const fileInput = ref(null)
 const vecchiaPassword = ref('')
 const nuovaPassword = ref('')
@@ -284,12 +251,8 @@ const goToFilm = (movie) => {
   navigateTo(`/film`)
 }
 
-watch(user, syncUsername, { immediate: true })
-
-onMounted(() => {
-  syncUsername()
-  syncAvatarFromStorage()
-  fetchUserReviews()
+onMounted(async () => {
+  await fetchUserReviews()
 })
 </script>
 

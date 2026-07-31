@@ -104,7 +104,7 @@ onMounted(() => {
         <span class="empty-icon">🎬</span>
         <h2 class="empty-title text-evergreen">Watchlist vuota</h2>
         <p class="empty-subtitle">Esplora il catalogo e aggiungi i film che ti ispirano.</p>
-        <nuxt-link to="/" class="btn-primary-custom">Vai al Catalogo</nuxt-link>
+        <NuxtLink to="/" class="btn-primary-custom">Vai al Catalogo</NuxtLink>
       </div>
 
       <div v-else class="movie-grid">

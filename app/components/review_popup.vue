@@ -6,7 +6,7 @@ const props = defineProps({
   review: { type: Object, default: null },
 })
 const emit = defineEmits(['close'])
-const IMAGE_URL = import.meta.env.VITE_IMAGE_URL
+const IMAGE_URL = useRuntimeConfig().public.imageUrl
 
 const getStatusClass = (val) => {
   if (val < 6) return 'status-low'

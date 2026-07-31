@@ -179,7 +179,8 @@ const handleSignup = async () => {
           </div>
         </form>
 
-        <p class="auth-extra">Hai già un account? <router-link to="/login">Accedi</router-link></p>
+        <p class="auth-extra">Hai già un account? <NuxtLink to="/login">Accedi</NuxtLink>
+        </p>
       </section>
     </main>
   </div>

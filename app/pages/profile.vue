@@ -9,7 +9,7 @@ const IMAGE_URL = runtimeConfig.public.imageUrl
 const GET_REVIEWS = runtimeConfig.public.getMyReviews
 const DEL_REVIEW = runtimeConfig.public.deleteReview
 const UPDATE_PASSWORD = runtimeConfig.public.updatePassword
-const UPLOAD_AVATAR = runtimeConfig.public.uploadProfilePicture
+const UPLOAD_AVATAR = runtimeConfig.public.addProfilePicture
 const DEL_AVATAR = runtimeConfig.public.deleteProfilePicture
 
 const supabase = useSupabaseClient()

@@ -1,14 +1,18 @@
 <script setup></script>
 
 <template>
-  <footer class="mt-auto border-t-4 border-mint-leaf bg-evergreen text-alabaster-grey shadow-footer pt-8 pb-4 px-0 tablet:pt-12 tablet:pb-6 tablet:px-0">
+  <footer
+    class="mt-auto border-t-4 border-mint-leaf bg-evergreen text-alabaster-grey shadow-footer pt-8 pb-4 px-0 tablet:pt-12 tablet:pb-6 tablet:px-0">
     <div class="my-0 mx-auto max-w-300 py-0 px-4">
-      <div class="flex flex-col flex-wrap text-center items-center justify-between gap-4 tablet:flex-row tablet:text-left tablet:gap-8">
+      <div
+        class="flex flex-col flex-wrap text-center items-center justify-between gap-4 tablet:flex-row tablet:text-left tablet:gap-8">
         <div class="flex flex-col grow shrink basis-1/10">
-          <nuxt-link to="/" class="group inline-block text-xl font-extrabold tracking-tight text-alabaster-grey no-underline mobiles:text-2xl mobilel:text-4xl">
+          <NuxtLink to="/"
+            class="group inline-block text-xl font-extrabold tracking-tight text-alabaster-grey no-underline mobiles:text-2xl mobilel:text-4xl">
             Frame<span class="text-mint-leaf transition-colors duration-300 group-hover:text-alabaster-grey">Log</span>
-          </nuxt-link>
-          <p class="mt-2 mb-0 mx-auto max-w-70 text-muted-teal text-sm tablet:text-base tablet:mt-4 tablet:mx-0 tablet:max-w-85">
+          </NuxtLink>
+          <p
+            class="mt-2 mb-0 mx-auto max-w-70 text-muted-teal text-sm tablet:text-base tablet:mt-4 tablet:mx-0 tablet:max-w-85">
             Il tuo spazio per raccontare e organizzare il tuo cinema.
           </p>
         </div>
@@ -16,16 +20,24 @@
         <div class="flex grow-0 shrink basis-auto">
           <ul class="m-0 p-0 flex list-none flex-wrap gap-y-2 gap-x-4 justify-center mobilel:gap-4 tablet:gap-6">
             <li>
-              <nuxt-link to="/" class="relative pb-1 font-semibold text-sm text-alabaster-grey no-underline transition-colors duration-300 after:absolute after:left-0 after:bottom-0 after:h-0.5 after:w-0 after:rounded-xs after:bg-mint-leaf after:transition-width after:duration-300 hover:text-mint-leaf hover:after:w-full mobilel:text-base">Home</nuxt-link>
+              <NuxtLink to="/"
+                class="relative pb-1 font-semibold text-sm text-alabaster-grey no-underline transition-colors duration-300 after:absolute after:left-0 after:bottom-0 after:h-0.5 after:w-0 after:rounded-xs after:bg-mint-leaf after:transition-width after:duration-300 hover:text-mint-leaf hover:after:w-full mobilel:text-base">
+                Home</NuxtLink>
             </li>
             <li>
-              <nuxt-link to="/profile" class="relative pb-1 font-semibold text-sm text-alabaster-grey no-underline transition-colors duration-300 after:absolute after:left-0 after:bottom-0 after:h-0.5 after:w-0 after:rounded-xs after:bg-mint-leaf after:transition-width after:duration-300 hover:text-mint-leaf hover:after:w-full mobilel:text-base">Profile</nuxt-link>
+              <NuxtLink to="/profile"
+                class="relative pb-1 font-semibold text-sm text-alabaster-grey no-underline transition-colors duration-300 after:absolute after:left-0 after:bottom-0 after:h-0.5 after:w-0 after:rounded-xs after:bg-mint-leaf after:transition-width after:duration-300 hover:text-mint-leaf hover:after:w-full mobilel:text-base">
+                Profile</NuxtLink>
             </li>
             <li>
-              <nuxt-link to="/watchlist" class="relative pb-1 font-semibold text-sm text-alabaster-grey no-underline transition-colors duration-300 after:absolute after:left-0 after:bottom-0 after:h-0.5 after:w-0 after:rounded-xs after:bg-mint-leaf after:transition-width after:duration-300 hover:text-mint-leaf hover:after:w-full mobilel:text-base">Watchlist</nuxt-link>
+              <NuxtLink to="/watchlist"
+                class="relative pb-1 font-semibold text-sm text-alabaster-grey no-underline transition-colors duration-300 after:absolute after:left-0 after:bottom-0 after:h-0.5 after:w-0 after:rounded-xs after:bg-mint-leaf after:transition-width after:duration-300 hover:text-mint-leaf hover:after:w-full mobilel:text-base">
+                Watchlist</NuxtLink>
             </li>
             <li>
-              <nuxt-link to="/watched" class="relative pb-1 font-semibold text-sm text-alabaster-grey no-underline transition-colors duration-300 after:absolute after:left-0 after:bottom-0 after:h-0.5 after:w-0 after:rounded-xs after:bg-mint-leaf after:transition-width after:duration-300 hover:text-mint-leaf hover:after:w-full mobilel:text-base">Watched</nuxt-link>
+              <NuxtLink to="/watched"
+                class="relative pb-1 font-semibold text-sm text-alabaster-grey no-underline transition-colors duration-300 after:absolute after:left-0 after:bottom-0 after:h-0.5 after:w-0 after:rounded-xs after:bg-mint-leaf after:transition-width after:duration-300 hover:text-mint-leaf hover:after:w-full mobilel:text-base">
+                Watched</NuxtLink>
             </li>
           </ul>
         </div>

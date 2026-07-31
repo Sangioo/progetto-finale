@@ -5,7 +5,6 @@ import MovieCard from '@/components/moviecard.vue'
 import BasePopup from '~/components/base_popup.vue'
 
 const runtimeConfig = useRuntimeConfig()
-
 const API_URL = runtimeConfig.public.apiUrl
 const DISCOVER_ENDPOINT = runtimeConfig.public.discover
 const SEARCH_ENDPOINT = runtimeConfig.public.search

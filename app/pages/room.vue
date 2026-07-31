@@ -101,7 +101,6 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted, nextTick } from 'vue'
-import { createClient } from '@supabase/supabase-js'
 import { useRoute } from 'vue-router'
 
 const route = useRoute()
@@ -120,11 +119,7 @@ const error = ref(null)
 const messagesAreaRef = ref(null)
 const isSidebarOpen = ref(false)
 
-const runtimeConfig = useRuntimeConfig()
-const supabase = createClient(
-  runtimeConfig.public.supabaseUrl,
-  runtimeConfig.public.supabaseKey
-)
+const supabase = useSupabaseClient()
 
 const channel = supabase.channel(`room:${movieId.value}:messages`, {
   config: {
@@ -176,9 +171,9 @@ const sendMessage = () => {
   })
 }
 
-const leaveRoom = () => {
+const leaveRoom = async () => {
   unsubscribeFromChannel()
-  navigateTo('/live')
+  await navigateTo('/live')
 }
 
 const scrollToBottom = async () => {

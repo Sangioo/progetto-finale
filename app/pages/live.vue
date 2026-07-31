@@ -55,7 +55,6 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
-import { createClient } from '@supabase/supabase-js'
 
 const runtimeConfig = useRuntimeConfig()
 const IMAGE_URL = runtimeConfig.public.imageUrl
@@ -64,10 +63,7 @@ const rooms = ref([])
 const isLoading = ref(true)
 const errorMsg = ref(null)
 
-const supabase = createClient(
-  runtimeConfig.public.supabaseUrl,
-  runtimeConfig.public.supabaseKey
-)
+const supabase = useSupabaseClient()
 
 const getPosterUrl = (path) => {
   if (!path) return ''
@@ -161,9 +157,9 @@ onMounted(() => {
   fetchLiveRooms()
   channel.subscribe((status, error) => {
     if (error) {
-      console.error('Errore durante la sottoscrizione al canale:', error)
+      console.error(error)
     } else {
-      console.log('Sottoscritto al canale con successo:', status)
+      console.log('Stato del canale:', status)
     }
   })
 })
@@ -171,6 +167,7 @@ onMounted(() => {
 onUnmounted(() => {
   if (channel) {
     supabase.removeChannel(channel)
+    console.log('Canale rimosso con successo')
   }
 })
 </script>

@@ -100,7 +100,7 @@ onMounted(() => {
         <span class="empty-icon">🎬</span>
         <h2 class="empty-title">Non hai film guardati.</h2>
         <p class="empty-subtitle">Una volta che li avrai guardati, li troverai qui.</p>
-        <nuxt-link to="/" class="btn-primary-custom">Vai al Catalogo</nuxt-link>
+        <NuxtLink to="/" class="btn-primary-custom">Vai al Catalogo</NuxtLink>
       </div>
 
       <div v-else class="movie-grid">

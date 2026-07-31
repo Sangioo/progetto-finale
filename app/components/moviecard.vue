@@ -6,7 +6,7 @@ const props = defineProps({
   isLocked: { type: Boolean, default: false },
 })
 const emit = defineEmits(['left-click', 'right-click', 'reviews-click'])
-const IMAGE_URL = import.meta.env.VITE_IMAGE_URL
+const IMAGE_URL = useRuntimeConfig().public.imageUrl
 
 const handleCardClick = () => {
   emit('reviews-click', props.movie.id)

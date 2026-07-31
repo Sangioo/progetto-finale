@@ -58,7 +58,7 @@ onUnmounted(() => {
         </button>
 
         <!-- Brand -->
-        <nuxt-link
+        <NuxtLink
           class="group inline-flex items-center gap-3 text-xl font-bold tracking-tight laptop:text-2xl 4k:text-3xl"
           to="/" @click="closeHeader">
           <img src="/logo.svg" alt="FrameLog" class="hidden h-8 w-8 laptop:block" />
@@ -66,13 +66,13 @@ onUnmounted(() => {
             <span class="text-evergreen">Frame</span><span
               class="text-mint-leaf transition duration-300 group-hover:text-evergreen">Log</span>
           </span>
-        </nuxt-link>
+        </NuxtLink>
       </div>
 
       <!-- Mobile user profile -->
       <div class="flex items-center gap-3 laptop:hidden">
         <!-- User avatar -->
-        <nuxt-link v-if="isAuthenticated" to="/profile" @click="closeHeader" class="inline-flex">
+        <NuxtLink v-if="isAuthenticated" to="/profile" @click="closeHeader" class="inline-flex">
           <div
             class="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full border-2 border-muted-teal bg-evergreen transition hover:scale-105 hover:border-mint-leaf">
             <img v-if="profilePicture" :src="profilePicture" alt="Foto Profilo" class="h-full w-full object-cover" />
@@ -80,10 +80,10 @@ onUnmounted(() => {
               {{ username?.charAt(0).toUpperCase() }}
             </span>
           </div>
-        </nuxt-link>
+        </NuxtLink>
 
         <!-- Fallback -->
-        <nuxt-link v-else to="/login" @click="closeHeader"
+        <NuxtLink v-else to="/login" @click="closeHeader"
           class="inline-flex h-9 w-9 items-center justify-center rounded-full border-2 border-muted-teal text-evergreen transition hover:border-mint-leaf hover:bg-alabaster-grey"
           aria-label="Vai al login">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
@@ -91,7 +91,7 @@ onUnmounted(() => {
             <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
             <circle cx="12" cy="7" r="4"></circle>
           </svg>
-        </nuxt-link>
+        </NuxtLink>
       </div>
 
       <!-- Main navigation -->
@@ -101,47 +101,41 @@ onUnmounted(() => {
       ]">
         <ul class="flex flex-col gap-1 laptop:flex-row laptop:items-center laptop:gap-1">
           <li>
-            <nuxt-link
+            <NuxtLink
               class="block rounded-xl px-4 py-2 text-sm font-semibold text-slate-600 transition hover:bg-alabaster-grey hover:text-evergreen"
               @click="closeHeader" to="/">
               Home
-            </nuxt-link>
+            </NuxtLink>
           </li>
           <li>
-            <nuxt-link
+            <NuxtLink
               class="block rounded-xl px-4 py-2 text-sm font-semibold text-slate-600 transition hover:bg-alabaster-grey hover:text-evergreen"
               @click="closeHeader" to="/watchlist">
               Watchlist
-            </nuxt-link>
+            </NuxtLink>
           </li>
           <li>
-            <nuxt-link
+            <NuxtLink
               class="block rounded-xl px-4 py-2 text-sm font-semibold text-slate-600 transition hover:bg-alabaster-grey hover:text-evergreen"
               @click="closeHeader" to="/watched">
               Watched
-            </nuxt-link>
+            </NuxtLink>
           </li>
           <li>
-            <nuxt-link
+            <NuxtLink
               class="block rounded-xl px-4 py-2 text-sm font-semibold text-slate-600 transition hover:bg-alabaster-grey hover:text-evergreen"
               @click="closeHeader" to="/live">
               Live
-            </nuxt-link>
+            </NuxtLink>
           </li>
         </ul>
 
         <div class="flex flex-col gap-3 laptop:flex-row laptop:items-center laptop:gap-3">
           <themeToggle />
 
-          <!-- Loading indicator -->
-          <!-- <div v-if="isLoading" class="flex items-center justify-center px-2 py-1">
-            <span class="h-5 w-5 animate-spin rounded-full border-2 border-mint-leaf border-t-transparent"></span>
-            <span class="sr-only">Caricamento...</span>
-          </div> -->
-
           <!-- User profile -->
           <div v-if="isAuthenticated" class="hidden items-center gap-2 laptop:flex">
-            <nuxt-link to="/profile" @click="closeHeader"
+            <NuxtLink to="/profile" @click="closeHeader"
               class="inline-flex items-center gap-3 rounded-xl px-3 py-1 no-underline transition hover:bg-alabaster-grey">
               <span class="text-sm font-semibold text-evergreen">{{ username }}</span>
 
@@ -153,21 +147,21 @@ onUnmounted(() => {
                   {{ username?.charAt(0).toUpperCase() }}
                 </span>
               </div>
-            </nuxt-link>
+            </NuxtLink>
           </div>
 
           <!-- Login/Register links -->
           <div v-else class="flex flex-col gap-2 mobilel:flex-row mobilel:justify-end laptop:gap-2">
-            <nuxt-link
+            <NuxtLink
               class="inline-flex items-center justify-center rounded-lg border border-muted-teal px-4 py-2 text-sm font-semibold text-evergreen transition hover:border-evergreen hover:bg-alabaster-grey"
               @click="closeHeader" to="/login">
               Login
-            </nuxt-link>
-            <nuxt-link
+            </NuxtLink>
+            <NuxtLink
               class="inline-flex items-center justify-center rounded-lg border border-mint-leaf bg-mint-leaf px-4 py-2 text-sm font-semibold text-white transition hover:border-evergreen hover:bg-evergreen"
               @click="closeHeader" to="/register">
               Register
-            </nuxt-link>
+            </NuxtLink>
           </div>
         </div>
       </div>

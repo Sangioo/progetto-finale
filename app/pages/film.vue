@@ -90,7 +90,6 @@ const loadReviews = async () => {
     })
     const payload = await response.json()
     const data = payload.data || []
-    console.log(data)
     reviewsList.value = Array.isArray(data) ? data : []
   } catch (e) {
     console.error('Errore caricamento recensioni:', e)

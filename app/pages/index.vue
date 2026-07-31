@@ -80,8 +80,6 @@ async function loadMovies(appliedFilters = {}) {
     const payload = await response.json()
     movies.value[index.value] = payload.results || (Array.isArray(payload) ? payload : [])
 
-    console.log('Movies loaded:', movies.value[index.value])
-
     if (!hasSearched.value) {
       totalResults.value =
         payload.total_results ??

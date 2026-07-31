@@ -75,7 +75,6 @@ const fetchUserReviews = async () => {
     })
     const payload = await response.json()
     const data = payload.data || []
-    console.log('Fetched user reviews:', data)
     userReviews.value = Array.isArray(data) ? data : data.reviews || []
   } catch (e) {
     console.error(e)

@@ -20,7 +20,6 @@ const getMovies = async () => {
     })
     const payload = await response.json()
     const data = payload.movies || []
-    console.log('Watchlist data:', data)
     movies.value = Array.isArray(data) ? data : []
   } catch (error) {
     console.error('Errore recupero watchlist:', error)
@@ -47,7 +46,6 @@ async function deleteActionApi(endpoint, idFilm, successMsg) {
 
     if (data.success) {
       movies.value = movies.value.filter((m) => m.id !== idFilm)
-      console.log(successMsg)
     } else {
       alert('Errore: ' + (data.message || 'Sconosciuto'))
     }

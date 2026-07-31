@@ -25,7 +25,6 @@ const getMovies = async () => {
     const payload = await response.json()
     const data = payload.movies || []
     movies.value = Array.isArray(data) ? data : []
-    console.log('Film Watched ricevuti:', data)
   } catch (error) {
     console.error('Errore durante il recupero dei film watched:', error)
   } finally {
@@ -52,7 +51,6 @@ async function deleteActionApi(endpoint, idFilm, successMsg) {
 
     if (data.success) {
       movies.value = movies.value.filter((m) => m.id !== idFilm)
-      console.log(successMsg)
     } else {
       alert('Errore: ' + (data.message || 'Sconosciuto'))
     }

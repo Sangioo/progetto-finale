@@ -28,8 +28,6 @@ export default defineEventHandler(async (event) => {
 			...review,
 		}));
 
-		console.log("Fetched movie reviews:", movies);
-
 		return { success: true, data: movies };
 	} catch (err) {
 		console.error("Error fetching movie reviews:", err);

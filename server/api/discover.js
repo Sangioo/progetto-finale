@@ -63,6 +63,7 @@ export default defineEventHandler(async (event) => {
 			}
 			return {
 				...movie,
+				genre_ids: JSON.parse(movie.genre_ids),
 				watchStatus,
 			};
 		});

@@ -90,7 +90,8 @@ const loadReviews = async () => {
     })
     const payload = await response.json()
     const data = payload.data || []
-    reviewsList.value = Array.isArray(data) ? data.map((rev) => ({ ...rev, hasError: false })) : []
+    console.log(data)
+    reviewsList.value = Array.isArray(data) ? data : []
   } catch (e) {
     console.error('Errore caricamento recensioni:', e)
   } finally {
@@ -188,12 +189,7 @@ const handleLiveRoomAction = async () => {
 }
 
 const apriPopupRecensione = (rev) => {
-  selectedReviewForPopup.value = {
-    ...rev,
-    poster_path: movie.value.poster_path,
-    title: movie.value.title,
-    time: rev.data_creazione,
-  }
+  selectedReviewForPopup.value = rev
   isReviewPopupOpen.value = true
 }
 
@@ -248,7 +244,6 @@ const formatDate = (timestamp) => {
 }
 
 onMounted(() => {
-  console.log(user.value)
   syncAvatarFromStorage()
   if (movie.value && movie.value.watchStatus !== undefined) {
     localWatchStatus.value = movie.value.watchStatus

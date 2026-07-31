@@ -33,6 +33,17 @@ export default defineEventHandler(async (event) => {
 		if (userData.length > 0)
 			throw new Error("User has already reviewed this movie");
 
+		const { data: movieData, error: movieError } = await supabase
+			.from("watch")
+			.select("*")
+			.eq("movie", movieId)
+			.eq("user", user.sub);
+
+		if (movieError) throw movieError;
+
+		if (movieData.length === 0 || !movieData[0].watched)
+			throw new Error("User has not watched this movie");
+
 		const { error } = await supabase.from("reviews").insert({
 			user: user.sub,
 			movie: movieId,

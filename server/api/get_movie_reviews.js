@@ -14,18 +14,23 @@ export default defineEventHandler(async (event) => {
 	try {
 		const { data, error } = await supabase
 			.from("reviews")
-			.select("*, reviewer:users(username, profile_pic_url)")
+			.select(
+				"*, reviewer:users(username, profile_pic_url), movie:movies(*)",
+			)
 			.eq("movie", movieId);
 
 		if (error) throw error;
 
-		const enrichedData = data.map(({ reviewer, ...review }) => ({
-			...review,
+		const movies = data.map(({ reviewer, movie, ...review }) => ({
 			username: reviewer?.username || null,
 			profile_pic_url: reviewer?.profile_pic_url || null,
+			...movie,
+			...review,
 		}));
 
-		return { success: true, data: enrichedData };
+		console.log("Fetched movie reviews:", movies);
+
+		return { success: true, data: movies };
 	} catch (err) {
 		console.error("Error fetching movie reviews:", err);
 		return {

@@ -81,7 +81,7 @@ const handleReviewsClick = (movie) => {
     watchStatus: 1,
   }
   sessionStorage.setItem('selectedMovie', JSON.stringify(movieToSave))
-  navigateTo('/reviews')
+  navigateTo('/film')
 }
 
 onMounted(() => {

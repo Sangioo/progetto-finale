@@ -15,6 +15,7 @@ const getStatusClass = (val) => {
 }
 
 const formattedDate = computed(() => {
+  console.log(props.review)
   if (!props.review?.time) return 'Data non disponibile'
 
   const timestamp = props.review.time
@@ -54,12 +55,14 @@ const formattedDate = computed(() => {
             <div v-else
               class="w-100 aspect-2/3 bg-alabaster-grey rounded-2xl flex items-center justify-center text-[4rem]">🎬
             </div>
-            <p class="text-sm text-gray-500 text-center font-semibold m-0">{{ review?.title || review?.movie_title }}
+            <p class="text-sm text-gray-500 text-center font-semibold m-0">
+              {{ review?.title || 'Titolo non disponibile' }}
             </p>
           </div>
 
           <div class="flex flex-col gap-5 flex-1 min-w-0">
-            <h2 class="text-[28px] font-bold text-evergreen m-0 pr-10">{{ review?.title || review?.movie_title }}</h2>
+            <h2 class="text-[28px] font-bold text-evergreen m-0 pr-10">{{ review?.title || 'Titolo non disponibile' }}
+            </h2>
 
             <div class="flex items-center gap-4 flex-wrap text-sm pb-4 border-b border-gray-700">
               <span class="text-white py-1.5 px-3 rounded-lg font-bold shadow-sm"

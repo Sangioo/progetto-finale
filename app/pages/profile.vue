@@ -6,11 +6,11 @@ import ReviewPopup from '~/components/review_popup.vue'
 const runtimeConfig = useRuntimeConfig()
 const API_URL = runtimeConfig.public.apiUrl
 const IMAGE_URL = runtimeConfig.public.imageUrl
-const GET_REVIEWS = runtimeConfig.public.getMyReviewsEndpoint
-const DEL_REVIEW = runtimeConfig.public.deleteReviewEndpoint
-const UPDATE_PASSWORD = runtimeConfig.public.updatePasswordEndpoint
-const UPLOAD_AVATAR = runtimeConfig.public.uploadProfilePictureEndpoint
-const DEL_AVATAR = runtimeConfig.public.deleteProfilePictureEndpoint
+const GET_REVIEWS = runtimeConfig.public.getMyReviews
+const DEL_REVIEW = runtimeConfig.public.deleteReview
+const UPDATE_PASSWORD = runtimeConfig.public.updatePassword
+const UPLOAD_AVATAR = runtimeConfig.public.uploadProfilePicture
+const DEL_AVATAR = runtimeConfig.public.deleteProfilePicture
 
 const supabase = useSupabaseClient()
 const user = useSupabaseUser()
@@ -75,6 +75,7 @@ const fetchUserReviews = async () => {
     })
     const payload = await response.json()
     const data = payload.data || []
+    console.log('Fetched user reviews:', data)
     userReviews.value = Array.isArray(data) ? data : data.reviews || []
   } catch (e) {
     console.error(e)
@@ -83,7 +84,7 @@ const fetchUserReviews = async () => {
 }
 
 const handleDeleteReview = async (review) => {
-  const idFilm = review.idFilm
+  const idFilm = review.id
 
   if (!idFilm) {
     showPopup('Errore', 'Impossibile identificare il film di questa recensione.', 'error')
@@ -98,7 +99,7 @@ const handleDeleteReview = async (review) => {
     const data = await response.json()
 
     if (data.success) {
-      userReviews.value = userReviews.value.filter((r) => r.idFilm !== idFilm)
+      userReviews.value = userReviews.value.filter((r) => r.movie.id !== idFilm)
       showPopup('Successo', 'Recensione rimossa con successo.', 'success')
     } else {
       showPopup('Errore', data.message || 'Cancellazione fallita.', 'error')
@@ -268,23 +269,19 @@ const formatDate = (timestamp) => {
   })
 }
 
-const goToFilm = (review) => {
+const goToFilm = (movie) => {
   const movieData = {
-    id: review.idFilm,
-    title: review.title,
-    poster_path: review.poster_path,
-    backdrop_path: review.backdrop_path,
-    overview: review.overview,
-    release_date: review.release_date,
-    vote_average: Number(review.vote_average),
-    genre_ids: typeof review.genre_ids === 'string' ? JSON.parse(review.genre_ids) : [],
-  }
-
-  const movieToSave = {
-    ...movieData,
+    id: movie.id,
+    title: movie.title,
+    poster_path: movie.poster_path,
+    backdrop_path: movie.backdrop_path,
+    overview: movie.overview,
+    release_date: movie.release_date,
+    vote_average: Number(movie.vote_average),
+    genre_ids: movie.genre_ids,
     watchStatus: 2,
   }
-  sessionStorage.setItem('selectedMovie', JSON.stringify(movieToSave))
+  sessionStorage.setItem('selectedMovie', JSON.stringify(movieData))
   navigateTo(`/film`)
 }
 
@@ -438,11 +435,11 @@ onMounted(() => {
           </div>
 
           <div v-else-if="userReviews.length > 0" class="dashboard-reviews-container">
-            <div v-for="review in userReviews" :key="review.idFilm" class="dashboard-review-row">
+            <div v-for="review in userReviews" :key="review.id" class="dashboard-review-row">
               <div class="movie-details-side">
                 <div class="movie-thumb-wrapper" @click="goToFilm(review)">
-                  <img v-if="review.movies.poster_path" :src="`${IMAGE_URL}${review.movies.poster_path}`"
-                    :alt="review.title" class="movie-thumb-img" />
+                  <img v-if="review.poster_path" :src="`${IMAGE_URL}${review.poster_path}`" :alt="review.title"
+                    class="movie-thumb-img" />
                   <div v-else class="movie-thumb-placeholder">🎬</div>
 
                   <div class="movie-thumb-overlay">
@@ -457,7 +454,7 @@ onMounted(() => {
 
                 <div class="movie-meta-titles">
                   <span class="movie-link-title" @click="goToFilm(review)">
-                    {{ review.movies.title || 'Dettagli Film' }}
+                    {{ review.title || 'Dettagli Film' }}
                   </span>
                   <span class="meta-date">
                     {{ formatDate(review.time) }}

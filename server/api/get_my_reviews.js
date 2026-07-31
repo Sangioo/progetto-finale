@@ -9,13 +9,19 @@ export default defineEventHandler(async (event) => {
 	try {
 		const { data, error } = await supabase
 			.from("reviews")
-			.select("movies:movies(*), content, score, time")
+			.select("movie:movies(*), content, score, time")
 			.eq("user", user.sub)
 			.order("time", { ascending: false });
 
 		if (error) throw error;
 
-		return { success: true, data };
+		const movies = data.map(({ movie, ...rest }) => ({
+			...movie,
+			genre_ids: JSON.parse(movie.genre_ids),
+			...rest,
+		}));
+
+		return { success: true, data: movies };
 	} catch (err) {
 		console.error(err);
 		return {

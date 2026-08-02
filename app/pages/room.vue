@@ -6,15 +6,12 @@
           <h1 class="room-title">Stanza: <span class="accent-text" id="title">chat</span></h1>
           <p class="room-subtitle">Goditi il film e chatta con la stanza</p>
         </div>
-        <button @click="leaveRoom" class="leave-button">Esci dalla Stanza</button>
+        <NuxtLink to="/" class="leave-button">Esci dalla Stanza</NuxtLink>
       </header>
 
       <div class="messages-area" ref="messagesAreaRef">
-        <div v-if="error" class="error-state">
-          <p>{{ error }}</p>
-        </div>
 
-        <div v-else-if="messages.length === 0" class="empty-state">
+        <div v-if="messages.length === 0" class="empty-state">
           <p>Ancora nessun messaggio. Inizia la conversazione!</p>
         </div>
 
@@ -49,7 +46,7 @@
       <footer class="input-area">
         <form @submit.prevent="sendMessage" class="message-form">
           <input v-model="newMessage" type="text" placeholder="Scrivi un messaggio (max 500 caratteri)..."
-            maxlength="500" class="message-input" :disabled="isSending" />
+            maxlength="500" class="message-input" />
 
           <div class="form-actions">
             <div class="left-actions">
@@ -63,8 +60,8 @@
               </button>
             </div>
 
-            <button type="submit" class="send-button" :disabled="isSending || !newMessage.trim()">
-              {{ isSending ? '...' : 'Invia' }}
+            <button type="submit" class="send-button" :disabled="!newMessage.trim()">
+              Invia
             </button>
           </div>
         </form>
@@ -109,13 +106,11 @@ const messages = ref([])
 const activeUsers = ref({})
 const newMessage = ref('')
 const sendAsSpoiler = ref(false)
-const isSending = ref(false)
-const error = ref(null)
 const messagesAreaRef = ref(null)
 const isSidebarOpen = ref(false)
 
 
-const channel = supabase.channel(`room:${movieId.value}:messages`, {
+const messagesChannel = supabase.channel(`${movieId.value}:messages`, {
   config: {
     broadcast: {
       self: true,
@@ -123,28 +118,61 @@ const channel = supabase.channel(`room:${movieId.value}:messages`, {
   },
 })
 
+const presenceChannel = supabase.channel(`${movieId.value}:presence`, {
+  config: {
+    presence: {
+      key: currentUsername.value || user.value?.sub || 'guest',
+    },
+  },
+})
+
+const syncActiveUsersFromPresence = () => {
+  const presenceState = presenceChannel.presenceState()
+
+  activeUsers.value = Object.fromEntries(
+    Object.entries(presenceState).map(([key, presences]) => [
+      key,
+      presences?.[0]?.joined_at ?? 0,
+    ])
+  )
+}
+
 const subscribeToChannel = () => {
-  channel
+  messagesChannel
     .on('broadcast', { event: '*' }, (payload) => {
       if (payload.event === 'new_message') {
         messages.value.push(payload.payload)
         scrollToBottom()
-      } else if (payload.event === 'user_joined' || payload.event === 'user_left') {
-        activeUsers.value = payload.payload.activeUsers
       }
     })
     .subscribe((status) => {
-      console.log('Channel status:', status)
+      console.log('Messages channel status:', status)
+    })
+
+  presenceChannel
+    .on('presence', { event: 'sync' }, () => {
+      syncActiveUsersFromPresence()
+    })
+    .subscribe(async (status) => {
+      console.log('Presence channel status:', status)
+
+      if (status !== 'SUBSCRIBED') return
+
+      await presenceChannel.track({
+        joined_at: Math.floor(Date.now()),
+      })
+      syncActiveUsersFromPresence()
     })
 }
 
-const unsubscribeFromChannel = () => {
-  channel.unsubscribe()
+const unsubscribeFromChannel = async () => {
+  await supabase.removeChannel(messagesChannel)
+  await supabase.removeChannel(presenceChannel)
 }
 
 const sendMessageToChannel = async (message) => {
   try {
-    await channel.send({
+    await messagesChannel.send({
       type: 'broadcast',
       event: 'new_message',
       payload: message,
@@ -165,11 +193,6 @@ const sendMessage = () => {
   })
 }
 
-const leaveRoom = async () => {
-  unsubscribeFromChannel()
-  await navigateTo('/')
-}
-
 const scrollToBottom = async () => {
   await nextTick()
   if (messagesAreaRef.value) {
@@ -178,37 +201,37 @@ const scrollToBottom = async () => {
 }
 
 const formatTime = (timestamp) => {
-  if (!timestamp) return ''
-  const date = new Date(timestamp)
-  return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+  return timestamp ? new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''
 }
 
 const enterRoom = async () => {
-  const { error } = await supabase
-    .from('rooms')
-    .insert([
-      {
-        movie: movieId.value,
-        user: user.value.sub,
-      }
-    ])
-  if (error) {
-    console.error('Errore durante l\'unione alla stanza:', error)
-  } else {
-    console.log('Unito con successo alla stanza', movieId.value)
+  try {
+    const { error } = await supabase
+      .from('rooms')
+      .insert([
+        {
+          movie: movieId.value,
+          user: user.value.sub,
+        }
+      ])
+
+    if (error) throw error
+  } catch (err) {
+    console.error('Errore durante l\'unione alla stanza:', err)
   }
 }
 
 const deleteRoom = async () => {
-  const { error } = await supabase
-    .from('rooms')
-    .delete()
-    .eq('movie', movieId.value)
-    .eq('user', user.value.sub)
-  if (error) {
-    console.error('Errore durante l\'uscita dalla stanza:', error)
-  } else {
-    console.log('Uscito con successo dalla stanza', movieId.value)
+  try {
+    const { error } = await supabase
+      .from('rooms')
+      .delete()
+      .eq('movie', movieId.value)
+      .eq('user', user.value.sub)
+
+    if (error) throw error
+  } catch (err) {
+    console.error('Errore durante l\'uscita dalla stanza:', err)
   }
 }
 
@@ -217,7 +240,7 @@ onMounted(async () => {
   subscribeToChannel()
 })
 onUnmounted(async () => {
-  unsubscribeFromChannel()
+  await unsubscribeFromChannel()
   await deleteRoom()
 })
 </script>

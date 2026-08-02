@@ -43,6 +43,14 @@ export default defineEventHandler(async (event) => {
 			backdrop_path: movie.backdrop_path,
 		}));
 
+		if (!user) {
+			return movies.map((movie) => ({
+				...movie,
+				genre_ids: movie.genre_ids ? JSON.parse(movie.genre_ids) : [],
+				watchStatus: 0, // Not watched
+			}));
+		}
+
 		const { data, error } = await supabase
 			.from("movies")
 			.upsert(movies)
@@ -71,9 +79,10 @@ export default defineEventHandler(async (event) => {
 		return toReturn;
 	} catch (err) {
 		console.error(err);
-		return {
-			success: false,
-			message: err.message || "Error fetching discover movies",
-		};
+		throw createError({
+			statusCode: 500,
+			statusMessage:
+				err.message || "Errore durante il recupero dei film.",
+		});
 	}
 });

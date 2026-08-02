@@ -40,6 +40,7 @@ export default defineNuxtConfig({
 			baseUrl: "http://localhost:3000",
 			apiUrl: "http://localhost:3000/api",
 			imageUrl: "https://image.tmdb.org/t/p/w342",
+			placeholderImage: "/placeholder.png",
 
 			discover: "discover",
 			search: "search",

@@ -35,6 +35,15 @@ export default defineEventHandler(async (event) => {
 
 		if (userTableError) throw userTableError;
 
+		const { error: authError } = await supabase.auth.admin.updateUserById(
+			user.sub,
+			{
+				user_metadata: { profile_pic_url: null },
+			},
+		);
+
+		if (authError) throw authError;
+
 		return {
 			success: true,
 			message: "Profile picture deleted successfully",

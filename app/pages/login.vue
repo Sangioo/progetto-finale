@@ -11,12 +11,10 @@ const supabase = useSupabaseClient()
 
 const email = ref('')
 const password = ref('')
-const isLoading = ref(false)
 const errorMsg = ref('')
 
 const handleLogin = async () => {
   try {
-    isLoading.value = true
     errorMsg.value = ''
 
     const { error } = await supabase.auth.signInWithPassword({
@@ -24,16 +22,12 @@ const handleLogin = async () => {
       password: password.value,
     })
 
-    if (error) {
-      errorMsg.value = error.message
-    } else {
-      await navigateTo('/')
-    }
-  } catch (error) {
+    if (error) throw error
+
+    await navigateTo('/')
+  } catch (err) {
+    console.error('Errore durante il login:', err)
     errorMsg.value = 'Si è verificato un errore durante il login.'
-    console.error('Errore durante il login:', error)
-  } finally {
-    isLoading.value = false
   }
 }
 </script>
@@ -58,8 +52,8 @@ const handleLogin = async () => {
               required />
           </div>
 
-          <button class="btn btn-primary mt-2" type="submit" :disabled="isLoading">
-            {{ isLoading ? 'Connessione...' : 'Login' }}
+          <button class="btn btn-primary mt-2" type="submit">
+            Login
           </button>
 
           <div v-if="errorMsg" class="alert alert-danger" role="alert">

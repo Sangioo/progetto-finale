@@ -36,16 +36,11 @@ const selectedReviewToRead = ref(null)
 
 const fetchUserReviews = async () => {
   try {
-    const response = await fetch(`${API_URL}/${GET_REVIEWS}`, {
-      method: 'GET',
-      credentials: 'include',
-    })
-    const payload = await response.json()
+    const payload = await callApi({ endpoint: GET_REVIEWS })
     const data = payload.data || []
     userReviews.value = Array.isArray(data) ? data : data.reviews || []
-  } catch (e) {
-    console.error(e)
-    showPopup('Errore', 'Impossibile caricare lo storico recensioni.', 'error')
+  } catch (err) {
+    showPopup('Errore', err.message || 'Impossibile caricare lo storico recensioni.', 'error')
   }
 }
 
@@ -58,20 +53,16 @@ const handleDeleteReview = async (review) => {
   }
 
   try {
-    const response = await fetch(`${API_URL}/${DEL_REVIEW}?movieId=${parseInt(idFilm, 10)}`, {
-      method: 'GET',
-      credentials: 'include',
+    await callApi({
+      endpoint: DEL_REVIEW,
+      query: { movieId: parseInt(idFilm, 10) },
+      parseJson: false,
     })
-    const data = await response.json()
 
-    if (data.success) {
-      userReviews.value = userReviews.value.filter((r) => r.movie.id !== idFilm)
-      showPopup('Successo', 'Recensione rimossa con successo.', 'success')
-    } else {
-      showPopup('Errore', data.message || 'Cancellazione fallita.', 'error')
-    }
-  } catch (error) {
-    showPopup('Errore', 'Errore di rete durante la cancellazione.', 'error')
+    userReviews.value = userReviews.value.filter((r) => r.id !== idFilm)
+    showPopup('Successo', 'Recensione rimossa con successo.', 'success')
+  } catch (err) {
+    showPopup('Errore', err.message || 'Errore di rete durante la cancellazione.', 'error')
   }
 }
 
@@ -86,29 +77,26 @@ const handleAvatarUpload = async (event) => {
 
   isActionLoading.value = true
   try {
-    const response = await fetch(`${API_URL}/${UPLOAD_AVATAR}`, {
+    const data = await callApi({
+      endpoint: UPLOAD_AVATAR,
       method: 'POST',
       body: formData,
-      credentials: 'include',
+      parseJson: true,
     })
-    const data = await response.json()
 
-    if (data.success) {
-      const newAvatarUrl = data.path
+    const newAvatarUrl = data.path
 
-      userAvatarUrl.value = newAvatarUrl
-      if (import.meta.client) {
-        sessionStorage.setItem('profilePicture', newAvatarUrl)
-      }
-
-      window.dispatchEvent(new Event('avatar-updated'))
-
-      showPopup('Successo', 'Foto profilo aggiornata con successo!', 'success')
-    } else {
-      showPopup('Errore', data.message || 'Caricamento immagine fallito.', 'error')
+    userAvatarUrl.value = newAvatarUrl
+    if (import.meta.client) {
+      sessionStorage.setItem('profilePicture', newAvatarUrl)
     }
+
+    window.dispatchEvent(new Event('avatar-updated'))
+
+    showPopup('Successo', 'Foto profilo aggiornata con successo!', 'success')
+
   } catch (e) {
-    showPopup('Errore', 'Errore di connessione durante il caricamento del file.', 'error')
+    showPopup('Errore', err.message || 'Errore di connessione durante il caricamento del file.', 'error')
   } finally {
     isActionLoading.value = false
     if (fileInput.value) fileInput.value.value = ''
@@ -123,25 +111,21 @@ const confirmRemoveAvatar = async () => {
   isConfirmPopupOpen.value = false
   isActionLoading.value = true
   try {
-    const response = await fetch(`${API_URL}/${DEL_AVATAR}`, {
+    await callApi({
+      endpoint: DEL_AVATAR,
       method: 'POST',
-      credentials: 'include',
+      parseJson: true,
     })
-    const data = await response.json()
 
-    if (data.success) {
-      userAvatarUrl.value = null
-      if (import.meta.client) {
-        sessionStorage.removeItem('profilePicture')
-      }
-
-      window.dispatchEvent(new Event('avatar-updated'))
-      showPopup('Successo', 'Foto profilo rimossa!', 'success')
-    } else {
-      showPopup('Errore', data.message || 'Rimozione fallita.', 'error')
+    userAvatarUrl.value = null
+    if (import.meta.client) {
+      sessionStorage.removeItem('profilePicture')
     }
-  } catch (e) {
-    showPopup('Errore', 'Errore di connessione durante la rimozione.', 'error')
+
+    window.dispatchEvent(new Event('avatar-updated'))
+    showPopup('Successo', 'Foto profilo rimossa!', 'success')
+  } catch (err) {
+    showPopup('Errore', err.message || 'Errore di connessione durante la rimozione.', 'error')
   } finally {
     isActionLoading.value = false
   }
@@ -155,27 +139,21 @@ const handleCambiaPassword = async () => {
 
   isActionLoading.value = true
   try {
-    const response = await fetch(`${API_URL}/${UPDATE_PASSWORD}`, {
+    const data = await callApi({
+      endpoint: UPDATE_PASSWORD,
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         password: vecchiaPassword.value,
         newPassword: nuovaPassword.value,
       }),
-      credentials: 'include',
     })
-    const data = await response.json()
 
-    if (data.success) {
-      vecchiaPassword.value = ''
-      nuovaPassword.value = ''
-      confermaPassword.value = ''
-      showPopup('Successo', 'Password aggiornata con successo.', 'success')
-    } else {
-      showPopup('Errore', data.message || 'Impossibile aggiornare la password.', 'error')
-    }
-  } catch (e) {
-    showPopup('Errore', "Errore di rete durante l'aggiornamento della password.", 'error')
+    vecchiaPassword.value = ''
+    nuovaPassword.value = ''
+    confermaPassword.value = ''
+    showPopup('Successo', 'Password aggiornata con successo.', 'success')
+  } catch (err) {
+    showPopup('Errore', err.message || "Errore di rete durante l'aggiornamento della password.", 'error')
   } finally {
     isActionLoading.value = false
   }

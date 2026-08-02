@@ -7,7 +7,7 @@ export default defineEventHandler(async (event) => {
 	const supabase = serverSupabaseServiceRole(event);
 	const user = await serverSupabaseUser(event);
 	const body = await readBody(event);
-	const { newPassword } = body;
+	const newPassword = JSON.parse(body).newPassword;
 
 	if (!user) {
 		return { success: false, message: "User not authenticated" };

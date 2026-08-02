@@ -14,72 +14,51 @@ const isLoading = ref(false)
 const getMovies = async () => {
   isLoading.value = true
   try {
-    const response = await fetch(`${API_URL}/${GET_WATCHLIST_ENDPOINT}`, {
-      method: 'GET',
-      credentials: 'include',
+    const payload = await callApi({
+      endpoint: GET_WATCHLIST_ENDPOINT,
     })
-    const payload = await response.json()
     const data = payload.movies || []
     movies.value = Array.isArray(data) ? data : []
-  } catch (error) {
-    console.error('Errore recupero watchlist:', error)
+  } catch (err) {
+    console.error(err.message || 'Errore durante il recupero dei film in watchlist')
   } finally {
     isLoading.value = false
   }
 }
 
-async function deleteActionApi(endpoint, idFilm, successMsg) {
-  try {
-    const url = `${API_URL}/${endpoint}?movieId=${idFilm}`
-    const response = await fetch(url, {
-      method: 'GET',
-      credentials: 'include',
-    })
-
-    if (!response.ok) {
-      console.error(`Errore HTTP: ${response.status}`)
-      alert(`Si è verificato un errore del server (${response.status}).`)
-      return
-    }
-
-    const data = await response.json()
-
-    if (data.success) {
-      movies.value = movies.value.filter((m) => m.id !== idFilm)
-    } else {
-      alert('Errore: ' + (data.message || 'Sconosciuto'))
-    }
-  } catch (error) {
-    console.error('Errore di rete:', error)
-    alert("Errore di rete durante l'operazione.")
-  }
-}
-
 const deleteFromWatchlist = async (movie) => {
   try {
-    await deleteActionApi(DELETE_FROM_WATCHLIST_ENDPOINT, movie.id, 'Rimosso dalla Watchlist!')
+    await callApi({
+      endpoint: DELETE_FROM_WATCHLIST_ENDPOINT,
+      query: { movieId: movie.id },
+    })
+    movies.value = movies.value.filter((m) => m.id !== movie.id)
     movie.watchStatus = 0
-  } catch (e) {
-    console.error(e)
+  } catch (err) {
+    console.error(err.message || 'Errore durante la rimozione dalla watchlist')
   }
 }
 
 const addToWatched = async (movie) => {
   try {
-    await deleteActionApi(ADD_TO_WATCHED_ENDPOINT, movie.id, 'Segnato come Visto!')
+    await callApi({
+      endpoint: ADD_TO_WATCHED_ENDPOINT,
+      query: { movieId: movie.id },
+    })
+    movies.value = movies.value.filter((m) => m.id !== movie.id)
     movie.watchStatus = 2
-  } catch (e) {
-    console.error(e)
+  } catch (err) {
+    console.error(err.message || 'Errore durante l\'aggiunta ai visti')
   }
 }
 
-const handleReviewsClick = (movie) => {
+const handleReviewsClick = async (movie) => {
   const movieToSave = {
     ...movie,
     watchStatus: 1,
   }
   sessionStorage.setItem('selectedMovie', JSON.stringify(movieToSave))
-  navigateTo('/film')
+  await navigateTo('/film')
 }
 
 onMounted(() => {

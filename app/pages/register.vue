@@ -30,7 +30,7 @@ const handleSignup = async () => {
     errorMsg.value = ''
     successMsg.value = ''
 
-    const { data, error } = await supabase.auth.signUp({
+    const { error } = await supabase.auth.signUp({
       email: email.value,
       password: password.value,
       options: {
@@ -40,17 +40,16 @@ const handleSignup = async () => {
       },
     })
 
-    if (error) {
-      errorMsg.value = error.message
-    } else {
-      successMsg.value = 'Registrazione completata! Controlla la tua casella email per confermare l\'account.'
+    if (error) throw error
 
-      email.value = ''
-      password.value = ''
-    }
-  } catch (error) {
+    successMsg.value = 'Registrazione completata! Controlla la tua casella email per confermare l\'account.'
+
+    email.value = ''
+    password.value = ''
+    confirmPassword.value = ''
+  } catch (err) {
     errorMsg.value = 'Si è verificato un errore inaspettato.'
-    console.error(error)
+    console.error(err.message || 'Errore durante la registrazione:')
   } finally {
     isLoading.value = false
   }

@@ -13,69 +13,38 @@ const isLoading = ref(false)
 const getMovies = async () => {
   isLoading.value = true
   try {
-    const response = await fetch(`${API_URL}/${GET_WATCHED_ENDPOINT}`, {
-      method: 'GET',
-      credentials: 'include',
+    const payload = await callApi({
+      endpoint: GET_WATCHED_ENDPOINT,
     })
-
-    if (!response.ok) {
-      throw new Error(`Errore nella risposta: ${response.status}`)
-    }
-
-    const payload = await response.json()
     const data = payload.movies || []
     movies.value = Array.isArray(data) ? data : []
-  } catch (error) {
-    console.error('Errore durante il recupero dei film watched:', error)
+  } catch (err) {
+    console.error(err.message || 'Errore durante il recupero dei film guardati:')
   } finally {
     isLoading.value = false
   }
 }
 
-async function deleteActionApi(endpoint, idFilm, successMsg) {
+async function deleteFromWatched(movie) {
   try {
-    const url = `${API_URL}/${endpoint}?movieId=${idFilm}`
-    const response = await fetch(url, {
-      method: 'GET',
-      credentials: 'include',
+    await callApi({
+      endpoint: DELETE_FROM_WATCHED_ENDPOINT,
+      query: { movieId: movie.id },
     })
-
-    if (!response.ok) {
-      const errorText = await response.text()
-      console.error('Il server ha risposto con un errore:', response.status, errorText)
-      alert(`Errore del server (${response.status}): controlla la console.`)
-      return
-    }
-
-    const data = await response.json()
-
-    if (data.success) {
-      movies.value = movies.value.filter((m) => m.id !== idFilm)
-    } else {
-      alert('Errore: ' + (data.message || 'Sconosciuto'))
-    }
-  } catch (error) {
-    console.error("Errore durante l'operazione:", error)
-    alert('Si è verificato un errore imprevisto.')
-  }
-}
-
-const deleteFromWatched = async (movie) => {
-  try {
-    await deleteActionApi(DELETE_FROM_WATCHED_ENDPOINT, movie.id, 'Rimosso!')
+    movies.value = movies.value.filter((m) => m.id !== movie.id)
     movie.watchStatus = 0
-  } catch (e) {
-    console.error(e)
+  } catch (err) {
+    console.error(err.message || 'Errore durante la rimozione dal watchlist')
   }
 }
 
-const handleReviewsClick = (movie) => {
+const handleReviewsClick = async (movie) => {
   const movieToSave = {
     ...movie,
     watchStatus: 2,
   }
   sessionStorage.setItem('selectedMovie', JSON.stringify(movieToSave))
-  navigateTo('/film')
+  await navigateTo('/film')
 }
 
 onMounted(() => {

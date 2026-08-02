@@ -62,15 +62,11 @@ const localWatchStatus = ref(movie.value?.watchStatus || 0)
 
 async function loadReviews() {
   try {
-    const response = await fetch(`${API_URL}/${GET_REVIEWS}?movieId=${movie.value.id}`, {
-      method: 'GET',
-      credentials: 'include',
+    const response = await callApi({
+      endpoint: GET_REVIEWS,
+      query: { movieId: movie.value.id },
     })
-
-    if (!response.ok) throw new Error(response.statusText)
-
-    const payload = await response.json()
-    const data = payload.data || []
+    const data = response.data || []
     reviewsList.value = Array.isArray(data) ? data : []
   } catch (err) {
     console.error('Errore caricamento recensioni:', err)
@@ -81,25 +77,21 @@ async function handleInviaRecensione() {
   if (!recensioneTesto.value.trim()) return
 
   try {
-    const params = new URLSearchParams({
-      movieId: movie.value.id,
-      score: Math.round(userVoteStars.value * 2),
-      content: recensioneTesto.value.trim(),
+    await callApi({
+      endpoint: ADD_REVIEW,
+      query: {
+        movieId: movie.value.id,
+        score: Math.round(userVoteStars.value * 2),
+        content: recensioneTesto.value.trim(),
+      },
+      parseJson: false,
     })
-
-    const response = await fetch(`${API_URL}/${ADD_REVIEW}?${params.toString()}`, {
-      method: 'GET',
-      credentials: 'include',
-    })
-
-    if (!response.ok) throw new Error(response.statusText)
 
     recensioneTesto.value = ''
     userVoteStars.value = 3
     await loadReviews()
   } catch (err) {
-    console.error('Errore di rete:', err)
-    errorMessage.value = 'Errore durante l\'invio della recensione. Riprova più tardi.'
+    errorMessage.value = err.message || 'Errore durante l\'invio della recensione. Riprova più tardi.'
     isErrorOpen.value = true
   }
 }
@@ -119,10 +111,10 @@ async function toggleWatchlist() {
     const endpoint =
       localWatchStatus.value === 1 ? ADD_TO_WATCHLIST_ENDPOINT : DELETE_FROM_WATCHLIST_ENDPOINT
     await callActionApi(endpoint, movie.value.id)
+
     updateSessionMovieStatus(localWatchStatus.value)
   } catch (err) {
-    console.error('Errore durante l\'aggiornamento della watchlist:', err)
-    errorMessage.value = 'Errore durante l\'aggiornamento della watchlist. Riprova più tardi.'
+    errorMessage.value = err.message || 'Errore durante l\'aggiornamento della watchlist. Riprova più tardi.'
     isErrorOpen.value = true
   }
 }
@@ -133,10 +125,10 @@ async function toggleWatched() {
     const endpoint =
       localWatchStatus.value === 2 ? ADD_TO_WATCHED_ENDPOINT : DELETE_FROM_WATCHED_ENDPOINT
     await callActionApi(endpoint, movie.value.id)
+
     updateSessionMovieStatus(localWatchStatus.value)
   } catch (err) {
-    console.error('Errore durante l\'aggiornamento della lista dei visti:', err)
-    errorMessage.value = 'Errore durante l\'aggiornamento della lista dei visti. Riprova più tardi.'
+    errorMessage.value = err.message || 'Errore durante l\'aggiornamento della lista dei visti. Riprova più tardi.'
     isErrorOpen.value = true
   }
 }

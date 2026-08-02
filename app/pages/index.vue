@@ -61,24 +61,13 @@ async function loadMovies(appliedFilters = {}) {
   isLoading.value = true
   fetchError.value = ''
   try {
-    const baseUrl = `${API_URL}/${DISCOVER_ENDPOINT}`.replace(/([^:]\/)\/+/g, '$1')
-    const url = new URL(baseUrl)
-
-    Object.entries(appliedFilters).forEach(([key, value]) => {
-      if (value !== null && value !== undefined && value !== '') url.searchParams.set(key, value)
-    })
-    url.searchParams.set('page', index.value + 1)
-
-    const response = await fetch(url, {
-      method: 'GET',
-      credentials: 'include',
+    const payload = await callApi({
+      endpoint: DISCOVER_ENDPOINT,
+      query: { ...appliedFilters, page: index.value + 1 },
       headers: { Accept: 'application/json' },
     })
 
-    if (!response.ok) throw new Error(response.statusText)
-
-    const payload = await response.json()
-    movies.value[index.value] = payload.results || (Array.isArray(payload) ? payload : [])
+    movies.value[index.value] = Array.isArray(payload) ? payload : []
 
     if (!hasSearched.value) {
       totalResults.value =
@@ -86,7 +75,7 @@ async function loadMovies(appliedFilters = {}) {
         (Array.isArray(payload) ? payload.length : (payload.results?.length ?? 0))
     }
   } catch (err) {
-    fetchError.value = 'Servizio momentaneamente non disponibile.'
+    fetchError.value = err.message || 'Servizio momentaneamente non disponibile.'
   } finally {
     isLoading.value = false
   }
@@ -107,22 +96,16 @@ const searchMovies = async () => {
   hasSearched.value = true
 
   try {
-    const url = new URL(`${API_URL}/${SEARCH_ENDPOINT}`)
-    url.searchParams.set('query', term)
-
-    const response = await fetch(url, {
-      method: 'GET',
-      credentials: 'include',
+    const payload = await callApi({
+      endpoint: SEARCH_ENDPOINT,
+      query: { query: term },
       headers: { Accept: 'application/json' },
     })
 
-    if (!response.ok) throw new Error(response.statusText)
-
-    const payload = await response.json()
     const results = Array.isArray(payload) ? payload : payload.results || []
     searchResults.value = results
-  } catch (error) {
-    fetchError.value = 'Nessun risultato trovato. Riprova con un altro titolo.'
+  } catch (err) {
+    fetchError.value = err.message || 'Nessun risultato trovato. Riprova con un altro titolo.'
     searchResults.value = []
   } finally {
     isLoading.value = false

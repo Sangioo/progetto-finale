@@ -129,18 +129,6 @@ const searchMovies = async () => {
   }
 }
 
-async function callActionApi(endpoint, movieId) {
-  try {
-    const response = await fetch(`${API_URL}/${endpoint}?movieId=${movieId}`, {
-      method: 'GET',
-      credentials: 'include'
-    })
-    if (!response.ok) throw new Error(response.statusText)
-  } catch (error) {
-    console.error('Errore API:', error)
-  }
-}
-
 const handleLeftClick = async (movie) => {
   if (!isAuthenticated.value) {
     authModalMessage.value =

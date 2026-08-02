@@ -18,13 +18,10 @@ const user = useSupabaseUser()
 const userVoteStars = ref(3)
 const hoverVoteStars = ref(null)
 const recensioneTesto = ref('')
-const isLoading = ref(false)
-const isFetchingReviews = ref(false)
 const reviewsList = ref([])
 const isLoadingRoom = ref(false)
 const isReviewPopupOpen = ref(false)
 const selectedReviewForPopup = ref(null)
-const isLoadingReviewAnimation = ref(false)
 const isErrorOpen = ref(false)
 const errorMessage = ref('')
 
@@ -63,72 +60,51 @@ const movie = computed(() => {
 })
 const localWatchStatus = ref(movie.value?.watchStatus || 0)
 
-const loadReviews = async () => {
-  isFetchingReviews.value = true
+async function loadReviews() {
   try {
     const response = await fetch(`${API_URL}/${GET_REVIEWS}?movieId=${movie.value.id}`, {
       method: 'GET',
       credentials: 'include',
     })
+
+    if (!response.ok) throw new Error(response.statusText)
+
     const payload = await response.json()
     const data = payload.data || []
     reviewsList.value = Array.isArray(data) ? data : []
-  } catch (e) {
-    console.error('Errore caricamento recensioni:', e)
-  } finally {
-    isFetchingReviews.value = false
+  } catch (err) {
+    console.error('Errore caricamento recensioni:', err)
   }
 }
 
-const handleInviaRecensione = async () => {
+async function handleInviaRecensione() {
   if (!recensioneTesto.value.trim()) return
 
-  isLoading.value = true
-  const params = new URLSearchParams({
-    movieId: movie.value.id,
-    score: Math.round(userVoteStars.value * 2),
-    content: recensioneTesto.value.trim(),
-  })
-
   try {
+    const params = new URLSearchParams({
+      movieId: movie.value.id,
+      score: Math.round(userVoteStars.value * 2),
+      content: recensioneTesto.value.trim(),
+    })
+
     const response = await fetch(`${API_URL}/${ADD_REVIEW}?${params.toString()}`, {
       method: 'GET',
       credentials: 'include',
     })
-    const data = JSON.parse(await response.text())
 
-    if (data.success) {
-      recensioneTesto.value = ''
-      userVoteStars.value = 3
-      isLoadingReviewAnimation.value = true
-      await loadReviews()
-      setTimeout(() => {
-        isLoadingReviewAnimation.value = false
-      }, 800)
-    } else {
-      errorMessage.value = data.message || "Errore durante l'invio della recensione."
-      isErrorOpen.value = true
-    }
-  } catch (error) {
-    console.error('Errore di rete:', error)
-    errorMessage.value = 'Errore di connessione. Riprova più tardi.'
+    if (!response.ok) throw new Error(response.statusText)
+
+    recensioneTesto.value = ''
+    userVoteStars.value = 3
+    await loadReviews()
+  } catch (err) {
+    console.error('Errore di rete:', err)
+    errorMessage.value = 'Errore durante l\'invio della recensione. Riprova più tardi.'
     isErrorOpen.value = true
-  } finally {
-    isLoading.value = false
   }
 }
 
-async function callActionApi(endpoint, idFilm) {
-  try {
-    const url = `${API_URL}/${endpoint}?movieId=${idFilm}`
-    const response = await fetch(url, { method: 'GET', credentials: 'include' })
-    if (!response.ok) throw new Error('Azione fallita')
-  } catch (error) {
-    console.error('Errore API Azione:', error)
-  }
-}
-
-const updateSessionMovieStatus = (newStatus) => {
+function updateSessionMovieStatus(newStatus) {
   const storedMovie = sessionStorage.getItem('selectedMovie')
   if (storedMovie) {
     const parsedMovie = JSON.parse(storedMovie)
@@ -137,48 +113,50 @@ const updateSessionMovieStatus = (newStatus) => {
   }
 }
 
-const toggleWatchlist = async () => {
-  if (!isAuthenticated) {
-    errorMessage.value = "Devi effettuare l'accesso per gestire la tua watchlist."
-    isErrorOpen.value = true
-    return
-  }
+async function toggleWatchlist() {
   localWatchStatus.value = localWatchStatus.value === 1 ? 0 : 1
-  updateSessionMovieStatus(localWatchStatus.value)
-  const endpoint =
-    localWatchStatus.value === 1 ? ADD_TO_WATCHLIST_ENDPOINT : DELETE_FROM_WATCHLIST_ENDPOINT
-  await callActionApi(endpoint, movie.value.id)
-}
-
-const toggleWatched = async () => {
-  if (!isAuthenticated) {
-    errorMessage.value = "Devi effettuare l'accesso per gestire i film visti."
+  try {
+    const endpoint =
+      localWatchStatus.value === 1 ? ADD_TO_WATCHLIST_ENDPOINT : DELETE_FROM_WATCHLIST_ENDPOINT
+    await callActionApi(endpoint, movie.value.id)
+    updateSessionMovieStatus(localWatchStatus.value)
+  } catch (err) {
+    console.error('Errore durante l\'aggiornamento della watchlist:', err)
+    errorMessage.value = 'Errore durante l\'aggiornamento della watchlist. Riprova più tardi.'
     isErrorOpen.value = true
-    return
   }
-  localWatchStatus.value = localWatchStatus.value === 2 ? 0 : 2
-  updateSessionMovieStatus(localWatchStatus.value)
-  const endpoint =
-    localWatchStatus.value === 2 ? ADD_TO_WATCHED_ENDPOINT : DELETE_FROM_WATCHED_ENDPOINT
-  await callActionApi(endpoint, movie.value.id)
 }
 
-const handleLiveRoomAction = async () => {
+async function toggleWatched() {
+  localWatchStatus.value = localWatchStatus.value === 2 ? 0 : 2
+  try {
+    const endpoint =
+      localWatchStatus.value === 2 ? ADD_TO_WATCHED_ENDPOINT : DELETE_FROM_WATCHED_ENDPOINT
+    await callActionApi(endpoint, movie.value.id)
+    updateSessionMovieStatus(localWatchStatus.value)
+  } catch (err) {
+    console.error('Errore durante l\'aggiornamento della lista dei visti:', err)
+    errorMessage.value = 'Errore durante l\'aggiornamento della lista dei visti. Riprova più tardi.'
+    isErrorOpen.value = true
+  }
+}
+
+async function handleLiveRoomAction() {
   if (!movie.value || !movie.value.id) return
 
   await navigateTo({ path: '/room', query: { movieId: movie.value.id } })
 }
 
-const apriPopupRecensione = (rev) => {
+function apriPopupRecensione(rev) {
   selectedReviewForPopup.value = rev
   isReviewPopupOpen.value = true
 }
 
-const setRating = (val) => {
-  if (!isLoading.value) userVoteStars.value = val
+function setRating(val) {
+  userVoteStars.value = val
 }
 
-const handleInputRating = (e) => {
+function handleInputRating(e) {
   if (e.target.value === '') {
     userVoteStars.value = 0
     return
@@ -190,7 +168,7 @@ const handleInputRating = (e) => {
   userVoteStars.value = val / 2
 }
 
-const handleInputBlur = (e) => {
+function handleInputBlur(e) {
   let val = parseInt(e.target.value, 10)
   if (isNaN(val) || val < 0) val = 0
   if (val > 10) val = 10
@@ -198,7 +176,7 @@ const handleInputBlur = (e) => {
   e.target.value = val
 }
 
-const genreName = (id) => {
+function genreName(id) {
   const genresStr = sessionStorage.getItem('genres')
   if (!genresStr || genresStr === 'undefined') return 'Genere'
   const genres = JSON.parse(genresStr)
@@ -206,13 +184,13 @@ const genreName = (id) => {
   return genre ? genre.name : 'Genere'
 }
 
-const getStatusClass = (val) => {
+function getStatusClass(val) {
   if (val < 6) return 'status-low'
   if (val < 8) return 'status-mid'
   return 'status-high'
 }
 
-const formatDate = (timestamp) => {
+function formatDate(timestamp) {
   if (!timestamp) return ''
   const dateObj = new Date(timestamp)
   return dateObj.toLocaleString('it-IT', {
@@ -224,8 +202,8 @@ const formatDate = (timestamp) => {
   })
 }
 
-onMounted(() => {
-  loadReviews()
+onMounted(async () => {
+  await loadReviews()
 })
 
 onUnmounted(() => {
@@ -255,7 +233,7 @@ onUnmounted(() => {
 
     <div class="content-container">
       <main class="main-content-area">
-        <button @click="navigateTo('/')" class="btn-back-top">← Torna ai film</button>
+        <NuxtLink to="/" class="btn-back-top">← Torna ai film</NuxtLink>
 
         <div class="movie-hero-flex">
           <aside class="poster-section">
@@ -335,16 +313,15 @@ onUnmounted(() => {
 
             <div class="editor-body">
               <div class="textarea-wrapper">
-                <textarea v-model="recensioneTesto" placeholder="Scrivi qui la tua recensione..." maxlength="1000"
-                  :disabled="isLoading"></textarea>
+                <textarea v-model="recensioneTesto" placeholder="Scrivi qui la tua recensione..."
+                  maxlength="1000"></textarea>
                 <div class="char-count">{{ recensioneTesto.length }}/1000</div>
               </div>
 
               <div class="rating-box-professional">
                 <div class="rating-interactive-side">
                   <span class="rating-label">Seleziona la tua valutazione</span>
-                  <div class="stars-container" :class="{ 'is-disabled': isLoading }"
-                    @mouseleave="hoverVoteStars = null">
+                  <div class="stars-container" @mouseleave="hoverVoteStars = null">
                     <template v-for="star in 5" :key="star">
                       <div class="star-item">
                         <span class="star-half left" :class="{ active: displayVoteStars >= star - 0.5 }"
@@ -361,18 +338,15 @@ onUnmounted(() => {
                     <span class="voto-label-mini">Voto</span>
                     <div class="voto-numbers">
                       <input type="number" class="voto-input" :value="voteForBackend" @input="handleInputRating"
-                        @blur="handleInputBlur" min="0" max="10" step="1" :disabled="isLoading"
-                        title="Modifica a mano il voto" />
+                        @blur="handleInputBlur" min="0" max="10" step="1" title="Modifica a mano il voto" />
                       <span class="voto-max">/10</span>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <button @click="handleInviaRecensione" class="btn-submit-evergreen"
-                :disabled="isLoading || !recensioneTesto.trim()">
-                <span v-if="isLoading">Invio in corso...</span>
-                <span v-else>Pubblica Recensione</span>
+              <button @click="handleInviaRecensione" class="btn-submit-evergreen" :disabled="!recensioneTesto.trim()">
+                <span>Pubblica Recensione</span>
               </button>
             </div>
           </div>
@@ -385,28 +359,7 @@ onUnmounted(() => {
           <span class="badge-count">{{ reviewsList.length }}</span>
         </div>
 
-        <div v-if="isFetchingReviews && reviewsList.length === 0" class="feed-loader">
-          <div class="spinner-border text-success"></div>
-        </div>
-
-        <div v-else class="reviews-list">
-          <Transition name="fade">
-            <div v-if="isLoadingReviewAnimation" class="comment-item skeleton-item">
-              <div class="comment-top">
-                <div class="user-info">
-                  <div class="avatar-mini skeleton-pulse"></div>
-                  <div class="user-text">
-                    <span class="skeleton-line name"></span>
-                    <span class="skeleton-line date"></span>
-                  </div>
-                </div>
-                <div class="score-pill skeleton-pulse"></div>
-              </div>
-              <div class="skeleton-line body"></div>
-              <div class="skeleton-line body short"></div>
-            </div>
-          </Transition>
-
+        <div class="reviews-list">
           <div v-if="reviewsList.length > 0">
             <TransitionGroup name="fade-list" tag="div" class="list-container">
               <div v-for="rev in reviewsList" :key="rev.id || rev.time" class="comment-item clickable"
@@ -435,7 +388,7 @@ onUnmounted(() => {
             </TransitionGroup>
           </div>
 
-          <div v-else-if="!isLoadingReviewAnimation" class="empty-state">
+          <div v-else class="empty-state">
             <p>Nessuna recensione presente.</p>
           </div>
         </div>

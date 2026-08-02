@@ -11,6 +11,7 @@ const ADD_TO_WATCHLIST_ENDPOINT = runtimeConfig.public.addToWatchlist
 const DELETE_FROM_WATCHLIST_ENDPOINT = runtimeConfig.public.deleteFromWatchlist
 const ADD_TO_WATCHED_ENDPOINT = runtimeConfig.public.addToWatched
 const DELETE_FROM_WATCHED_ENDPOINT = runtimeConfig.public.deleteFromWatched
+const PLACEHOLDER_IMAGE = runtimeConfig.public.placeholderImage
 
 const user = useSupabaseUser()
 
@@ -28,9 +29,7 @@ const isErrorOpen = ref(false)
 const errorMessage = ref('')
 
 const currentUserAvatar = ref(user.value?.user_metadata?.profile_picture || null)
-const isAuthenticated = ref(user.value.sub !== null && user.value.sub !== undefined)
-
-const isLocked = computed(() => !isAuthenticated.value)
+const isAuthenticated = computed(() => !!user.value)
 
 const displayVoteStars = computed(() =>
   hoverVoteStars.value !== null ? hoverVoteStars.value : userVoteStars.value,
@@ -51,7 +50,7 @@ const movie = computed(() => {
     parsedMovie || {
       id: null,
       title: 'Dettagli Film',
-      poster_path: null,
+      poster_path: PLACEHOLDER_IMAGE,
       backdrop_path: null,
       vote_average: 0,
       overview: 'Informazioni non disponibili.',
@@ -62,10 +61,7 @@ const movie = computed(() => {
     }
   )
 })
-
-const localWatchStatus = ref(movie.value.watchStatus || 0)
-const swl = computed(() => localWatchStatus.value !== 1)
-const swd = computed(() => localWatchStatus.value !== 2)
+const localWatchStatus = ref(movie.value?.watchStatus || 0)
 
 const loadReviews = async () => {
   isFetchingReviews.value = true
@@ -142,7 +138,7 @@ const updateSessionMovieStatus = (newStatus) => {
 }
 
 const toggleWatchlist = async () => {
-  if (isLocked.value) {
+  if (!isAuthenticated) {
     errorMessage.value = "Devi effettuare l'accesso per gestire la tua watchlist."
     isErrorOpen.value = true
     return
@@ -155,7 +151,7 @@ const toggleWatchlist = async () => {
 }
 
 const toggleWatched = async () => {
-  if (isLocked.value) {
+  if (!isAuthenticated) {
     errorMessage.value = "Devi effettuare l'accesso per gestire i film visti."
     isErrorOpen.value = true
     return
@@ -229,9 +225,6 @@ const formatDate = (timestamp) => {
 }
 
 onMounted(() => {
-  if (movie.value && movie.value.watchStatus !== undefined) {
-    localWatchStatus.value = movie.value.watchStatus
-  }
   loadReviews()
 })
 
@@ -307,29 +300,8 @@ onUnmounted(() => {
                 }}</span>
               </button>
 
-              <div class="action-group-secondary">
-                <button class="btn-action" :class="{ 'is-active-wl': !swl && !isLocked, locked: isLocked }"
-                  @click="toggleWatchlist" :hidden="!swd && !isLocked" :title="isLocked
-                    ? 'Accedi per gestire la watchlist'
-                    : swl
-                      ? 'Aggiungi alla Watchlist'
-                      : 'Rimuovi dalla Watchlist'
-                    ">
-                  <span class="icon">{{ !swl && !isLocked ? '−' : '+' }}</span>
-                  <span class="label">Watchlist</span>
-                </button>
-
-                <button class="btn-action" :class="{ 'is-active-seen': !swd && !isLocked, locked: isLocked }"
-                  @click="toggleWatched" :title="isLocked
-                    ? 'Accedi per segnare come visto'
-                    : swd
-                      ? 'Segna come Visto'
-                      : 'Rimuovi da Visti'
-                    ">
-                  <span class="icon">{{ !swd && !isLocked ? '✓' : '👁' }}</span>
-                  <span class="label">Visto</span>
-                </button>
-              </div>
+              <Buttons :movie="movie" :inWatchlist="localWatchStatus === 1" :inWatched="localWatchStatus === 2"
+                :isAuthenticated="isAuthenticated" @left-click="toggleWatchlist" @right-click="toggleWatched" />
             </div>
 
             <hr class="mdivider" />

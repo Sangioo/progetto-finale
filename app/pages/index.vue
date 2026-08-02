@@ -23,7 +23,7 @@ const isLoading = ref(false)
 const fetchError = ref('')
 const index = ref(0)
 const filters = ref({})
-const isAuthenticated = ref(user.value !== null && user.value !== undefined)
+const isAuthenticated = computed(() => !!user.value)
 const showAuthModal = ref(false)
 const authModalMessage = ref('')
 const searchTerm = ref('')
@@ -74,7 +74,8 @@ async function loadMovies(appliedFilters = {}) {
       credentials: 'include',
       headers: { Accept: 'application/json' },
     })
-    if (!response.ok) throw new Error(`Errore: ${response.status}`)
+
+    if (!response.ok) throw new Error(response.statusText)
 
     const payload = await response.json()
     movies.value[index.value] = payload.results || (Array.isArray(payload) ? payload : [])
@@ -84,7 +85,7 @@ async function loadMovies(appliedFilters = {}) {
         payload.total_results ??
         (Array.isArray(payload) ? payload.length : (payload.results?.length ?? 0))
     }
-  } catch (error) {
+  } catch (err) {
     fetchError.value = 'Servizio momentaneamente non disponibile.'
   } finally {
     isLoading.value = false
@@ -115,13 +116,12 @@ const searchMovies = async () => {
       headers: { Accept: 'application/json' },
     })
 
-    if (!response.ok) throw new Error(`Errore: ${response.status}`)
+    if (!response.ok) throw new Error(response.statusText)
 
     const payload = await response.json()
     const results = Array.isArray(payload) ? payload : payload.results || []
     searchResults.value = results
   } catch (error) {
-    console.error('Errore ricerca film:', error)
     fetchError.value = 'Nessun risultato trovato. Riprova con un altro titolo.'
     searchResults.value = []
   } finally {
@@ -129,11 +129,13 @@ const searchMovies = async () => {
   }
 }
 
-async function callActionApi(endpoint, idFilm) {
+async function callActionApi(endpoint, movieId) {
   try {
-    const url = `${API_URL}/${endpoint}?movieId=${idFilm}`
-    const response = await fetch(url, { method: 'GET', credentials: 'include' })
-    if (!response.ok) throw new Error('Azione fallita')
+    const response = await fetch(`${API_URL}/${endpoint}?movieId=${movieId}`, {
+      method: 'GET',
+      credentials: 'include'
+    })
+    if (!response.ok) throw new Error(response.statusText)
   } catch (error) {
     console.error('Errore API:', error)
   }
@@ -161,14 +163,14 @@ const handleRightClick = async (movie) => {
   await callActionApi(endpoint, movie.id)
 }
 
-const handleReviewsClick = (movie) => {
+const handleReviewsClick = async (movie) => {
   sessionStorage.setItem('selectedMovie', JSON.stringify(movie))
-  navigateTo(`/film`)
+  await navigateTo(`/film`)
 }
 
-const handleLogin = () => {
+const handleLogin = async () => {
   showAuthModal.value = false
-  navigateTo('/login')
+  await navigateTo('/login')
 }
 
 const closeAuthModal = () => {
@@ -198,15 +200,15 @@ const handleApplyFilters = async (params) => {
   })
 }
 
-const handleResetFilters = () => {
+const handleResetFilters = async () => {
   movies.value = [[], [], [], [], []]
   filters.value = {}
   index.value = 0
-  loadMovies()
+  await loadMovies()
 }
 
-onMounted(() => {
-  loadMovies()
+onMounted(async () => {
+  await loadMovies()
 })
 </script>
 

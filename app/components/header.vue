@@ -8,11 +8,11 @@ const supabase = useSupabaseClient()
 const isMenuOpen = ref(false)
 
 const username = computed(() => {
-  return user.value ? user.value.user_metadata.username : null
+  return user.value ? user.value.user_metadata?.username : null
 })
 
 const profilePicture = computed(() => {
-  return user.value ? user.value.user_metadata.profile_picture : null
+  return user.value ? user.value.user_metadata?.profile_picture : null
 })
 
 const isAuthenticated = computed(() => !!user.value)

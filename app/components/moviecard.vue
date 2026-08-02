@@ -3,10 +3,15 @@ const props = defineProps({
   movie: { type: Object, required: true },
   inWatchlist: { type: Boolean, default: false },
   inWatched: { type: Boolean, default: false },
-  isLocked: { type: Boolean, default: false },
 })
 const emit = defineEmits(['left-click', 'right-click', 'reviews-click'])
-const IMAGE_URL = useRuntimeConfig().public.imageUrl
+
+const runtimeConfig = useRuntimeConfig()
+const IMAGE_URL = runtimeConfig.public.imageUrl
+const PLACEHOLDER_IMAGE = runtimeConfig.public.placeholderImage
+
+const user = useSupabaseUser()
+const isAuthenticated = computed(() => !!user.value)
 
 const handleCardClick = () => {
   emit('reviews-click', props.movie.id)
@@ -18,7 +23,7 @@ const handleCardClick = () => {
     class="group bg-white rounded-2xl overflow-hidden flex flex-col transition-all duration-300 border border-alabaster-grey shadow relative cursor-pointer hover:shadow-lg hover:transform hover:-translate-y-2"
     @click="handleCardClick">
     <div class="relative aspect-2/3 overflow-hidden">
-      <img :src="movie.poster_path ? `${IMAGE_URL}${movie.poster_path}` : '/placeholder.png'"
+      <img :src="movie.poster_path ? `${IMAGE_URL}${movie.poster_path}` : PLACEHOLDER_IMAGE"
         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" :alt="movie.title" />
 
       <div v-if="movie.isLive"
@@ -28,7 +33,7 @@ const handleCardClick = () => {
 
       <div
         class="absolute top-2.5 right-2.5 bg-white text-evergreen text-xs font-extrabold py-1 px-2.5 rounded-[10px] flex items-center gap-1.25 tracking-[0.5px] shadow-sm z-100">
-        <span class="text-[#ffc107] mr-0.5">★</span> {{ movie.vote_average.toFixed(1) }}
+        <span class="text-[#ffc107] mr-0.5">★</span> {{ movie.vote_average?.toFixed(1) }}
       </div>
 
       <div class="absolute inset-0 bg-linear-to-b from-black/50 to-transparent pointer-events-none"></div>
@@ -50,14 +55,16 @@ const handleCardClick = () => {
       <div class="flex gap-2">
         <button
           class="flex-1 flex flex-col items-center py-2 px-0 bg-transparent border border-alabaster-grey rounded-xl cursor-pointer transition-all duration-300 text-gray-500 hover:bg-alabaster-grey hover:border-mint-leaf hover:text-evergreen"
-          @click.stop="emit('left-click', movie.id)" :hidden="inWatched" :title="!inWatchlist ? 'Aggiungi' : 'Rimuovi'">
+          @click.stop="emit('left-click', movie.id)" :hidden="inWatched" :title="!inWatchlist ? 'Aggiungi' : 'Rimuovi'"
+          :disabled="!isAuthenticated">
           <span class="text-lg font-bold">{{ inWatchlist ? '-' : '+' }}</span>
           <span class="text-xs font-bold uppercase tracking-[0.5px]">Watchlist</span>
         </button>
 
         <button
           class="flex-1 flex flex-col items-center py-2 px-0 bg-transparent border border-alabaster-grey rounded-xl cursor-pointer transition-all duration-300 text-gray-500 hover:bg-alabaster-grey hover:border-mint-leaf hover:text-evergreen"
-          @click.stop="emit('right-click', movie.id)" :title="!inWatched ? 'Visto' : 'Rimosso'">
+          @click.stop="emit('right-click', movie.id)" :title="!inWatched ? 'Visto' : 'Rimosso'"
+          :disabled="!isAuthenticated">
           <span class="text-lg font-bold">{{ inWatched ? '✓' : '👁' }}</span>
           <span class="text-xs font-bold uppercase tracking-[0.5px]">Visto</span>
         </button>

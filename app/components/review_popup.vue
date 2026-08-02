@@ -15,7 +15,6 @@ const getStatusClass = (val) => {
 }
 
 const formattedDate = computed(() => {
-  console.log(props.review)
   if (!props.review?.time) return 'Data non disponibile'
 
   const timestamp = props.review.time

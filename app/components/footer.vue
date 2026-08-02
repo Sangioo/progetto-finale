@@ -1,5 +1,3 @@
-<script setup></script>
-
 <template>
   <footer
     class="mt-auto border-t-4 border-mint-leaf bg-evergreen text-alabaster-grey shadow-footer pt-8 pb-4 px-0 tablet:pt-12 tablet:pb-6 tablet:px-0">

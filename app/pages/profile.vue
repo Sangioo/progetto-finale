@@ -128,6 +128,11 @@ const handleCambiaPassword = async () => {
     return
   }
 
+  if (!checkPassword(nuovaPassword.value).isValid) {
+    showPopup('Attenzione', 'La nuova password non soddisfa i requisiti di sicurezza.', 'error')
+    return
+  }
+
   isActionLoading.value = true
   try {
     await callApi({
@@ -137,6 +142,7 @@ const handleCambiaPassword = async () => {
         password: vecchiaPassword.value,
         newPassword: nuovaPassword.value,
       }),
+      parseJson: false,
     })
 
     vecchiaPassword.value = ''
@@ -220,7 +226,6 @@ const goToFilm = async (movie) => {
 
 onMounted(async () => {
   await fetchUserReviews()
-  console.log(user.value?.user_metadata?.profile_pic_url)
 })
 </script>
 
@@ -332,7 +337,7 @@ onMounted(async () => {
               <input v-model="vecchiaPassword" type="password" placeholder="••••••••" required />
             </div>
 
-            <div class="input-group">
+            <!-- <div class="input-group">
               <label>Nuova Password</label>
               <input v-model="nuovaPassword" type="password" placeholder="••••••••" required />
             </div>
@@ -340,7 +345,9 @@ onMounted(async () => {
             <div class="input-group">
               <label>Conferma Nuova Password</label>
               <input v-model="confermaPassword" type="password" placeholder="••••••••" required />
-            </div>
+            </div> -->
+
+            <PasswordInput v-model:password="nuovaPassword" v-model:confirmPassword="confermaPassword" />
 
             <button type="submit" class="btn-submit-password" :disabled="isActionLoading">
               {{ isActionLoading ? 'Aggiornamento...' : 'Salva Nuova Password' }}

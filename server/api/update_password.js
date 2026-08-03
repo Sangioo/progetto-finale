@@ -23,6 +23,13 @@ export default defineEventHandler(async (event) => {
 		});
 	}
 
+	if (!checkPassword(newPassword).isValid) {
+		throw createError({
+			statusCode: 400,
+			statusMessage: "New password does not meet security requirements",
+		});
+	}
+
 	try {
 		const { error } = await supabase.auth.admin.updateUserById(user.sub, {
 			password: newPassword,

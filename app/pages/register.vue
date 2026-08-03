@@ -1,4 +1,7 @@
 <script setup>
+import { ref } from 'vue'
+import PasswordInput from '~/components/password_input.vue'
+
 definePageMeta({
   auth: {
     unauthenticatedOnly: true,
@@ -11,24 +14,27 @@ const supabase = useSupabaseClient()
 const email = ref('')
 const username = ref('')
 const password = ref('')
+const confirmPassword = ref('')
 const isLoading = ref(false)
 const errorMsg = ref('')
 const successMsg = ref('')
-const confirmPassword = ref('')
 
-const typingPassword = ref(false)
-const passwordsMatch = computed(() => password.value === confirmPassword.value)
-const hasMaiusc = computed(() => /[A-Z]/.test(password.value))
-const hasMinusc = computed(() => /[a-z]/.test(password.value))
-const hasNum = computed(() => /[0-9]/.test(password.value))
-const hasSpecial = computed(() => /[!@#$%^&*(),.?":{}|<>]/.test(password.value))
-const isLong = computed(() => password.value.length >= 8)
 
 const handleSignup = async () => {
   try {
     isLoading.value = true
     errorMsg.value = ''
     successMsg.value = ''
+
+    if (password.value !== confirmPassword.value) {
+      errorMsg.value = 'Le password non corrispondono.'
+      return
+    }
+
+    if (!checkPassword(password.value).isValid) {
+      errorMsg.value = 'La password non soddisfa i requisiti di sicurezza.'
+      return
+    }
 
     const { error } = await supabase.auth.signUp({
       email: email.value,
@@ -63,7 +69,7 @@ const handleSignup = async () => {
         <h1 class="auth-title text-evergreen">Crea il tuo account</h1>
         <p class="auth-subtitle">Inizia a tenere traccia dei film che ami.</p>
 
-        <form @submit.prevent="handleSignup" class="form-grid" novalidate>
+        <form @submit.prevent="handleSignup" class="form-grid">
           <div class="form-group">
             <label for="username" class="form-label">Username</label>
             <input v-model="username" type="text" class="form-control" id="username" placeholder="es. user1234"
@@ -76,94 +82,7 @@ const handleSignup = async () => {
               required />
           </div>
 
-          <div class="form-group">
-            <label for="password" class="form-label">Password</label>
-            <input v-model="password" type="password" class="form-control" id="password" placeholder="********" required
-              @input="typingPassword = true" />
-          </div>
-
-          <div v-if="typingPassword" class="password-requirements-container">
-            <ul class="password-requirements">
-              <li :class="{ ok: hasMaiusc, ko: !hasMaiusc }">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"
-                  v-if="hasMaiusc">
-                  <path
-                    d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z">
-                  </path>
-                </svg>
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"
-                  v-else>
-                  <path
-                    d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293z" />
-                </svg>Almeno una lettera maiuscola
-              </li>
-
-              <li :class="{ ok: hasMinusc, ko: !hasMinusc }">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"
-                  v-if="hasMinusc">
-                  <path
-                    d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z">
-                  </path>
-                </svg>
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"
-                  v-else>
-                  <path
-                    d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293z" />
-                </svg>Almeno una lettera minuscola
-              </li>
-
-              <li :class="{ ok: hasNum, ko: !hasNum }">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"
-                  v-if="hasNum">
-                  <path
-                    d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z">
-                  </path>
-                </svg>
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"
-                  v-else>
-                  <path
-                    d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293z" />
-                </svg>Almeno un numero
-              </li>
-
-              <li :class="{ ok: hasSpecial, ko: !hasSpecial }">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"
-                  v-if="hasSpecial">
-                  <path
-                    d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z">
-                  </path>
-                </svg>
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"
-                  v-else>
-                  <path
-                    d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293z" />
-                </svg>Almeno un carattere speciale
-              </li>
-
-              <li :class="{ ok: isLong, ko: !isLong }">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"
-                  v-if="isLong">
-                  <path
-                    d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z">
-                  </path>
-                </svg>
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"
-                  v-else>
-                  <path
-                    d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293z" />
-                </svg>Almeno 8 caratteri
-              </li>
-            </ul>
-          </div>
-
-          <div class="form-group">
-            <label for="confirmPassword" class="form-label">Conferma Password</label>
-            <input v-model="confirmPassword" type="password" class="form-control" id="confirmPassword"
-              placeholder="********" required />
-            <div class="error-text" v-if="!passwordsMatch && confirmPassword.length > 0">
-              Le password non corrispondono.
-            </div>
-          </div>
+          <PasswordInput v-model:password="password" v-model:confirmPassword="confirmPassword" />
 
           <div class="captcha-wrapper">
             <div id="recaptcha-container"></div>

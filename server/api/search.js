@@ -39,14 +39,40 @@ export default defineEventHandler(async (event) => {
 			backdrop_path: movie.backdrop_path,
 		}));
 
+		if (!user) {
+			return movies.map((movie) => ({
+				...movie,
+				genre_ids: movie.genre_ids ? JSON.parse(movie.genre_ids) : [],
+				watchStatus: 0, // Not watched
+			}));
+		}
+
 		const { data, error } = await supabase
 			.from("movies")
 			.upsert(movies)
-			.select();
+			.select("*, watch(*)")
+			.eq("watch.user", user.sub);
 
 		if (error) throw error;
 
-		return data;
+		const toReturn = data.map((movie) => {
+			const watched = movie?.watch[0]?.watched;
+			let watchStatus;
+			if (watched === undefined) {
+				watchStatus = 0;
+			} else if (watched) {
+				watchStatus = 2;
+			} else {
+				watchStatus = 1;
+			}
+			return {
+				...movie,
+				genre_ids: JSON.parse(movie.genre_ids),
+				watchStatus,
+			};
+		});
+
+		return toReturn;
 	} catch (error) {
 		console.error(error);
 		if (error?.statusCode) throw error;

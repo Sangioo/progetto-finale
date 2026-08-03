@@ -21,8 +21,11 @@ const reviewsList = ref([])
 const isLoadingRoom = ref(false)
 const isReviewPopupOpen = ref(false)
 const selectedReviewForPopup = ref(null)
-const isErrorOpen = ref(false)
-const errorMessage = ref('')
+const isPopupOpen = ref(false)
+const popupTitle = ref('')
+const popupMessage = ref('')
+const popupActions = ref([])
+const popupId = ref('')
 
 const currentUserAvatar = ref(user.value?.user_metadata?.profile_picture || null)
 const isAuthenticated = computed(() => !!user.value)
@@ -67,7 +70,7 @@ async function loadReviews() {
     })
     reviewsList.value = Array.isArray(payload) ? payload : []
   } catch (err) {
-    showError(err.message || 'Errore durante il caricamento delle recensioni. Riprova più tardi.')
+    showPopup('Errore', err.message || 'Errore durante il caricamento delle recensioni. Riprova più tardi.')
   }
 }
 
@@ -89,7 +92,7 @@ async function handleInviaRecensione() {
     userVoteStars.value = 3
     await loadReviews()
   } catch (err) {
-    showError(err.message || 'Errore durante l\'invio della recensione. Riprova più tardi.')
+    showPopup('Errore', err.message || 'Errore durante l\'invio della recensione. Riprova più tardi.')
   }
 }
 
@@ -103,33 +106,55 @@ function updateSessionMovieStatus(newStatus) {
 }
 
 async function toggleWatchlist() {
-  localWatchStatus.value = localWatchStatus.value === 1 ? 0 : 1
+  if (!movie.value || !movie.value.id) return
+  if (!isAuthenticated.value) {
+    showPopup('Attenzione', 'Devi essere loggato per modificare la watchlist.', [
+      { label: 'Accedi', type: 'primary' },
+      { label: 'Annulla', type: 'secondary' }
+    ], 'auth')
+    return
+  }
   try {
     const endpoint =
-      localWatchStatus.value === 1 ? ADD_TO_WATCHLIST_ENDPOINT : DELETE_FROM_WATCHLIST_ENDPOINT
+      localWatchStatus.value === 1 ? DELETE_FROM_WATCHLIST_ENDPOINT : ADD_TO_WATCHLIST_ENDPOINT
     await callActionApi(endpoint, movie.value.id)
 
     updateSessionMovieStatus(localWatchStatus.value)
   } catch (err) {
-    showError(err.message || 'Errore durante l\'aggiornamento della watchlist. Riprova più tardi.')
+    showPopup('Errore', err.message || 'Errore durante l\'aggiornamento della watchlist. Riprova più tardi.')
   }
 }
 
 async function toggleWatched() {
-  localWatchStatus.value = localWatchStatus.value === 2 ? 0 : 2
+  if (!movie.value || !movie.value.id) return
+  if (!isAuthenticated.value) {
+    showPopup('Attenzione', 'Devi essere loggato per modificare la watchlist.', [
+      { label: 'Accedi', type: 'primary' },
+      { label: 'Annulla', type: 'secondary' }
+    ], 'auth')
+    return
+  }
   try {
     const endpoint =
-      localWatchStatus.value === 2 ? ADD_TO_WATCHED_ENDPOINT : DELETE_FROM_WATCHED_ENDPOINT
+      localWatchStatus.value === 2 ? DELETE_FROM_WATCHED_ENDPOINT : ADD_TO_WATCHED_ENDPOINT
     await callActionApi(endpoint, movie.value.id)
 
     updateSessionMovieStatus(localWatchStatus.value)
   } catch (err) {
-    showError(err.message || 'Errore durante l\'aggiornamento della lista dei visti. Riprova più tardi.')
+    showPopup('Errore', err.message || 'Errore durante l\'aggiornamento della lista dei visti. Riprova più tardi.')
   }
 }
 
 async function handleLiveRoomAction() {
   if (!movie.value || !movie.value.id) return
+
+  if (!isAuthenticated.value) {
+    showPopup('Attenzione', 'Devi essere loggato per accedere alla live room.', [
+      { label: 'Accedi', type: 'primary' },
+      { label: 'Annulla', type: 'secondary' }
+    ], 'auth')
+    return
+  }
 
   await navigateTo({ path: '/room', query: { movieId: movie.value.id } })
 }
@@ -189,9 +214,18 @@ function formatDate(timestamp) {
   })
 }
 
-function showError(message) {
-  errorMessage.value = message
-  isErrorOpen.value = true
+function showPopup(title, message, actions, id) {
+  popupTitle.value = title
+  popupMessage.value = message
+  popupActions.value = actions
+  popupId.value = id
+  isPopupOpen.value = true
+}
+
+async function routePopupEvent(event) {
+  isPopupOpen.value = false
+  if (event === 'auth:accedi')
+    await navigateTo('/login')
 }
 
 onMounted(async () => {
@@ -205,8 +239,8 @@ onUnmounted(() => {
 
 <template>
   <div class="page-wrapper">
-    <BasePopup :show="isErrorOpen" :title="'Attenzione'" :content="errorMessage" @close="isErrorOpen = false"
-      @action="isErrorOpen = false" />
+    <BasePopup :show="isPopupOpen" :title="popupTitle" :content="popupMessage" :actions="popupActions"
+      :identifier="popupId" @close="isPopupOpen = false" @action="routePopupEvent" />
     <ReviewPopup :show="isReviewPopupOpen" :review="selectedReviewForPopup" @close="isReviewPopupOpen = false" />
 
     <div class="backdrop-overlay" v-if="movie?.backdrop_path"
@@ -326,7 +360,8 @@ onUnmounted(() => {
                 </div>
               </div>
 
-              <button @click="handleInviaRecensione" class="btn-submit-evergreen" :disabled="!recensioneTesto.trim()">
+              <button @click="handleInviaRecensione" class="btn-submit-evergreen"
+                :disabled="!isAuthenticated || !recensioneTesto.trim()">
                 <span>Pubblica Recensione</span>
               </button>
             </div>

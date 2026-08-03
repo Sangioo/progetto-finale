@@ -27,7 +27,7 @@ export default defineNuxtConfig({
 		redirectOptions: {
 			login: "/login",
 			callback: "/login",
-			exclude: ["/login", "/register", "/"],
+			exclude: ["/login", "/register", "/", "/film"],
 		},
 		types: "~/types/database.types.ts",
 	},

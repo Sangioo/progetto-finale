@@ -24,13 +24,8 @@ const handleCardClick = () => {
       <img :src="movie.poster_path ? `${IMAGE_URL}${movie.poster_path}` : PLACEHOLDER_IMAGE"
         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" :alt="movie.title" />
 
-      <div v-if="movie.isLive"
-        class="absolute top-2.5 left-2.5 bg-red-500 text-white text-xs font-extrabold py-1 px-2.5 rounded-[10px] flex items-center gap-1.25 tracking-[0.5px] shadow z-100">
-        <span class="w-1.5 h-1.5 bg-white rounded-full inline-block animate-pulse"></span> LIVE
-      </div>
-
       <div
-        class="absolute top-2.5 right-2.5 bg-white text-evergreen text-xs font-extrabold py-1 px-2.5 rounded-[10px] flex items-center gap-1.25 tracking-[0.5px] shadow-sm z-100">
+        class="absolute top-2.5 right-2.5 bg-white text-evergreen text-xs font-extrabold py-1 px-2.5 rounded-[10px] flex items-center gap-1.25 tracking-[0.5px] shadow-sm z-10">
         <span class="text-[#ffc107] mr-0.5">★</span> {{ movie.vote_average?.toFixed(1) }}
       </div>
 

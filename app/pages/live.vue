@@ -1,5 +1,8 @@
 <template>
   <div class="live-rooms-container">
+    <BasePopup :show="isPopupOpen" title="Errore" :content="popupMessage" @close="isPopupOpen = false"
+      @action="isPopupOpen = false" />
+
     <header class="live-header">
       <h1 class="live-title">Live <span class="accent-text">Rooms</span></h1>
       <p class="live-subtitle">Scopri cosa stanno guardando gli utenti in live.</p>
@@ -8,11 +11,6 @@
     <div v-if="isLoading && rooms.length === 0" class="loading-state">
       <div class="spinner"></div>
       <p>Caricando stanze attive...</p>
-    </div>
-
-    <div v-else-if="errorMsg" class="error-state">
-      <p>{{ errorMsg }}</p>
-      <button @click="fetchLiveRooms" class="retry-button">Retry</button>
     </div>
 
     <div v-else-if="rooms.length === 0" class="empty-state">
@@ -55,13 +53,16 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
+import BasePopup from '~/components/base_popup.vue'
 
 const runtimeConfig = useRuntimeConfig()
 const IMAGE_URL = runtimeConfig.public.imageUrl
 
 const rooms = ref([])
 const isLoading = ref(true)
-const errorMsg = ref(null)
+
+const isPopupOpen = ref(false)
+const popupMessage = ref('')
 
 const supabase = useSupabaseClient()
 
@@ -82,19 +83,16 @@ const fetchLiveRooms = async () => {
       .from('movies')
       .select('*, rooms!inner(user)')
 
-    if (error) {
-      throw error
-    }
+    if (error) throw error
 
     const activeRooms = data.map((movie) => {
       return { ...movie, idFilm: movie.id, activeUsers: movie.rooms.length }
     })
 
     rooms.value = activeRooms || []
-    errorMsg.value = null
   } catch (err) {
     console.error(err)
-    errorMsg.value = err.message || 'Errore nel caricamento delle stanze live. Riprova più tardi.'
+    showPopup('Errore nel caricamento delle stanze live. Riprova più tardi.')
   } finally {
     isLoading.value = false
   }
@@ -108,35 +106,37 @@ const joinRoom = async (room) => {
 const parsePayload = async (payload) => {
   const { eventType, new: newRoom, old: oldRoom } = payload
 
-  if (eventType === 'INSERT' && newRoom) {
-    const existingRoomIndex = rooms.value.findIndex((room) => room.idFilm === newRoom.idFilm)
-    if (existingRoomIndex === -1) {
-      const { data, error } = await supabase
-        .from('movies')
-        .select('*')
-        .eq('id', newRoom.movie)
+  try {
+    if (eventType === 'INSERT' && newRoom) {
+      const existingRoomIndex = rooms.value.findIndex((room) => room.idFilm === newRoom.idFilm)
+      if (existingRoomIndex === -1) {
+        const { data, error } = await supabase
+          .from('movies')
+          .select('*')
+          .eq('id', newRoom.movie)
 
-      if (error) {
-        console.error('Errore durante il recupero dei dettagli del film:', error)
-        return
-      }
+        if (error) throw error
 
-      if (data && data.length > 0) {
-        rooms.value.push({
-          ...data[0],
-          activeUsers: 1,
-        })
+        if (data && data.length > 0) {
+          rooms.value.push({
+            ...data[0],
+            activeUsers: 1,
+          })
+        }
+      } else {
+        rooms.value[existingRoomIndex].activeUsers++
       }
-    } else {
-      rooms.value[existingRoomIndex].activeUsers++
+    } else if (eventType === 'DELETE' && oldRoom) {
+      const roomIndex = rooms.value.findIndex((room) => room.idFilm === oldRoom.idFilm)
+      if (roomIndex === -1) return
+      rooms.value[roomIndex].activeUsers--
+      if (rooms.value[roomIndex].activeUsers <= 0) {
+        rooms.value.splice(roomIndex, 1)
+      }
     }
-  } else if (eventType === 'DELETE' && oldRoom) {
-    const roomIndex = rooms.value.findIndex((room) => room.idFilm === oldRoom.idFilm)
-    if (roomIndex === -1) return
-    rooms.value[roomIndex].activeUsers--
-    if (rooms.value[roomIndex].activeUsers <= 0) {
-      rooms.value.splice(roomIndex, 1)
-    }
+  } catch (err) {
+    console.error(err)
+    showPopup('Errore durante l\'elaborazione degli aggiornamenti in tempo reale. Riprova più tardi.')
   }
 }
 
@@ -144,22 +144,24 @@ const channel = supabase
   .channel('schema-db-changes')
   .on('postgres_changes', { event: 'insert', schema: 'public', table: 'rooms' },
     (payload) => {
-      console.log('Row inserted:', payload)
       parsePayload(payload)
     })
   .on('postgres_changes', { event: 'delete', schema: 'public', table: 'rooms' },
     (payload) => {
-      console.log('Row deleted:', payload)
       parsePayload(payload)
     })
+
+function showPopup(message) {
+  popupMessage.value = message
+  isPopupOpen.value = true
+}
 
 onMounted(() => {
   fetchLiveRooms()
   channel.subscribe((status, error) => {
     if (error) {
       console.error(error)
-    } else {
-      console.log('Stato del canale:', status)
+      showPopup('Impossibile connettersi al server per ricevere aggiornamenti in tempo reale. Riprova più tardi.')
     }
   })
 })
@@ -167,7 +169,6 @@ onMounted(() => {
 onUnmounted(() => {
   if (channel) {
     supabase.removeChannel(channel)
-    console.log('Canale rimosso con successo')
   }
 })
 </script>

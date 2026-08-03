@@ -1,6 +1,7 @@
 <script setup>
 import { onMounted, ref } from 'vue'
-import MovieCard from '@/components/moviecard.vue'
+import MovieCard from '~/components/moviecard.vue'
+import BasePopup from '~/components/base_popup.vue'
 
 const runtimeConfig = useRuntimeConfig()
 const GET_WATCHED_ENDPOINT = runtimeConfig.public.getWatched
@@ -8,6 +9,9 @@ const DELETE_FROM_WATCHED_ENDPOINT = runtimeConfig.public.deleteFromWatched
 
 const movies = ref([])
 const isLoading = ref(false)
+
+const isPopupOpen = ref(false)
+const popupMessage = ref('')
 
 const getMovies = async () => {
   isLoading.value = true
@@ -17,7 +21,8 @@ const getMovies = async () => {
     })
     movies.value = Array.isArray(payload) ? payload : []
   } catch (err) {
-    console.error(err.message || 'Errore durante il recupero dei film guardati:')
+    console.error(err)
+    showPopup('Errore durante il recupero dei film guardati. Riprova più tardi.')
   } finally {
     isLoading.value = false
   }
@@ -32,7 +37,8 @@ async function deleteFromWatched(movie) {
     movies.value = movies.value.filter((m) => m.id !== movie.id)
     movie.watchStatus = 0
   } catch (err) {
-    console.error(err.message || 'Errore durante la rimozione dal watchlist')
+    console.error(err)
+    showPopup('Errore durante la rimozione del film dai guardati. Riprova più tardi.')
   }
 }
 
@@ -45,6 +51,11 @@ const handleReviewsClick = async (movie) => {
   await navigateTo('/film')
 }
 
+function showPopup(message) {
+  popupMessage.value = message
+  isPopupOpen.value = true
+}
+
 onMounted(() => {
   getMovies()
 })
@@ -52,6 +63,8 @@ onMounted(() => {
 
 <template>
   <div class="watched-page">
+    <BasePopup :show="isPopupOpen" title="Errore" :content="popupMessage" @close="isPopupOpen = false"
+      @action="isPopupOpen = false" />
     <header class="watched-hero">
       <h1 class="watched-title">Watched</h1>
       <p class="watched-subtitle">Qui trovi i film che hai guardato.</p>

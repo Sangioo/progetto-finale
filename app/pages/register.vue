@@ -54,8 +54,8 @@ const handleSignup = async () => {
     password.value = ''
     confirmPassword.value = ''
   } catch (err) {
-    errorMsg.value = 'Si è verificato un errore inaspettato.'
-    console.error(err.message || 'Errore durante la registrazione:')
+    errorMsg.value = 'Si è verificato un errore durante la registrazione. Riprova più tardi.'
+    console.error(err)
   } finally {
     isLoading.value = false
   }

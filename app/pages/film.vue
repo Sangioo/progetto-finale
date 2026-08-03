@@ -27,7 +27,7 @@ const popupMessage = ref('')
 const popupActions = ref([])
 const popupId = ref('')
 
-const currentUserAvatar = ref(user.value?.user_metadata?.profile_picture || null)
+const currentUserAvatar = ref(user.value?.user_metadata?.profile_pic_url || null)
 const isAuthenticated = computed(() => !!user.value)
 
 const displayVoteStars = computed(() =>
@@ -37,29 +37,20 @@ const voteForBackend = computed(() => Math.round(displayVoteStars.value * 2))
 
 const movie = computed(() => {
   const storedMovie = sessionStorage.getItem('selectedMovie')
-  let parsedMovie = null
-  if (storedMovie && storedMovie !== 'undefined' && storedMovie !== 'null') {
-    try {
-      parsedMovie = JSON.parse(storedMovie)
-    } catch (e) {
-      console.warn('Errore nel parsing di selectedMovie:', e)
-    }
+  if (!storedMovie) return {
+    id: null,
+    title: 'Titolo non disponibile',
+    poster_path: null,
+    backdrop_path: null,
+    vote_average: 0,
+    overview: 'Informazioni non disponibili.',
+    genre_ids: [],
+    release_date: '',
+    watchStatus: 0,
   }
-  return (
-    parsedMovie || {
-      id: null,
-      title: 'Dettagli Film',
-      poster_path: PLACEHOLDER_IMAGE,
-      backdrop_path: null,
-      vote_average: 0,
-      overview: 'Informazioni non disponibili.',
-      genre_ids: [],
-      release_date: '',
-      isLive: false,
-      watchStatus: 0,
-    }
-  )
+  return JSON.parse(storedMovie)
 })
+
 const localWatchStatus = ref(movie.value?.watchStatus || 0)
 
 async function loadReviews() {
@@ -70,7 +61,8 @@ async function loadReviews() {
     })
     reviewsList.value = Array.isArray(payload) ? payload : []
   } catch (err) {
-    showPopup('Errore', err.message || 'Errore durante il caricamento delle recensioni. Riprova più tardi.')
+    console.error(err.message)
+    showPopup('Errore', 'Errore durante il caricamento delle recensioni. Riprova più tardi.')
   }
 }
 
@@ -92,7 +84,8 @@ async function handleInviaRecensione() {
     userVoteStars.value = 3
     await loadReviews()
   } catch (err) {
-    showPopup('Errore', err.message || 'Errore durante l\'invio della recensione. Riprova più tardi.')
+    console.error(err.message)
+    showPopup('Errore', 'Errore durante l\'invio della recensione. Riprova più tardi.')
   }
 }
 
@@ -121,14 +114,15 @@ async function toggleWatchlist() {
 
     updateSessionMovieStatus(localWatchStatus.value)
   } catch (err) {
-    showPopup('Errore', err.message || 'Errore durante l\'aggiornamento della watchlist. Riprova più tardi.')
+    console.error(err.message)
+    showPopup('Errore', 'Errore durante l\'aggiornamento della watchlist. Riprova più tardi.')
   }
 }
 
 async function toggleWatched() {
   if (!movie.value || !movie.value.id) return
   if (!isAuthenticated.value) {
-    showPopup('Attenzione', 'Devi essere loggato per modificare la watchlist.', [
+    showPopup('Attenzione', 'Devi essere loggato per modificare i film visti.', [
       { label: 'Accedi', type: 'primary' },
       { label: 'Annulla', type: 'secondary' }
     ], 'auth')
@@ -141,7 +135,8 @@ async function toggleWatched() {
 
     updateSessionMovieStatus(localWatchStatus.value)
   } catch (err) {
-    showPopup('Errore', err.message || 'Errore durante l\'aggiornamento della lista dei visti. Riprova più tardi.')
+    console.error(err.message)
+    showPopup('Errore', 'Errore durante l\'aggiornamento della lista dei visti. Riprova più tardi.')
   }
 }
 
@@ -254,7 +249,7 @@ onUnmounted(() => {
           <aside class="poster-section">
             <div class="poster-card">
               <img v-if="movie?.poster_path" :src="`${IMAGE_URL}${movie.poster_path}`" :alt="movie?.title" />
-              <div v-else class="no-poster">🎬</div>
+              <img v-else :src="`${PLACEHOLDER_IMAGE}`" :alt="movie?.title" />
               <div class="floating-badge" :class="getStatusClass(movie?.vote_average)">
                 ★ {{ movie?.vote_average?.toFixed(1) || '0.0' }}
               </div>
@@ -277,20 +272,12 @@ onUnmounted(() => {
             </header>
 
             <div class="action-toolbar">
-              <button @click="handleLiveRoomAction" class="btn-live-room" :class="{ 'live-active': movie?.isLive }"
-                :disabled="isLoadingRoom">
-                <span class="live-indicator" v-if="movie?.isLive"></span>
+              <button @click="handleLiveRoomAction" class="btn-live-room" :disabled="isLoadingRoom">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="btn-icon-live">
                   <path
                     d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4zM14 13h-3v3H9v-3H6v-2h3V8h2v3h3v2z" />
                 </svg>
-                <span>{{
-                  isLoadingRoom
-                    ? 'Avvio in corso...'
-                    : movie?.isLive
-                      ? 'Vai alla live room'
-                      : 'Inizia una live room'
-                }}</span>
+                <span>Vai alla live room</span>
               </button>
 
               <Buttons :movie="movie" :inWatchlist="localWatchStatus === 1" :inWatched="localWatchStatus === 2"

@@ -1,6 +1,7 @@
 <script setup>
 import { onMounted, ref } from 'vue'
-import MovieCard from '@/components/moviecard.vue'
+import MovieCard from '~/components/moviecard.vue'
+import BasePopup from '~/components/base_popup.vue'
 
 const runtimeConfig = useRuntimeConfig()
 const GET_WATCHLIST_ENDPOINT = runtimeConfig.public.getWatchlist
@@ -9,6 +10,13 @@ const DELETE_FROM_WATCHLIST_ENDPOINT = runtimeConfig.public.deleteFromWatchlist
 
 const movies = ref([])
 const isLoading = ref(false)
+const isPopupOpen = ref(false)
+const popupMessage = ref('')
+
+function showPopup(message) {
+  popupMessage.value = message
+  isPopupOpen.value = true
+}
 
 const getMovies = async () => {
   isLoading.value = true
@@ -18,7 +26,8 @@ const getMovies = async () => {
     })
     movies.value = Array.isArray(payload) ? payload : []
   } catch (err) {
-    console.error(err.message || 'Errore durante il recupero dei film in watchlist')
+    console.error(err)
+    showPopup('Errore durante il recupero dei film in watchlist. Riprova più tardi.')
   } finally {
     isLoading.value = false
   }
@@ -33,7 +42,8 @@ const deleteFromWatchlist = async (movie) => {
     movies.value = movies.value.filter((m) => m.id !== movie.id)
     movie.watchStatus = 0
   } catch (err) {
-    console.error(err.message || 'Errore durante la rimozione dalla watchlist')
+    console.error(err)
+    showPopup('Errore durante la rimozione dalla watchlist. Riprova più tardi.')
   }
 }
 
@@ -46,7 +56,8 @@ const addToWatched = async (movie) => {
     movies.value = movies.value.filter((m) => m.id !== movie.id)
     movie.watchStatus = 2
   } catch (err) {
-    console.error(err.message || 'Errore durante l\'aggiunta ai visti')
+    console.error(err)
+    showPopup('Errore durante l\'aggiunta ai visti. Riprova più tardi.')
   }
 }
 
@@ -66,6 +77,8 @@ onMounted(async () => {
 
 <template>
   <div class="watchlist-page">
+    <BasePopup :show="isPopupOpen" title="Errore" :content="popupMessage" @close="isPopupOpen = false"
+      @action="isPopupOpen = false" />
     <header class="watchlist-hero">
       <h1 class="watchlist-title text-evergreen">La mia Watchlist</h1>
       <p class="watchlist-subtitle">Film salvati per essere guardati in futuro.</p>

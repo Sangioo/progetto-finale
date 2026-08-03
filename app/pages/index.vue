@@ -19,16 +19,14 @@ const movies = ref([[], [], [], [], []])
 const searchResults = ref([])
 const totalResults = ref(0)
 const isLoading = ref(false)
-const fetchError = ref('')
 const index = ref(0)
 const filters = ref({})
 const isAuthenticated = computed(() => !!user.value)
 const isPopupOpen = ref(false)
-const authModalMessage = ref('')
-const authActions = [
-  { label: 'Accedi', type: 'primary' },
-  { label: 'Chiudi', type: 'secondary' }
-]
+const popupTitle = ref('')
+const popupMessage = ref('')
+const popupActions = ref([])
+const popupId = ref('')
 const searchTerm = ref('')
 const hasSearched = ref(false)
 const galleryRef = ref(null)
@@ -46,7 +44,6 @@ const hasMovies = computed(() => {
 
 const setTab = (tab) => {
   activeTab.value = tab
-  fetchError.value = ''
 
   if (tab === 'search') {
     filters.value = {}
@@ -62,7 +59,6 @@ const setTab = (tab) => {
 
 async function loadMovies(appliedFilters = {}) {
   isLoading.value = true
-  fetchError.value = ''
   try {
     const payload = await callApi({
       endpoint: DISCOVER_ENDPOINT,
@@ -78,7 +74,8 @@ async function loadMovies(appliedFilters = {}) {
         (Array.isArray(payload) ? payload.length : (payload.results?.length ?? 0))
     }
   } catch (err) {
-    fetchError.value = err.message || 'Servizio momentaneamente non disponibile.'
+    console.error(err.message)
+    showPopup('Errore', 'Errore durante il caricamento dei film. Riprova più tardi.')
   } finally {
     isLoading.value = false
   }
@@ -88,14 +85,12 @@ const searchMovies = async () => {
   const term = searchTerm.value.trim()
 
   if (!term) {
-    fetchError.value = ''
     searchResults.value = []
     hasSearched.value = false
     return
   }
 
   isLoading.value = true
-  fetchError.value = ''
   hasSearched.value = true
 
   try {
@@ -107,7 +102,8 @@ const searchMovies = async () => {
 
     searchResults.value = Array.isArray(payload) ? payload : []
   } catch (err) {
-    fetchError.value = err.message || 'Nessun risultato trovato. Riprova con un altro titolo.'
+    console.error(err.message)
+    showPopup('Errore', 'Errore durante la ricerca. Riprova più tardi.')
     searchResults.value = []
   } finally {
     isLoading.value = false
@@ -116,7 +112,10 @@ const searchMovies = async () => {
 
 const handleLeftClick = async (movie) => {
   if (!isAuthenticated.value) {
-    showAuthModal("Devi effettuare l'accesso per aggiungere questo film alla tua watchlist.")
+    showPopup("Attenzione", "Devi effettuare l'accesso per aggiungere questo film alla tua watchlist.", [
+      { label: 'Accedi', type: 'primary' },
+      { label: 'Chiudi', type: 'secondary' },
+    ], 'auth')
     return
   }
   movie.watchStatus = movie.watchStatus === 1 ? 0 : 1
@@ -127,7 +126,10 @@ const handleLeftClick = async (movie) => {
 
 const handleRightClick = async (movie) => {
   if (!isAuthenticated.value) {
-    showAuthModal("Devi effettuare l'accesso per aggiungere questo film ai film visti.")
+    showPopup("Attenzione", "Devi effettuare l'accesso per aggiungere questo film ai film visti.", [
+      { label: 'Accedi', type: 'primary' },
+      { label: 'Chiudi', type: 'secondary' },
+    ], 'auth')
     return
   }
   movie.watchStatus = movie.watchStatus === 2 ? 0 : 2
@@ -170,14 +172,17 @@ const handleResetFilters = async () => {
   await loadMovies()
 }
 
-async function handleAuthEvent(event) {
+async function routePopupEvent(event) {
   isPopupOpen.value = false
-  if (event === ':accedi')
+  if (event === 'auth:accedi')
     await navigateTo('/login')
 }
 
-function showAuthModal(message) {
-  authModalMessage.value = message
+function showPopup(title, message, actions, id) {
+  popupTitle.value = title
+  popupMessage.value = message
+  popupActions.value = actions
+  popupId.value = id
   isPopupOpen.value = true
 }
 
@@ -271,10 +276,7 @@ onMounted(async () => {
           <span class="empty-icon">🔎</span>
           <h2 class="text-evergreen">Nessun risultato trovato</h2>
           <p class="text-muted">
-            {{
-              fetchError ||
-              'Nessun film corrisponde ai criteri attuali. Prova a modificare i parametri.'
-            }}
+            Nessun film corrisponde ai criteri attuali. Prova a modificare i parametri.
           </p>
         </div>
 
@@ -292,8 +294,8 @@ onMounted(async () => {
       </section>
     </main>
 
-    <BasePopup :show="isPopupOpen" :title="'Autenticazione necessaria'" :content="authModalMessage"
-      :actions="authActions" @close="isPopupOpen = false" @action="handleAuthEvent" />
+    <BasePopup :show="isPopupOpen" :title="popupTitle" :content="popupMessage" :actions="popupActions"
+      :identifier="popupId" @close="isPopupOpen = false" @action="routePopupEvent" />
   </div>
 </template>
 

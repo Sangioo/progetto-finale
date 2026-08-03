@@ -1,4 +1,7 @@
-import { serverSupabaseServiceRole } from "#supabase/server";
+import {
+	serverSupabaseServiceRole,
+	serverSupabaseUser,
+} from "#supabase/server";
 
 export default defineEventHandler(async (event) => {
 	const defaultParams = {
@@ -8,6 +11,7 @@ export default defineEventHandler(async (event) => {
 	};
 
 	const supabase = serverSupabaseServiceRole(event);
+	const user = await serverSupabaseUser(event);
 	const config = useRuntimeConfig();
 
 	const query = { ...defaultParams, ...getQuery(event) };

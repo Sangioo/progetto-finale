@@ -26,7 +26,7 @@ const handleLogin = async () => {
 
     await navigateTo('/')
   } catch (err) {
-    console.error('Errore durante il login:', err)
+    console.error(err)
     errorMsg.value = 'Si è verificato un errore durante il login.'
   }
 }

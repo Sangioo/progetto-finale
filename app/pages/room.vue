@@ -1,5 +1,7 @@
 <template>
   <div class="room-container">
+    <BasePopup :show="isPopupOpen" title="Errore" :content="popupMessage" @close="isPopupOpen = false"
+      @action="isPopupOpen = false" />
     <div class="chat-section">
       <header class="chat-header">
         <div class="header-info">
@@ -94,6 +96,7 @@
 <script setup>
 import { ref, onMounted, onUnmounted, nextTick } from 'vue'
 import { useRoute } from 'vue-router'
+import BasePopup from '~/components/base_popup.vue'
 
 const route = useRoute()
 const movieId = ref(route.query.movieId || null)
@@ -109,6 +112,8 @@ const sendAsSpoiler = ref(false)
 const messagesAreaRef = ref(null)
 const isSidebarOpen = ref(false)
 
+const isPopupOpen = ref(false)
+const popupMessage = ref('')
 
 const messagesChannel = supabase.channel(`${movieId.value}:messages`, {
   config: {
@@ -125,6 +130,11 @@ const presenceChannel = supabase.channel(`${movieId.value}:presence`, {
     },
   },
 })
+
+function showPopup(message) {
+  popupMessage.value = message
+  isPopupOpen.value = true
+}
 
 const syncActiveUsersFromPresence = () => {
   const presenceState = presenceChannel.presenceState()
@@ -145,17 +155,13 @@ const subscribeToChannel = () => {
         scrollToBottom()
       }
     })
-    .subscribe((status) => {
-      console.log('Messages channel status:', status)
-    })
+    .subscribe()
 
   presenceChannel
     .on('presence', { event: 'sync' }, () => {
       syncActiveUsersFromPresence()
     })
     .subscribe(async (status) => {
-      console.log('Presence channel status:', status)
-
       if (status !== 'SUBSCRIBED') return
 
       await presenceChannel.track({
@@ -178,7 +184,8 @@ const sendMessageToChannel = async (message) => {
       payload: message,
     })
   } catch (error) {
-    console.error('Errore durante l\'invio del messaggio al canale:', error)
+    console.error(error)
+    showPopup('Errore durante l\'invio del messaggio. Riprova più tardi.')
   }
 }
 
@@ -217,7 +224,8 @@ const enterRoom = async () => {
 
     if (error) throw error
   } catch (err) {
-    console.error('Errore durante l\'unione alla stanza:', err)
+    console.error(err)
+    showPopup('Errore durante l\'accesso alla stanza. Riprova più tardi.')
   }
 }
 
@@ -231,7 +239,8 @@ const deleteRoom = async () => {
 
     if (error) throw error
   } catch (err) {
-    console.error('Errore durante l\'uscita dalla stanza:', err)
+    console.error(err)
+    showPopup('Errore durante l\'uscita dalla stanza. Riprova più tardi.')
   }
 }
 

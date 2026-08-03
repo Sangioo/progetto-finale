@@ -4,7 +4,6 @@ import BasePopup from '~/components/base_popup.vue'
 import ReviewPopup from '~/components/review_popup.vue'
 
 const runtimeConfig = useRuntimeConfig()
-const API_URL = runtimeConfig.public.apiUrl
 const IMAGE_URL = runtimeConfig.public.imageUrl
 const GET_REVIEWS = runtimeConfig.public.getMyReviews
 const DEL_REVIEW = runtimeConfig.public.deleteReview
@@ -19,7 +18,9 @@ const userReviews = ref([])
 const currentUsername = ref(user.value?.user_metadata?.username || '')
 const isFetchingReviews = ref(false)
 
-const userAvatarUrl = ref(user.value?.user_metadata?.profile_picture || null)
+const userAvatarUrl = computed(() => {
+  return user.value ? user.value?.user_metadata?.profile_pic_url : null
+})
 const fileInput = ref(null)
 const vecchiaPassword = ref('')
 const nuovaPassword = ref('')
@@ -37,8 +38,7 @@ const selectedReviewToRead = ref(null)
 const fetchUserReviews = async () => {
   try {
     const payload = await callApi({ endpoint: GET_REVIEWS })
-    const data = payload.data || []
-    userReviews.value = Array.isArray(data) ? data : data.reviews || []
+    userReviews.value = Array.isArray(payload) ? payload : []
   } catch (err) {
     showPopup('Errore', err.message || 'Impossibile caricare lo storico recensioni.', 'error')
   }
@@ -77,21 +77,15 @@ const handleAvatarUpload = async (event) => {
 
   isActionLoading.value = true
   try {
-    const data = await callApi({
+    await callApi({
       endpoint: UPLOAD_AVATAR,
       method: 'POST',
       body: formData,
       parseJson: true,
     })
 
-    const newAvatarUrl = data.path
-
-    userAvatarUrl.value = newAvatarUrl
-    if (import.meta.client) {
-      sessionStorage.setItem('profilePicture', newAvatarUrl)
-    }
-
-    window.dispatchEvent(new Event('avatar-updated'))
+    const { error } = await supabase.auth.refreshSession()
+    if (error) throw error
 
     showPopup('Successo', 'Foto profilo aggiornata con successo!', 'success')
 
@@ -114,15 +108,12 @@ const confirmRemoveAvatar = async () => {
     await callApi({
       endpoint: DEL_AVATAR,
       method: 'POST',
-      parseJson: true,
+      parseJson: false,
     })
 
-    userAvatarUrl.value = null
-    if (import.meta.client) {
-      sessionStorage.removeItem('profilePicture')
-    }
+    const { error } = await supabase.auth.refreshSession()
+    if (error) throw error
 
-    window.dispatchEvent(new Event('avatar-updated'))
     showPopup('Successo', 'Foto profilo rimossa!', 'success')
   } catch (err) {
     showPopup('Errore', err.message || 'Errore di connessione durante la rimozione.', 'error')
@@ -139,7 +130,7 @@ const handleCambiaPassword = async () => {
 
   isActionLoading.value = true
   try {
-    const data = await callApi({
+    await callApi({
       endpoint: UPDATE_PASSWORD,
       method: 'POST',
       body: JSON.stringify({
@@ -169,14 +160,12 @@ const confirmLogout = async () => {
   try {
     const { error } = await supabase.auth.signOut()
 
-    if (error) {
-      showPopup('Errore', error.message || 'Errore durante il logout.', 'error')
-      return
-    }
+    if (error) throw error
+
     window.dispatchEvent(new Event('avatar-updated'))
-    navigateTo('/login')
+    await navigateTo('/login')
   } catch (e) {
-    showPopup('Errore', 'Errore di rete durante il logout.', 'error')
+    showPopup('Errore', error.message || 'Errore durante il logout.', 'error')
   } finally {
     isActionLoading.value = false
   }
@@ -213,7 +202,7 @@ const formatDate = (timestamp) => {
   })
 }
 
-const goToFilm = (movie) => {
+const goToFilm = async (movie) => {
   const movieData = {
     id: movie.id,
     title: movie.title,
@@ -226,11 +215,12 @@ const goToFilm = (movie) => {
     watchStatus: 2,
   }
   sessionStorage.setItem('selectedMovie', JSON.stringify(movieData))
-  navigateTo(`/film`)
+  await navigateTo(`/film`)
 }
 
 onMounted(async () => {
   await fetchUserReviews()
+  console.log(user.value?.user_metadata?.profile_pic_url)
 })
 </script>
 

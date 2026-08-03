@@ -1,9 +1,8 @@
 <script setup>
-import { ref, onMounted, onUnmounted, computed } from 'vue'
+import { ref, computed } from 'vue'
 import themeToggle from './theme_toggle.vue'
 
 const user = useSupabaseUser()
-const supabase = useSupabaseClient()
 
 const isMenuOpen = ref(false)
 
@@ -12,14 +11,10 @@ const username = computed(() => {
 })
 
 const profilePicture = computed(() => {
-  return user.value ? user.value.user_metadata?.profile_picture : null
+  return user.value ? user.value.user_metadata?.profile_pic_url : null
 })
 
 const isAuthenticated = computed(() => !!user.value)
-
-const handleDynamicUpdate = async () => {
-  await supabase.auth.refreshSession()
-}
 
 const closeHeader = () => {
   isMenuOpen.value = false
@@ -28,14 +23,6 @@ const closeHeader = () => {
 const toggleMenu = () => {
   isMenuOpen.value = !isMenuOpen.value
 }
-
-onMounted(() => {
-  window.addEventListener('avatar-updated', handleDynamicUpdate)
-})
-
-onUnmounted(() => {
-  window.removeEventListener('avatar-updated', handleDynamicUpdate)
-})
 </script>
 
 <template>

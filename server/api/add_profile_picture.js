@@ -35,25 +35,25 @@ export default defineEventHandler(async (event) => {
 	);
 
 	if (!user) {
-		return {
-			success: false,
-			message: "User not authenticated",
-		};
+		throw createError({
+			statusCode: 401,
+			statusMessage: "User not authenticated",
+		});
 	}
 
 	if (!profilePicturePart?.data) {
-		return {
-			success: false,
-			message: "Profile picture not provided",
-		};
+		throw createError({
+			statusCode: 400,
+			statusMessage: "Profile picture not provided",
+		});
 	}
 
 	const contentType = profilePicturePart.type || "unknown";
 	if (!ALLOWED_MIME_TYPES.has(contentType)) {
-		return {
-			success: false,
-			message: "Invalid profile picture format",
-		};
+		throw createError({
+			statusCode: 400,
+			statusMessage: "Invalid profile picture format",
+		});
 	}
 
 	try {
@@ -90,7 +90,7 @@ export default defineEventHandler(async (event) => {
 		}
 
 		const { error } = await supabase.auth.admin.updateUserById(user.sub, {
-			user_metadata: { profile_picture: profilePicture },
+			user_metadata: { profile_pic_url: profilePicture },
 		});
 
 		if (error) {
@@ -98,17 +98,14 @@ export default defineEventHandler(async (event) => {
 			throw error;
 		}
 
-		return {
-			success: true,
-			message: "Profile picture updated successfully",
-			path: publicUrlData.publicUrl,
-		};
-	} catch (err) {
-		console.error(err);
-		return {
-			success: false,
-			message:
-				err.message || "Error updating profile picture in Supabase",
-		};
+		return;
+	} catch (error) {
+		console.error(error);
+		if (error?.statusCode) throw error;
+		throw createError({
+			statusCode: 500,
+			statusMessage:
+				error.message || "Error updating profile picture in Supabase",
+		});
 	}
 });

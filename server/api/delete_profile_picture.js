@@ -8,16 +8,21 @@ export default defineEventHandler(async (event) => {
 	const user = await serverSupabaseUser(event);
 
 	if (!user) {
-		return { success: false, message: "User not authenticated" };
+		throw createError({
+			statusCode: 401,
+			statusMessage: "User not authenticated",
+		});
 	}
 
-	const { data: userProfile } = await supabase
-		.from("users")
-		.select("profile_pic_url")
-		.eq("id", user.sub)
-		.maybeSingle();
-
 	try {
+		const { data: userProfile, error: userProfileError } = await supabase
+			.from("users")
+			.select("profile_pic_url")
+			.eq("id", user.sub)
+			.maybeSingle();
+
+		if (userProfileError) throw userProfileError;
+
 		const filePath = userProfile?.profile_pic_url?.split("/").pop();
 
 		if (filePath) {
@@ -44,16 +49,14 @@ export default defineEventHandler(async (event) => {
 
 		if (authError) throw authError;
 
-		return {
-			success: true,
-			message: "Profile picture deleted successfully",
-		};
-	} catch (err) {
-		console.error(err);
-		return {
-			success: false,
-			message:
-				err.message || "Error deleting profile picture from Supabase",
-		};
+		return;
+	} catch (error) {
+		console.error(error);
+		if (error?.statusCode) throw error;
+		throw createError({
+			statusCode: 500,
+			statusMessage:
+				error.message || "Error deleting profile picture from Supabase",
+		});
 	}
 });

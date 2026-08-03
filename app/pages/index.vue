@@ -5,7 +5,6 @@ import MovieCard from '@/components/moviecard.vue'
 import BasePopup from '~/components/base_popup.vue'
 
 const runtimeConfig = useRuntimeConfig()
-const API_URL = runtimeConfig.public.apiUrl
 const DISCOVER_ENDPOINT = runtimeConfig.public.discover
 const SEARCH_ENDPOINT = runtimeConfig.public.search
 const ADD_TO_WATCHLIST_ENDPOINT = runtimeConfig.public.addToWatchlist
@@ -102,8 +101,7 @@ const searchMovies = async () => {
       headers: { Accept: 'application/json' },
     })
 
-    const results = Array.isArray(payload) ? payload : payload.results || []
-    searchResults.value = results
+    searchResults.value = Array.isArray(payload) ? payload : []
   } catch (err) {
     fetchError.value = err.message || 'Nessun risultato trovato. Riprova con un altro titolo.'
     searchResults.value = []

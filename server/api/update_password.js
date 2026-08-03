@@ -7,13 +7,20 @@ export default defineEventHandler(async (event) => {
 	const supabase = serverSupabaseServiceRole(event);
 	const user = await serverSupabaseUser(event);
 	const body = await readBody(event);
-	const newPassword = JSON.parse(body).newPassword;
+	const payload = typeof body === "string" ? JSON.parse(body) : body;
+	const newPassword = payload?.newPassword;
 
 	if (!user) {
-		return { success: false, message: "User not authenticated" };
+		throw createError({
+			statusCode: 401,
+			statusMessage: "User not authenticated",
+		});
 	}
 	if (!newPassword) {
-		return { success: false, message: "New password not provided" };
+		throw createError({
+			statusCode: 400,
+			statusMessage: "New password not provided",
+		});
 	}
 
 	try {
@@ -23,12 +30,14 @@ export default defineEventHandler(async (event) => {
 
 		if (error) throw error;
 
-		return { success: true, message: "Password updated successfully" };
-	} catch (err) {
-		console.error(err);
-		return {
-			success: false,
-			message: err.message || "Error updating password in Supabase",
-		};
+		return;
+	} catch (error) {
+		console.error(error);
+		if (error?.statusCode) throw error;
+		throw createError({
+			statusCode: 500,
+			statusMessage:
+				error.message || "Error updating password in Supabase",
+		});
 	}
 });

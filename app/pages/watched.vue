@@ -3,7 +3,6 @@ import { onMounted, ref } from 'vue'
 import MovieCard from '@/components/moviecard.vue'
 
 const runtimeConfig = useRuntimeConfig()
-const API_URL = runtimeConfig.public.apiUrl
 const GET_WATCHED_ENDPOINT = runtimeConfig.public.getWatched
 const DELETE_FROM_WATCHED_ENDPOINT = runtimeConfig.public.deleteFromWatched
 
@@ -16,8 +15,7 @@ const getMovies = async () => {
     const payload = await callApi({
       endpoint: GET_WATCHED_ENDPOINT,
     })
-    const data = payload.movies || []
-    movies.value = Array.isArray(data) ? data : []
+    movies.value = Array.isArray(payload) ? payload : []
   } catch (err) {
     console.error(err.message || 'Errore durante il recupero dei film guardati:')
   } finally {

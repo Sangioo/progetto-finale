@@ -5,10 +5,10 @@ export default defineEventHandler(async (event) => {
 	const movieId = getQuery(event).movieId;
 
 	if (!movieId) {
-		return {
-			success: false,
-			message: "Movie ID is required",
-		};
+		throw createError({
+			statusCode: 400,
+			statusMessage: "Movie ID is required",
+		});
 	}
 
 	try {
@@ -28,13 +28,14 @@ export default defineEventHandler(async (event) => {
 			...review,
 		}));
 
-		return { success: true, data: movies };
-	} catch (err) {
-		console.error("Error fetching movie reviews:", err);
-		return {
-			success: false,
-			message:
-				err.message || "Error fetching movie reviews from Supabase",
-		};
+		return movies;
+	} catch (error) {
+		console.error("Error fetching movie reviews:", error);
+		if (error?.statusCode) throw error;
+		throw createError({
+			statusCode: 500,
+			statusMessage:
+				error.message || "Error fetching movie reviews from Supabase",
+		});
 	}
 });

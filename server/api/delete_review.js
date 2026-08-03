@@ -9,14 +9,17 @@ export default defineEventHandler(async (event) => {
 	const movieId = getQuery(event).movieId;
 
 	if (!user) {
-		return { success: false, message: "User not authenticated" };
+		throw createError({
+			statusCode: 401,
+			statusMessage: "User not authenticated",
+		});
 	}
 
 	if (!movieId) {
-		return {
-			success: false,
-			message: "Movie ID is required",
-		};
+		throw createError({
+			statusCode: 400,
+			statusMessage: "Movie ID is required",
+		});
 	}
 
 	try {
@@ -28,12 +31,13 @@ export default defineEventHandler(async (event) => {
 
 		if (error) throw error;
 
-		return { success: true, message: "Review deleted successfully" };
-	} catch (err) {
-		console.error(err);
-		return {
-			success: false,
-			message: err.message || "Error deleting review",
-		};
+		return;
+	} catch (error) {
+		console.error(error);
+		if (error?.statusCode) throw error;
+		throw createError({
+			statusCode: 500,
+			statusMessage: error.message || "Error deleting review",
+		});
 	}
 });

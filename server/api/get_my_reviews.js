@@ -6,6 +6,13 @@ export default defineEventHandler(async (event) => {
 	const user = await serverSupabaseUser(event);
 	const supabase = serverSupabaseServiceRole(event);
 
+	if (!user) {
+		throw createError({
+			statusCode: 401,
+			statusMessage: "User not authenticated",
+		});
+	}
+
 	try {
 		const { data, error } = await supabase
 			.from("reviews")
@@ -21,12 +28,14 @@ export default defineEventHandler(async (event) => {
 			...rest,
 		}));
 
-		return { success: true, data: movies };
-	} catch (err) {
-		console.error(err);
-		return {
-			success: false,
-			message: err.message || "Error fetching user reviews from Supabase",
-		};
+		return movies;
+	} catch (error) {
+		console.error(error);
+		if (error?.statusCode) throw error;
+		throw createError({
+			statusCode: 500,
+			statusMessage:
+				error.message || "Error fetching user reviews from Supabase",
+		});
 	}
 });

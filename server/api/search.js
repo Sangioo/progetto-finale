@@ -47,11 +47,12 @@ export default defineEventHandler(async (event) => {
 		if (error) throw error;
 
 		return data;
-	} catch (err) {
-		console.error(err);
-		return {
-			success: false,
-			message: err.message || "Error searching movies from TMDB",
-		};
+	} catch (error) {
+		console.error(error);
+		if (error?.statusCode) throw error;
+		throw createError({
+			statusCode: 500,
+			statusMessage: error.message || "Error searching movies from TMDB",
+		});
 	}
 });

@@ -77,12 +77,13 @@ export default defineEventHandler(async (event) => {
 		});
 
 		return toReturn;
-	} catch (err) {
-		console.error(err);
+	} catch (error) {
+		console.error(error);
+		if (error?.statusCode) throw error;
 		throw createError({
 			statusCode: 500,
 			statusMessage:
-				err.message || "Errore durante il recupero dei film.",
+				error.message || "Errore durante il recupero dei film.",
 		});
 	}
 });

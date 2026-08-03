@@ -4,7 +4,6 @@ import ReviewPopup from '~/components/review_popup.vue'
 
 const runtimeConfig = useRuntimeConfig()
 const IMAGE_URL = runtimeConfig.public.imageUrl
-const API_URL = runtimeConfig.public.apiUrl
 const GET_REVIEWS = runtimeConfig.public.getReviews
 const ADD_REVIEW = runtimeConfig.public.addReview
 const ADD_TO_WATCHLIST_ENDPOINT = runtimeConfig.public.addToWatchlist
@@ -62,12 +61,11 @@ const localWatchStatus = ref(movie.value?.watchStatus || 0)
 
 async function loadReviews() {
   try {
-    const response = await callApi({
+    const payload = await callApi({
       endpoint: GET_REVIEWS,
       query: { movieId: movie.value.id },
     })
-    const data = response.data || []
-    reviewsList.value = Array.isArray(data) ? data : []
+    reviewsList.value = Array.isArray(payload) ? payload : []
   } catch (err) {
     console.error('Errore caricamento recensioni:', err)
   }

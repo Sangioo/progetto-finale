@@ -41,7 +41,7 @@
             <span v-if="room.vote_average" class="movie-score">⭐ {{ Number(room.vote_average).toFixed(1) }}</span>
             <span v-if="room.release_date" class="movie-year">{{
               room.release_date.substring(0, 4)
-            }}</span>
+              }}</span>
           </div>
 
           <div class="room-stats">
@@ -94,7 +94,7 @@ const fetchLiveRooms = async () => {
     errorMsg.value = null
   } catch (err) {
     console.error(err)
-    errorMsg.value = 'Errore nel caricamento delle stanze live. Riprova più tardi.'
+    errorMsg.value = err.message || 'Errore nel caricamento delle stanze live. Riprova più tardi.'
   } finally {
     isLoading.value = false
   }

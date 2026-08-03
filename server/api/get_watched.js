@@ -8,7 +8,10 @@ export default defineEventHandler(async (event) => {
 	const user = await serverSupabaseUser(event);
 
 	if (!user) {
-		return { success: false, message: "User not authenticated" };
+		throw createError({
+			statusCode: 401,
+			statusMessage: "User not authenticated",
+		});
 	}
 
 	try {
@@ -27,13 +30,14 @@ export default defineEventHandler(async (event) => {
 			return item;
 		});
 
-		return { success: true, movies };
-	} catch (err) {
-		console.error(err);
-		return {
-			success: false,
-			message:
-				err.message || "Error fetching watched movies from Supabase",
-		};
+		return movies;
+	} catch (error) {
+		console.error(error);
+		if (error?.statusCode) throw error;
+		throw createError({
+			statusCode: 500,
+			statusMessage:
+				error.message || "Error fetching watched movies from Supabase",
+		});
 	}
 });

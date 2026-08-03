@@ -9,10 +9,16 @@ export default defineEventHandler(async (event) => {
 	const movieId = getQuery(event).movieId;
 
 	if (!user) {
-		return { success: false, message: "User not authenticated" };
+		throw createError({
+			statusCode: 401,
+			statusMessage: "User not authenticated",
+		});
 	}
 	if (!movieId) {
-		return { success: false, message: "Movie ID not provided" };
+		throw createError({
+			statusCode: 400,
+			statusMessage: "Movie ID not provided",
+		});
 	}
 
 	try {
@@ -22,21 +28,22 @@ export default defineEventHandler(async (event) => {
 			watched: false,
 		});
 
-		if (error.code === "23505") {
-			return {
-				success: false,
-				message: "Movie already in watchlist",
-			};
+		if (error && error.code === "23505") {
+			throw createError({
+				statusCode: 409,
+				statusMessage: "Movie already in watchlist",
+			});
 		}
 
 		if (error) throw error;
 
-		return { success: true, message: "Movie added to watchlist" };
-	} catch (err) {
-		console.error(err);
-		return {
-			success: false,
-			message: err.message || "Error adding movie to watchlist",
-		};
+		return;
+	} catch (error) {
+		console.error(error);
+		if (error?.statusCode) throw error;
+		throw createError({
+			statusCode: 500,
+			statusMessage: error.message || "Error adding movie to watchlist",
+		});
 	}
 });

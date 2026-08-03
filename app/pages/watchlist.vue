@@ -17,8 +17,7 @@ const getMovies = async () => {
     const payload = await callApi({
       endpoint: GET_WATCHLIST_ENDPOINT,
     })
-    const data = payload.movies || []
-    movies.value = Array.isArray(data) ? data : []
+    movies.value = Array.isArray(payload) ? payload : []
   } catch (err) {
     console.error(err.message || 'Errore durante il recupero dei film in watchlist')
   } finally {

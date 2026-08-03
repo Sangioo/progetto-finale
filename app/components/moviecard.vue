@@ -11,9 +11,6 @@ const runtimeConfig = useRuntimeConfig()
 const IMAGE_URL = runtimeConfig.public.imageUrl
 const PLACEHOLDER_IMAGE = runtimeConfig.public.placeholderImage
 
-const user = useSupabaseUser()
-const isAuthenticated = computed(() => !!user.value)
-
 const handleCardClick = () => {
   emit('reviews-click', props.movie.id)
 }
@@ -53,7 +50,7 @@ const handleCardClick = () => {
         </span>
       </div>
 
-      <Buttons :movie="movie" :inWatchlist="inWatchlist" :inWatched="inWatched" :isAuthenticated="isAuthenticated"
+      <Buttons :movie="movie" :inWatchlist="inWatchlist" :inWatched="inWatched"
         @left-click="$emit('left-click', $event)" @right-click="$emit('right-click', $event)" />
     </div>
   </div>

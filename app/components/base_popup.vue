@@ -1,11 +1,13 @@
 <script setup>
-defineProps({
+const props = defineProps({
   show: Boolean,
-  title: String,
-  type: { type: String, default: 'info' },
+  title: { type: String, default: 'Notifica' },
+  content: { type: String, default: '' },
+  actions: { type: Array, default: () => [{ label: 'Chiudi', type: 'secondary' }] },
+  identifier: { type: String, default: '' }
 })
 
-const emit = defineEmits(['close'])
+const emit = defineEmits(['action', 'close'])
 </script>
 
 <template>
@@ -17,12 +19,17 @@ const emit = defineEmits(['close'])
         <div class="bg-white text-gray-800 p-8 rounded-2xl shadow-lg text-center max-w-100 w-[90%]">
           <h3 v-if="title" class="mt-0 mb-4 text-evergreen">{{ title }}</h3>
 
-          <div>
-            <slot name="content"></slot>
-          </div>
+          <p v-if="content" class="mb-6 text-gray-600">{{ content }}</p>
 
           <div class="flex gap-4 justify-center mt-6">
-            <slot name="actions"></slot>
+            <button v-for="action in actions" :key="action.label"
+              @click="$emit('action', `${identifier}:${action.label.toLowerCase()}`)"
+              class="px-4 py-2 rounded-lg font-semibold cursor-pointer" :class="{
+                'bg-evergreen text-white hover:bg-evergreen/80': action.type === 'primary',
+                'border-evergreen text-evergreen border-2 hover:bg-evergreen/80 hover:text-white': action.type === 'secondary'
+              }">
+              {{ action.label }}
+            </button>
           </div>
         </div>
       </div>

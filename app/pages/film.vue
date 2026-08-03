@@ -67,7 +67,7 @@ async function loadReviews() {
     })
     reviewsList.value = Array.isArray(payload) ? payload : []
   } catch (err) {
-    console.error('Errore caricamento recensioni:', err)
+    showError(err.message || 'Errore durante il caricamento delle recensioni. Riprova più tardi.')
   }
 }
 
@@ -89,8 +89,7 @@ async function handleInviaRecensione() {
     userVoteStars.value = 3
     await loadReviews()
   } catch (err) {
-    errorMessage.value = err.message || 'Errore durante l\'invio della recensione. Riprova più tardi.'
-    isErrorOpen.value = true
+    showError(err.message || 'Errore durante l\'invio della recensione. Riprova più tardi.')
   }
 }
 
@@ -112,8 +111,7 @@ async function toggleWatchlist() {
 
     updateSessionMovieStatus(localWatchStatus.value)
   } catch (err) {
-    errorMessage.value = err.message || 'Errore durante l\'aggiornamento della watchlist. Riprova più tardi.'
-    isErrorOpen.value = true
+    showError(err.message || 'Errore durante l\'aggiornamento della watchlist. Riprova più tardi.')
   }
 }
 
@@ -126,8 +124,7 @@ async function toggleWatched() {
 
     updateSessionMovieStatus(localWatchStatus.value)
   } catch (err) {
-    errorMessage.value = err.message || 'Errore durante l\'aggiornamento della lista dei visti. Riprova più tardi.'
-    isErrorOpen.value = true
+    showError(err.message || 'Errore durante l\'aggiornamento della lista dei visti. Riprova più tardi.')
   }
 }
 
@@ -192,6 +189,11 @@ function formatDate(timestamp) {
   })
 }
 
+function showError(message) {
+  errorMessage.value = message
+  isErrorOpen.value = true
+}
+
 onMounted(async () => {
   await loadReviews()
 })
@@ -203,20 +205,9 @@ onUnmounted(() => {
 
 <template>
   <div class="page-wrapper">
-    <Teleport to="body">
-      <Transition name="fade">
-        <div v-if="isErrorOpen" class="modal-overlay" @click.self="isErrorOpen = false">
-          <div class="modal-content">
-            <h3 class="text-evergreen">Attenzione</h3>
-            <p>{{ errorMessage }}</p>
-            <div class="modal-actions">
-              <button @click="isErrorOpen = false" class="btn-confirm">Ho capito</button>
-            </div>
-          </div>
-        </div>
-      </Transition>
-      <ReviewPopup :show="isReviewPopupOpen" :review="selectedReviewForPopup" @close="isReviewPopupOpen = false" />
-    </Teleport>
+    <BasePopup :show="isErrorOpen" :title="'Attenzione'" :content="errorMessage" @close="isErrorOpen = false"
+      @action="isErrorOpen = false" />
+    <ReviewPopup :show="isReviewPopupOpen" :review="selectedReviewForPopup" @close="isReviewPopupOpen = false" />
 
     <div class="backdrop-overlay" v-if="movie?.backdrop_path"
       :style="{ backgroundImage: `url(${IMAGE_URL}${movie.backdrop_path})` }"></div>

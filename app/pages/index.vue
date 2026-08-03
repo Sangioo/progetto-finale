@@ -23,8 +23,12 @@ const fetchError = ref('')
 const index = ref(0)
 const filters = ref({})
 const isAuthenticated = computed(() => !!user.value)
-const showAuthModal = ref(false)
+const isPopupOpen = ref(false)
 const authModalMessage = ref('')
+const authActions = [
+  { label: 'Accedi', type: 'primary' },
+  { label: 'Chiudi', type: 'secondary' }
+]
 const searchTerm = ref('')
 const hasSearched = ref(false)
 const galleryRef = ref(null)
@@ -112,9 +116,8 @@ const searchMovies = async () => {
 
 const handleLeftClick = async (movie) => {
   if (!isAuthenticated.value) {
-    authModalMessage.value =
-      "Devi effettuare l'accesso per aggiungere questo film alla tua watchlist."
-    return (showAuthModal.value = true)
+    showAuthModal("Devi effettuare l'accesso per aggiungere questo film alla tua watchlist.")
+    return
   }
   movie.watchStatus = movie.watchStatus === 1 ? 0 : 1
   const endpoint =
@@ -124,8 +127,8 @@ const handleLeftClick = async (movie) => {
 
 const handleRightClick = async (movie) => {
   if (!isAuthenticated.value) {
-    authModalMessage.value = "Devi effettuare l'accesso per aggiungere questo film ai film visti."
-    return (showAuthModal.value = true)
+    showAuthModal("Devi effettuare l'accesso per aggiungere questo film ai film visti.")
+    return
   }
   movie.watchStatus = movie.watchStatus === 2 ? 0 : 2
   const endpoint = movie.watchStatus === 2 ? ADD_TO_WATCHED_ENDPOINT : DELETE_FROM_WATCHED_ENDPOINT
@@ -135,15 +138,6 @@ const handleRightClick = async (movie) => {
 const handleReviewsClick = async (movie) => {
   sessionStorage.setItem('selectedMovie', JSON.stringify(movie))
   await navigateTo(`/film`)
-}
-
-const handleLogin = async () => {
-  showAuthModal.value = false
-  await navigateTo('/login')
-}
-
-const closeAuthModal = () => {
-  showAuthModal.value = false
 }
 
 const goToPage = async (newIndex) => {
@@ -174,6 +168,17 @@ const handleResetFilters = async () => {
   filters.value = {}
   index.value = 0
   await loadMovies()
+}
+
+async function handleAuthEvent(event) {
+  isPopupOpen.value = false
+  if (event === ':accedi')
+    await navigateTo('/login')
+}
+
+function showAuthModal(message) {
+  authModalMessage.value = message
+  isPopupOpen.value = true
 }
 
 onMounted(async () => {
@@ -287,15 +292,8 @@ onMounted(async () => {
       </section>
     </main>
 
-    <BasePopup :show="showAuthModal" title="Autenticazione necessaria" @close="closeAuthModal">
-      <template #content>
-        <p class="text-main">{{ authModalMessage }}</p>
-      </template>
-      <template #actions>
-        <button class="btn-sec" @click="closeAuthModal">Annulla</button>
-        <button class="btn-danger" @click="handleLogin">Login</button>
-      </template>
-    </BasePopup>
+    <BasePopup :show="isPopupOpen" :title="'Autenticazione necessaria'" :content="authModalMessage"
+      :actions="authActions" @close="isPopupOpen = false" @action="handleAuthEvent" />
   </div>
 </template>
 

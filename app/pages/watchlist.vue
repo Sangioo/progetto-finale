@@ -3,7 +3,6 @@ import { onMounted, ref } from 'vue'
 import MovieCard from '@/components/moviecard.vue'
 
 const runtimeConfig = useRuntimeConfig()
-const API_URL = runtimeConfig.public.apiUrl
 const GET_WATCHLIST_ENDPOINT = runtimeConfig.public.getWatchlist
 const ADD_TO_WATCHED_ENDPOINT = runtimeConfig.public.addToWatched
 const DELETE_FROM_WATCHLIST_ENDPOINT = runtimeConfig.public.deleteFromWatchlist
@@ -60,8 +59,8 @@ const handleReviewsClick = async (movie) => {
   await navigateTo('/film')
 }
 
-onMounted(() => {
-  getMovies()
+onMounted(async () => {
+  await getMovies()
 })
 </script>
 

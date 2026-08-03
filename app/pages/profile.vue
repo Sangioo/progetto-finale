@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted } from 'vue'
 import BasePopup from '~/components/base_popup.vue'
 import ReviewPopup from '~/components/review_popup.vue'
 
@@ -22,33 +22,35 @@ const userAvatarUrl = computed(() => {
   return user.value ? user.value?.user_metadata?.profile_pic_url : null
 })
 const fileInput = ref(null)
-const vecchiaPassword = ref('')
-const nuovaPassword = ref('')
-const confermaPassword = ref('')
 const isActionLoading = ref(false)
+
+const oldPassword = ref('')
+const newPassword = ref('')
+const confirmPassword = ref('')
+
 const isPopupOpen = ref(false)
-const popupTitle = ref('Notifica')
+const popupTitle = ref('')
 const popupMessage = ref('')
-const popupType = ref('info')
-const isConfirmPopupOpen = ref(false)
-const isLogoutPopupOpen = ref(false)
+const popupActions = ref([])
+const popupId = ref('')
+
 const isReadPopupOpen = ref(false)
 const selectedReviewToRead = ref(null)
 
-const fetchUserReviews = async () => {
+async function fetchUserReviews() {
   try {
     const payload = await callApi({ endpoint: GET_REVIEWS })
     userReviews.value = Array.isArray(payload) ? payload : []
   } catch (err) {
-    showPopup('Errore', err.message || 'Impossibile caricare lo storico recensioni.', 'error')
+    showPopup('Errore', err.message || 'Impossibile caricare lo storico recensioni.')
   }
 }
 
-const handleDeleteReview = async (review) => {
+async function handleDeleteReview(review) {
   const idFilm = review.id
 
   if (!idFilm) {
-    showPopup('Errore', 'Impossibile identificare il film di questa recensione.', 'error')
+    showPopup('Errore', 'Impossibile identificare il film di questa recensione.')
     return
   }
 
@@ -60,15 +62,17 @@ const handleDeleteReview = async (review) => {
     })
 
     userReviews.value = userReviews.value.filter((r) => r.id !== idFilm)
-    showPopup('Successo', 'Recensione rimossa con successo.', 'success')
+    showPopup('Successo', 'Recensione rimossa con successo.')
   } catch (err) {
-    showPopup('Errore', err.message || 'Errore di rete durante la cancellazione.', 'error')
+    showPopup('Errore', err.message || 'Errore di rete durante la cancellazione.')
   }
 }
 
-const triggerFileInput = () => fileInput.value.click()
+function triggerFileInput() {
+  fileInput.value.click()
+}
 
-const handleAvatarUpload = async (event) => {
+async function handleAvatarUpload(event) {
   const file = event.target.files[0]
   if (!file) return
 
@@ -81,28 +85,25 @@ const handleAvatarUpload = async (event) => {
       endpoint: UPLOAD_AVATAR,
       method: 'POST',
       body: formData,
-      parseJson: true,
+      parseJson: false,
     })
 
     const { error } = await supabase.auth.refreshSession()
     if (error) throw error
 
-    showPopup('Successo', 'Foto profilo aggiornata con successo!', 'success')
+    showPopup('Successo', 'Foto profilo aggiornata con successo!')
 
-  } catch (e) {
-    showPopup('Errore', err.message || 'Errore di connessione durante il caricamento del file.', 'error')
+  } catch (err) {
+    showPopup('Errore', err.message || 'Errore di connessione durante il caricamento del file.')
   } finally {
     isActionLoading.value = false
     if (fileInput.value) fileInput.value.value = ''
   }
 }
 
-const handleRemoveAvatarClick = () => {
-  isConfirmPopupOpen.value = true
-}
 
-const confirmRemoveAvatar = async () => {
-  isConfirmPopupOpen.value = false
+async function confirmRemoveAvatar() {
+  isPopupOpen.value = false
   isActionLoading.value = true
   try {
     await callApi({
@@ -114,22 +115,22 @@ const confirmRemoveAvatar = async () => {
     const { error } = await supabase.auth.refreshSession()
     if (error) throw error
 
-    showPopup('Successo', 'Foto profilo rimossa!', 'success')
+    showPopup('Successo', 'Foto profilo rimossa!')
   } catch (err) {
-    showPopup('Errore', err.message || 'Errore di connessione durante la rimozione.', 'error')
+    showPopup('Errore', err.message || 'Errore di connessione durante la rimozione.')
   } finally {
     isActionLoading.value = false
   }
 }
 
-const handleCambiaPassword = async () => {
-  if (nuovaPassword.value !== confermaPassword.value) {
-    showPopup('Attenzione', 'La nuova password e quella di conferma non coincidono.', 'error')
+async function handleCambiaPassword() {
+  if (newPassword.value !== confirmPassword.value) {
+    showPopup('Attenzione', 'La nuova password e quella di conferma non coincidono.')
     return
   }
 
-  if (!checkPassword(nuovaPassword.value).isValid) {
-    showPopup('Attenzione', 'La nuova password non soddisfa i requisiti di sicurezza.', 'error')
+  if (!checkPassword(newPassword.value).isValid) {
+    showPopup('Attenzione', 'La nuova password non soddisfa i requisiti di sicurezza.')
     return
   }
 
@@ -139,63 +140,48 @@ const handleCambiaPassword = async () => {
       endpoint: UPDATE_PASSWORD,
       method: 'POST',
       body: JSON.stringify({
-        password: vecchiaPassword.value,
-        newPassword: nuovaPassword.value,
+        password: oldPassword.value,
+        newPassword: newPassword.value,
       }),
       parseJson: false,
     })
 
-    vecchiaPassword.value = ''
-    nuovaPassword.value = ''
-    confermaPassword.value = ''
-    showPopup('Successo', 'Password aggiornata con successo.', 'success')
+    oldPassword.value = ''
+    newPassword.value = ''
+    confirmPassword.value = ''
+    showPopup('Successo', 'Password aggiornata con successo.')
   } catch (err) {
-    showPopup('Errore', err.message || "Errore di rete durante l'aggiornamento della password.", 'error')
+    showPopup('Errore', err.message || "Errore di rete durante l'aggiornamento della password.")
   } finally {
     isActionLoading.value = false
   }
 }
 
-const handleLogoutClick = () => {
-  isLogoutPopupOpen.value = true
-}
-
-const confirmLogout = async () => {
-  isLogoutPopupOpen.value = false
-  isActionLoading.value = true
+async function confirmLogout() {
+  isPopupOpen.value = false
   try {
     const { error } = await supabase.auth.signOut()
 
     if (error) throw error
 
-    window.dispatchEvent(new Event('avatar-updated'))
     await navigateTo('/login')
-  } catch (e) {
-    showPopup('Errore', error.message || 'Errore durante il logout.', 'error')
-  } finally {
-    isActionLoading.value = false
+  } catch (error) {
+    showPopup('Errore', error.message || 'Errore durante il logout.')
   }
 }
 
-const showPopup = (title, message, type = 'info') => {
-  popupTitle.value = title
-  popupMessage.value = message
-  popupType.value = type
-  isPopupOpen.value = true
-}
-
-const openReadReviewPopup = (review) => {
+function openReadReviewPopup(review) {
   selectedReviewToRead.value = review
   isReadPopupOpen.value = true
 }
 
-const getStatusClass = (val) => {
+function getStatusClass(val) {
   if (val < 6) return 'status-low'
   if (val < 8) return 'status-mid'
   return 'status-high'
 }
 
-const formatDate = (timestamp) => {
+function formatDate(timestamp) {
   if (!timestamp) return 'Data non disponibile'
 
   const dateObj = isNaN(timestamp) ? new Date(timestamp) : new Date(Number(timestamp))
@@ -208,7 +194,7 @@ const formatDate = (timestamp) => {
   })
 }
 
-const goToFilm = async (movie) => {
+async function goToFilm(movie) {
   const movieData = {
     id: movie.id,
     title: movie.title,
@@ -224,6 +210,44 @@ const goToFilm = async (movie) => {
   await navigateTo(`/film`)
 }
 
+async function routePopupEvent(event) {
+  if (event === 'logout:esci') {
+    await confirmLogout()
+  } else if (event === 'removeAvatar:rimuovi') {
+    await confirmRemoveAvatar()
+  } else {
+    isPopupOpen.value = false
+  }
+}
+
+function handleRemoveAvatarClick() {
+  showPopup('Conferma Rimozione', 'Sei sicuro di voler rimuovere la tua foto profilo?', [{
+    label: 'Annulla',
+    type: 'secondary'
+  }, {
+    label: 'Rimuovi',
+    type: 'primary'
+  }], 'removeAvatar')
+}
+
+function handleLogoutClick() {
+  showPopup('Conferma Disconnessione', 'Sei sicuro di voler uscire dal tuo account?', [{
+    label: 'Annulla',
+    type: 'secondary'
+  }, {
+    label: 'Esci',
+    type: 'primary'
+  }], 'logout')
+}
+
+function showPopup(title, message, actions, id) {
+  popupTitle.value = title
+  popupMessage.value = message
+  popupActions.value = actions
+  popupId.value = id
+  isPopupOpen.value = true
+}
+
 onMounted(async () => {
   await fetchUserReviews()
 })
@@ -231,51 +255,8 @@ onMounted(async () => {
 
 <template>
   <div class="profile-wrapper">
-    <BasePopup :show="isPopupOpen" :title="popupTitle" :type="popupType" @close="isPopupOpen = false">
-      <template #content>
-        <div class="popup-premium-content">
-          <div v-if="popupType === 'success'" class="modal-icon-success">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="check-icon">
-              <path fill-rule="evenodd"
-                d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12Zm13.36-1.814a.75.75 0 1 0-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 0 0-1.06 1.06l2.25 2.25a.75.75 0 0 0 1.14-.094l3.748-5.25Z"
-                clip-path="evenodd" />
-            </svg>
-          </div>
-          <p class="popup-custom-text">{{ popupMessage }}</p>
-        </div>
-      </template>
-      <template #actions>
-        <button @click="isPopupOpen = false" class="btn btn-popup-close-premium" :class="popupType">
-          Chiudi
-        </button>
-      </template>
-    </BasePopup>
-
-    <BasePopup :show="isConfirmPopupOpen" title="Conferma Rimozione" type="error" @close="isConfirmPopupOpen = false">
-      <template #content>
-        <p class="popup-custom-text">
-          Sei sicuro di voler rimuovere la tua foto profilo? Tornerai all'avatar standard con
-          l'iniziale del tuo nome.
-        </p>
-      </template>
-      <template #actions>
-        <button @click="isConfirmPopupOpen = false" class="btn btn-confirm-annulla">Annulla</button>
-        <button @click="confirmRemoveAvatar" class="btn btn-confirm-procedi">Sì, Rimuovi</button>
-      </template>
-    </BasePopup>
-
-    <BasePopup :show="isLogoutPopupOpen" title="Conferma Disconnessione" type="info" @close="isLogoutPopupOpen = false">
-      <template #content>
-        <p class="popup-custom-text">
-          Sei sicuro di voler uscire dal tuo account? Sarà necessario reinserire le tue credenziali
-          per accedere nuovamente.
-        </p>
-      </template>
-      <template #actions>
-        <button @click="isLogoutPopupOpen = false" class="btn btn-confirm-annulla">Annulla</button>
-        <button @click="confirmLogout" class="btn btn-confirm-procedi">Esci</button>
-      </template>
-    </BasePopup>
+    <BasePopup :show="isPopupOpen" :title="popupTitle" :content="popupMessage" :actions="popupActions"
+      :identifier="popupId" @close="isPopupOpen = false" @action="routePopupEvent" />
 
     <ReviewPopup :show="isReadPopupOpen" :review="selectedReviewToRead" @close="isReadPopupOpen = false" />
 
@@ -334,20 +315,10 @@ onMounted(async () => {
           <form @submit.prevent="handleCambiaPassword" class="password-form">
             <div class="input-group">
               <label>Vecchia Password</label>
-              <input v-model="vecchiaPassword" type="password" placeholder="••••••••" required />
+              <input v-model="oldPassword" type="password" placeholder="••••••••" required />
             </div>
 
-            <!-- <div class="input-group">
-              <label>Nuova Password</label>
-              <input v-model="nuovaPassword" type="password" placeholder="••••••••" required />
-            </div>
-
-            <div class="input-group">
-              <label>Conferma Nuova Password</label>
-              <input v-model="confermaPassword" type="password" placeholder="••••••••" required />
-            </div> -->
-
-            <PasswordInput v-model:password="nuovaPassword" v-model:confirmPassword="confermaPassword" />
+            <PasswordInput v-model:password="newPassword" v-model:confirmPassword="confirmPassword" />
 
             <button type="submit" class="btn-submit-password" :disabled="isActionLoading">
               {{ isActionLoading ? 'Aggiornamento...' : 'Salva Nuova Password' }}
@@ -429,7 +400,7 @@ onMounted(async () => {
             <div class="empty-bubble">✍️</div>
             <h4>Ancora nessuna recensione</h4>
             <br />
-            <button @click="navigateTo('/')" class="btn-redirect-home">Esplora Film</button>
+            <NuxtLink to="/" class="btn-redirect-home">Esplora Film</NuxtLink>
           </div>
         </section>
       </div>

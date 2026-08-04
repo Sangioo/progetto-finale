@@ -26,7 +26,7 @@ const toggleMenu = () => {
 </script>
 
 <template>
-  <nav class="sticky top-0 z-1000 border-b border-muted-teal/20 bg-white shadow-md backdrop-blur-xl">
+  <nav class="sticky top-0 z-1000 border-b border-muted-teal/20 bg-white shadow-md backdrop-blur-xl max-h-20">
     <div
       class="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-3 laptop:max-w-330 4k:max-w-550">
       <div class="flex items-center gap-3">

@@ -218,113 +218,90 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div class="sidebar-filters-container">
-    <div class="mobile-filter-toolbar">
-      <button type="button" class="mobile-filter-toggle" @click="toggleFiltersVisibility">
+  <div class="w-full box-border rounded-xl">
+    <div class="mb-6 block laptop:hidden">
+      <button type="button"
+        class="w-full cursor-pointer rounded-xl border-0 bg-evergreen p-4 font-bold text-white transition-all duration-300 ease-in-out hover:brightness-110"
+        @click="toggleFiltersVisibility">
         {{ isFiltersOpen ? 'Nascondi Opzioni' : 'Mostra Filtri Avanzati' }}
       </button>
     </div>
 
-    <form
-      v-show="shouldShowFilters"
-      id="filters-form"
-      class="filters-form"
-      @submit.prevent="applyFilters"
-    >
-      <div class="filter-section">
-        <label class="section-title" for="sort-by-select">Ordina per</label>
-        <select v-model="filters.sort_by" class="custom-input custom-select" id="sort-by-select">
+    <form v-show="shouldShowFilters" id="filters-form" class="flex flex-col gap-5 mobilel:gap-6"
+      @submit.prevent="applyFilters">
+      <div class="flex flex-col gap-3 border-b border-alabaster-grey pb-5 last:border-b-0 last:pb-0 mobilel:pb-6">
+        <label class="mb-1 block text-base font-bold tracking-tight text-evergreen" for="sort-by-select">Ordina
+          per</label>
+        <select v-model="filters.sort_by" id="sort-by-select"
+          class="w-full cursor-pointer appearance-none rounded-lg border border-muted-teal p-2 text-sm box-border transition-all duration-300 ease-in-out focus:border-mint-leaf focus:outline-none focus:shadow-sm mobilel:px-4 mobilel:py-3">
           <option v-for="option in sortOptions" :key="option.value" :value="option.value">
             {{ option.label }}
           </option>
         </select>
       </div>
 
-      <div class="filter-section">
-        <label class="section-title">Lingua e Area</label>
-        <div class="input-row">
-          <div class="input-col">
-            <label class="input-label" for="with-origin-country">Paese d'origine</label>
-            <input
-              v-model="filters.with_origin_country"
-              type="text"
-              maxlength="2"
-              class="custom-input text-uppercase"
-              placeholder="IT"
-              id="with-origin-country"
-            />
+      <div class="flex flex-col gap-3 border-b border-alabaster-grey pb-5 last:border-b-0 last:pb-0 mobilel:pb-6">
+        <label class="mb-1 block text-base font-bold tracking-tight text-evergreen">Lingua e Area</label>
+        <div class="flex gap-4">
+          <div class="flex flex-1 flex-col">
+            <label class="mb-2 block text-xs font-semibold uppercase tracking-wider" for="with-origin-country">Nazione
+              d'origine</label>
+            <input v-model="filters.with_origin_country" type="text" maxlength="2"
+              class="w-full box-border rounded-lg border border-muted-teal p-2 text-sm uppercase transition-all duration-300 ease-in-out focus:border-mint-leaf focus:outline-none focus:shadow-sm mobilel:px-4 mobilel:py-3"
+              placeholder="IT" id="with-origin-country" />
           </div>
-          <div class="input-col">
-            <label class="input-label" for="with-original-language">Lingua originale</label>
-            <input
-              v-model="filters.with_original_language"
-              type="text"
-              class="custom-input"
-              placeholder="it"
-              id="with-original-language"
-            />
+          <div class="flex flex-1 flex-col">
+            <label class="mb-2 block text-xs font-semibold uppercase tracking-wider" for="with-original-language">Lingua
+              originale</label>
+            <input v-model="filters.with_original_language" type="text"
+              class="w-full box-border rounded-lg border border-muted-teal p-2 text-sm transition-all duration-300 ease-in-out focus:border-mint-leaf focus:outline-none focus:shadow-sm mobilel:px-4 mobilel:py-3"
+              placeholder="it" id="with-original-language" />
           </div>
         </div>
       </div>
 
-      <div class="filter-section">
-        <label class="section-title">Periodo di Uscita</label>
-        <div class="input-group-vertical">
-          <label class="input-label" for="year">Anno specifico</label>
-          <input
-            v-model="filters.year"
-            type="number"
-            class="custom-input"
-            min="1900"
-            max="2100"
-            id="year"
-            placeholder="Es. 2024"
-          />
+      <div class="flex flex-col gap-3 border-b border-alabaster-grey pb-5 last:border-b-0 last:pb-0 mobilel:pb-6">
+        <label class="mb-1 block text-base font-bold tracking-tight text-evergreen">Periodo di Uscita</label>
+        <div class="flex flex-col">
+          <label class="mb-2 block text-xs font-semibold uppercase tracking-wider" for="year">Anno
+            specifico</label>
+          <input v-model="filters.year" type="number"
+            class="w-full box-border rounded-lg border border-muted-teal p-2 text-sm transition-all duration-300 ease-in-out focus:border-mint-leaf focus:outline-none focus:shadow-sm mobilel:px-4 mobilel:py-3"
+            min="1900" max="2100" id="year" placeholder="Es. 2024" />
         </div>
-        <div class="input-row mt-2 date-row">
-          <div class="input-col">
-            <label class="input-label" for="release-date-gte">Da</label>
-            <input
-              v-model="filters.release_date_gte"
-              type="date"
-              class="custom-input"
-              id="release-date-gte"
-            />
+        <div class="mt-3 flex gap-4 flex-col mobilel:flex-row">
+          <div class="flex flex-1 flex-col">
+            <label class="mb-2 block text-xs font-semibold uppercase tracking-wider" for="release-date-gte">Da</label>
+            <input v-model="filters.release_date_gte" type="date"
+              class="w-full box-border rounded-lg border border-muted-teal p-2 text-sm transition-all duration-300 ease-in-out focus:border-mint-leaf focus:outline-none focus:shadow-sm mobilel:px-4 mobilel:py-3"
+              id="release-date-gte" />
           </div>
-          <div class="input-col">
-            <label class="input-label" for="release-date-lte">A</label>
-            <input
-              v-model="filters.release_date_lte"
-              type="date"
-              class="custom-input"
-              id="release-date-lte"
-            />
+          <div class="flex flex-1 flex-col">
+            <label class="mb-2 block text-xs font-semibold uppercase tracking-wider" for="release-date-lte">A</label>
+            <input v-model="filters.release_date_lte" type="date"
+              class="w-full box-border rounded-lg border border-muted-teal p-2 text-sm transition-all duration-300 ease-in-out focus:border-mint-leaf focus:outline-none focus:shadow-sm mobilel:px-4 mobilel:py-3"
+              id="release-date-lte" />
           </div>
         </div>
       </div>
 
-      <div class="filter-section">
-        <label class="section-title">Generi</label>
-        <table class="genre-table">
+      <div class="flex flex-col gap-3 border-b border-alabaster-grey pb-5 last:border-b-0 last:pb-0 mobilel:pb-6">
+        <label class="mb-1 block text-base font-bold tracking-tight text-evergreen">Generi</label>
+        <table class="-mt-2 w-full border-separate border-spacing-0 mobilem:border-spacing-2">
           <tr v-for="[g1, g2] in genreRows" :key="g1.id">
-            <td>
-              <button
-                type="button"
-                class="genre-btn"
-                :class="{ active: isGenreSelected(g1.id) }"
-                @click="toggleGenre(g1.id)"
-              >
+            <td class="w-1/2">
+              <button type="button" :class="[
+                'w-full cursor-pointer rounded-lg border border-muted-teal px-2 py-2 text-sm font-semibold transition-all duration-300 ease-in-out hover:border-mint-leaf',
+                isGenreSelected(g1.id) ? 'border-evergreen bg-evergreen text-white' : '',
+              ]" @click="toggleGenre(g1.id)">
                 {{ g1.name }}
               </button>
             </td>
-            <td>
-              <button
-                v-if="g2"
-                type="button"
-                class="genre-btn"
-                :class="{ active: isGenreSelected(g2.id) }"
-                @click="toggleGenre(g2.id)"
-              >
+            <td class="w-1/2">
+              <button v-if="g2" type="button" :class="[
+                'w-full cursor-pointer rounded-lg border border-muted-teal px-2 py-2 text-sm font-semibold transition-all duration-300 ease-in-out hover:border-mint-leaf',
+                isGenreSelected(g2.id) ? 'border-evergreen bg-evergreen text-white' : '',
+              ]" @click="toggleGenre(g2.id)">
                 {{ g2.name }}
               </button>
             </td>
@@ -332,93 +309,63 @@ onBeforeUnmount(() => {
         </table>
       </div>
 
-      <div class="filter-section">
-        <label class="section-title">Valutazione Pubblico</label>
-        <div class="input-row">
-          <div class="input-col">
-            <label class="input-label" for="vote-average-gte">Min (0-10)</label>
-            <input
-              v-model="filters.vote_average_gte"
-              type="number"
-              class="custom-input text-center"
-              min="0"
-              max="10"
-              step="0.1"
-              id="vote-average-gte"
-              @input="enforceNumericRange('vote_average_gte', 'vote_average_lte', 0, 10)"
-            />
+      <div class="flex flex-col gap-3 border-b border-alabaster-grey pb-5 last:border-b-0 last:pb-0 mobilel:pb-6">
+        <label class="mb-1 block text-base font-bold tracking-tight text-evergreen">Valutazione Pubblico</label>
+        <div class="flex gap-4">
+          <div class="flex flex-1 flex-col">
+            <label class="mb-2 block text-xs font-semibold uppercase tracking-wider" for="vote-average-gte">Min
+              (0-10)</label>
+            <input v-model="filters.vote_average_gte" type="number"
+              class="w-full box-border rounded-lg border border-muted-teal p-2 text-center text-sm transition-all duration-300 ease-in-out focus:border-mint-leaf focus:outline-none focus:shadow-sm mobilel:px-4 mobilel:py-3"
+              min="0" max="10" step="0.1" id="vote-average-gte"
+              @input="enforceNumericRange('vote_average_gte', 'vote_average_lte', 0, 10)" />
           </div>
-          <div class="input-col">
-            <label class="input-label" for="vote-average-lte">Max (0-10)</label>
-            <input
-              v-model="filters.vote_average_lte"
-              type="number"
-              class="custom-input text-center"
-              min="0"
-              max="10"
-              step="0.1"
-              id="vote-average-lte"
-              @input="enforceNumericRange('vote_average_gte', 'vote_average_lte', 0, 10)"
-            />
+          <div class="flex flex-1 flex-col">
+            <label class="mb-2 block text-xs font-semibold uppercase tracking-wider" for="vote-average-lte">Max
+              (0-10)</label>
+            <input v-model="filters.vote_average_lte" type="number"
+              class="w-full box-border rounded-lg border border-muted-teal p-2 text-center text-sm transition-all duration-300 ease-in-out focus:border-mint-leaf focus:outline-none focus:shadow-sm mobilel:px-4 mobilel:py-3"
+              min="0" max="10" step="0.1" id="vote-average-lte"
+              @input="enforceNumericRange('vote_average_gte', 'vote_average_lte', 0, 10)" />
           </div>
         </div>
-        <div class="input-group-vertical mt-2">
-          <label class="input-label" for="vote-count-gte">Numero voti minimo</label>
-          <input
-            v-model="filters.vote_count_gte"
-            type="number"
-            class="custom-input"
-            min="0"
-            step="1"
-            id="vote-count-gte"
-            placeholder="Es. 100"
-          />
+        <div class="mt-3 flex flex-col">
+          <label class="mb-2 block text-xs font-semibold uppercase tracking-wider" for="vote-count-gte">Numero
+            voti minimo</label>
+          <input v-model="filters.vote_count_gte" type="number"
+            class="w-full box-border rounded-lg border border-muted-teal p-2 text-sm transition-all duration-300 ease-in-out focus:border-mint-leaf focus:outline-none focus:shadow-sm mobilel:px-4 mobilel:py-3"
+            min="0" step="1" id="vote-count-gte" placeholder="Es. 100" />
         </div>
       </div>
 
-      <div class="filter-section">
-        <label class="section-title">Durata (Minuti)</label>
-        <div class="input-row align-center">
-          <input
-            v-model="filters.runtime_gte"
-            type="number"
-            class="custom-input text-center"
-            min="0"
-            step="1"
-            @input="normalizeRangeOrder('runtime_gte', 'runtime_lte')"
-            placeholder="Min"
-          />
-          <span class="separator">-</span>
-          <input
-            v-model="filters.runtime_lte"
-            type="number"
-            class="custom-input text-center"
-            min="0"
-            step="1"
-            @input="normalizeRangeOrder('runtime_gte', 'runtime_lte')"
-            placeholder="Max"
-          />
+      <div class="flex flex-col gap-3 border-b border-alabaster-grey pb-5 last:border-b-0 last:pb-0 mobilel:pb-6">
+        <label class="mb-1 block text-base font-bold tracking-tight text-evergreen">Durata (Minuti)</label>
+        <div class="flex items-center gap-4 flex-col mobilel:flex-row">
+          <input v-model="filters.runtime_gte" type="number"
+            class="w-full box-border rounded-lg border border-muted-teal p-2 text-center text-sm transition-all duration-300 ease-in-out focus:border-mint-leaf focus:outline-none focus:shadow-sm mobilel:px-4 mobilel:py-3"
+            min="0" step="1" @input="normalizeRangeOrder('runtime_gte', 'runtime_lte')" placeholder="Min" />
+          <span class="px-1 font-bold text-muted-teal">-</span>
+          <input v-model="filters.runtime_lte" type="number"
+            class="w-full box-border rounded-lg border border-muted-teal p-2 text-center text-sm transition-all duration-300 ease-in-out focus:border-mint-leaf focus:outline-none focus:shadow-sm mobilel:px-4 mobilel:py-3"
+            min="0" step="1" @input="normalizeRangeOrder('runtime_gte', 'runtime_lte')" placeholder="Max" />
         </div>
       </div>
 
-      <div class="filter-section">
-        <label class="section-title">Età (Classificazione IT)</label>
-        <div class="input-row">
-          <select
-            v-model="filters.certification_gte"
-            class="custom-input custom-select"
-            @change="normalizeCertificationRange('certification_gte', 'certification_lte')"
-          >
+      <div class="flex flex-col gap-3 border-b border-alabaster-grey pb-5 last:border-b-0 last:pb-0 mobilel:pb-6">
+        <label class="mb-1 block text-base font-bold tracking-tight text-evergreen">Età (Classificazione
+          IT)</label>
+        <div class="flex gap-4">
+          <select v-model="filters.certification_gte"
+            class="w-full cursor-pointer appearance-none rounded-lg border border-muted-teal p-2 pr-10 text-sm box-border transition-all duration-300 ease-in-out focus:border-mint-leaf focus:outline-none focus:shadow-sm mobilel:px-4 mobilel:py-3"
+            @change="normalizeCertificationRange('certification_gte', 'certification_lte')">
             <option value="">Min</option>
             <option v-for="cert in italianCertificationOptions" :key="cert" :value="cert">
               {{ cert }}
             </option>
           </select>
-          <select
-            v-model="filters.certification_lte"
-            class="custom-input custom-select"
-            @change="normalizeCertificationRange('certification_gte', 'certification_lte')"
-          >
+          <select v-model="filters.certification_lte"
+            class="w-full cursor-pointer appearance-none rounded-lg border border-muted-teal p-2 pr-10 text-sm box-border transition-all duration-300 ease-in-out focus:border-mint-leaf focus:outline-none focus:shadow-sm mobilel:px-4 mobilel:py-3"
+            @change="normalizeCertificationRange('certification_gte', 'certification_lte')">
             <option value="">Max</option>
             <option v-for="cert in italianCertificationOptions" :key="cert" :value="cert">
               {{ cert }}
@@ -427,280 +374,17 @@ onBeforeUnmount(() => {
         </div>
       </div>
 
-      <div class="action-buttons">
-        <button type="submit" class="btn-submit">Applica Filtri</button>
-        <button type="button" class="btn-clear" @click="resetFilters">Svuota tutto</button>
+      <div class="mt-4 flex flex-col gap-3">
+        <button type="submit"
+          class="cursor-pointer rounded-xl bg-mint-leaf p-4 font-bold text-white shadow-sm transition-all duration-300 ease-in-out h-14 hover:bg-evergreen hover:text-white hover:shadow-lg">
+          Applica Filtri
+        </button>
+        <button type="button"
+          class="cursor-pointer rounded-xl border border-muted-teal p-4 font-bold shadow-sm transition-all duration-300 ease-in-out h-14 hover:bg-alabaster-grey hover:shadow-lg"
+          @click="resetFilters">
+          Svuota tutto
+        </button>
       </div>
     </form>
   </div>
 </template>
-
-<style scoped>
-.sidebar-filters-container {
-  width: 100%;
-  padding: 1.5rem;
-  background-color: var(--bg-card);
-  border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-  font-family: 'Inter', system-ui, sans-serif;
-  box-sizing: border-box;
-}
-
-.filters-form {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-.filter-section {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  padding-bottom: 1.5rem;
-  border-bottom: 1px solid var(--alabaster-grey);
-}
-
-.filter-section:last-of-type {
-  border-bottom: none;
-  padding-bottom: 0;
-}
-
-.section-title {
-  font-size: 1rem;
-  font-weight: 700;
-  color: var(--evergreen);
-  letter-spacing: -0.01em;
-  margin-bottom: 0.25rem;
-}
-
-.input-label {
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin-bottom: 0.4rem;
-  display: block;
-}
-
-.input-row {
-  display: flex;
-  gap: 1rem;
-}
-
-.input-col {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}
-
-.input-group-vertical {
-  display: flex;
-  flex-direction: column;
-}
-
-.align-center {
-  align-items: center;
-}
-
-.separator {
-  color: var(--muted-teal);
-  font-weight: bold;
-  padding: 0 0.25rem;
-}
-
-.mt-2 {
-  margin-top: 0.75rem;
-}
-
-.mb-2 {
-  margin-bottom: 0.75rem;
-}
-
-.custom-input {
-  width: 100%;
-  padding: 0.75rem 1rem;
-  border: 1px solid var(--muted-teal);
-  border-radius: 8px;
-  background-color: var(--bg-app);
-  color: var(--text-main);
-  font-size: 0.85rem;
-  transition: var(--transition-standard);
-  box-sizing: border-box;
-}
-
-.custom-input:focus {
-  outline: none;
-  border-color: var(--mint-leaf);
-  box-shadow: 0 0 0 3px rgba(88, 179, 104, 0.15);
-}
-
-.custom-select {
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a2b2aa' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
-  background-repeat: no-repeat;
-  background-position: right 1rem center;
-  background-size: 1.2em;
-  padding-right: 2.5rem;
-  cursor: pointer;
-}
-
-[data-theme='dark'] .custom-select {
-  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
-}
-
-.genre-table {
-  width: 100%;
-  border-collapse: separate;
-  border-spacing: 0.5rem;
-  margin-top: -0.5rem;
-}
-
-.genre-table td {
-  width: 50%;
-}
-
-.genre-btn {
-  width: 100%;
-  padding: 0.65rem 0.5rem;
-  background-color: var(--bg-app);
-  border: 1px solid var(--muted-teal);
-  border-radius: 8px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--text-muted);
-  cursor: pointer;
-  transition: var(--transition-standard);
-}
-
-.genre-btn:hover {
-  border-color: var(--mint-leaf);
-  color: var(--text-main);
-}
-
-.genre-btn.active {
-  background-color: var(--evergreen);
-  color: var(--bg-card);
-  border-color: var(--evergreen);
-}
-
-.action-buttons {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  margin-top: 1rem;
-}
-
-.btn-submit {
-  background-color: var(--mint-leaf);
-  color: var(--bg-app);
-  border: none;
-  padding: 1rem;
-  border-radius: 10px;
-  font-weight: 700;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: var(--transition-standard);
-  box-shadow: 0 4px 12px rgba(88, 179, 104, 0.2);
-}
-
-.btn-submit:hover {
-  background-color: var(--evergreen);
-  color: var(--bg-card);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 15px rgba(88, 179, 104, 0.3);
-}
-
-.btn-clear {
-  background: transparent;
-  color: var(--text-muted);
-  border: 1px solid var(--muted-teal);
-  padding: 0.8rem;
-  border-radius: 10px;
-  font-weight: 600;
-  font-size: 0.9rem;
-  cursor: pointer;
-  transition: var(--transition-standard);
-}
-
-.btn-clear:hover {
-  background-color: var(--alabaster-grey);
-  color: var(--text-main);
-}
-
-.sidebar-filters-container::-webkit-scrollbar {
-  width: 6px;
-}
-
-.sidebar-filters-container::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.sidebar-filters-container::-webkit-scrollbar-thumb {
-  background-color: var(--muted-teal);
-  border-radius: 10px;
-}
-
-@media (max-width: 425px) {
-  .sidebar-filters-container {
-    padding: 1.25rem;
-  }
-
-  .filters-form {
-    gap: 1.25rem;
-  }
-
-  .filter-section {
-    padding-bottom: 1.25rem;
-  }
-
-  .custom-input {
-    padding: 0.65rem;
-    font-size: 0.8rem;
-  }
-
-  .genre-btn {
-    padding: 0.5rem;
-    font-size: 0.75rem;
-  }
-
-  .date-row {
-    flex-direction: column;
-  }
-}
-
-.mobile-filter-toolbar {
-  display: none;
-  margin-bottom: 1.5rem;
-}
-
-.mobile-filter-toggle {
-  width: 100%;
-  padding: 1rem;
-  border-radius: 10px;
-  background-color: var(--evergreen);
-  color: var(--bg-card);
-  border: none;
-  font-weight: 700;
-  cursor: pointer;
-  transition: var(--transition-standard);
-}
-
-.mobile-filter-toggle:hover {
-  filter: brightness(1.1);
-}
-
-@media (max-width: 1024px) {
-  .mobile-filter-toolbar {
-    display: block;
-  }
-}
-
-@media (max-width: 321px) {
-  .genre-table {
-    border-spacing: 0;
-  }
-}
-</style>

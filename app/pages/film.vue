@@ -35,9 +35,9 @@ const displayVoteStars = computed(() =>
 )
 const voteForBackend = computed(() => Math.round(displayVoteStars.value * 2))
 
-const movie = computed(() => {
-  const storedMovie = sessionStorage.getItem('selectedMovie')
-  if (!storedMovie) return {
+const movie = ref(JSON.parse(
+  sessionStorage.getItem('selectedMovie') ||
+  JSON.stringify({
     id: null,
     title: 'Titolo non disponibile',
     poster_path: null,
@@ -47,11 +47,8 @@ const movie = computed(() => {
     genre_ids: [],
     release_date: '',
     watchStatus: 0,
-  }
-  return JSON.parse(storedMovie)
-})
-
-const localWatchStatus = ref(movie.value?.watchStatus || 0)
+  })
+))
 
 async function loadReviews() {
   try {
@@ -94,6 +91,7 @@ function updateSessionMovieStatus(newStatus) {
   if (storedMovie) {
     const parsedMovie = JSON.parse(storedMovie)
     parsedMovie.watchStatus = newStatus
+    movie.value.watchStatus = newStatus
     sessionStorage.setItem('selectedMovie', JSON.stringify(parsedMovie))
   }
 }
@@ -109,10 +107,10 @@ async function toggleWatchlist() {
   }
   try {
     const endpoint =
-      localWatchStatus.value === 1 ? DELETE_FROM_WATCHLIST_ENDPOINT : ADD_TO_WATCHLIST_ENDPOINT
+      movie.value.watchStatus === 1 ? DELETE_FROM_WATCHLIST_ENDPOINT : ADD_TO_WATCHLIST_ENDPOINT
     await callActionApi(endpoint, movie.value.id)
 
-    updateSessionMovieStatus(localWatchStatus.value)
+    updateSessionMovieStatus(movie.value.watchStatus === 1 ? 0 : 1)
   } catch (err) {
     console.error(err.message)
     showPopup('Errore', 'Errore durante l\'aggiornamento della watchlist. Riprova più tardi.')
@@ -130,10 +128,10 @@ async function toggleWatched() {
   }
   try {
     const endpoint =
-      localWatchStatus.value === 2 ? DELETE_FROM_WATCHED_ENDPOINT : ADD_TO_WATCHED_ENDPOINT
+      movie.value.watchStatus === 2 ? DELETE_FROM_WATCHED_ENDPOINT : ADD_TO_WATCHED_ENDPOINT
     await callActionApi(endpoint, movie.value.id)
 
-    updateSessionMovieStatus(localWatchStatus.value)
+    updateSessionMovieStatus(movie.value.watchStatus === 2 ? 0 : 2)
   } catch (err) {
     console.error(err.message)
     showPopup('Errore', 'Errore durante l\'aggiornamento della lista dei visti. Riprova più tardi.')
@@ -280,7 +278,7 @@ onUnmounted(() => {
                 <span>Vai alla live room</span>
               </button>
 
-              <Buttons :movie="movie" :inWatchlist="localWatchStatus === 1" :inWatched="localWatchStatus === 2"
+              <Buttons :movie="movie" :inWatchlist="movie.watchStatus === 1" :inWatched="movie.watchStatus === 2"
                 :isAuthenticated="isAuthenticated" @left-click="toggleWatchlist" @right-click="toggleWatched" />
             </div>
 

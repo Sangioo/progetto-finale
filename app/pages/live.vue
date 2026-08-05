@@ -1,49 +1,52 @@
 <template>
-  <div class="live-rooms-container">
+  <div class="p-4 mobilel:p-5 tablet:p-6 laptop:p-8 max-w-313 my-0 mx-auto min-h-[80vh]">
     <BasePopup :show="isPopupOpen" title="Errore" :content="popupMessage" @close="isPopupOpen = false"
       @action="isPopupOpen = false" />
 
-    <header class="live-header">
-      <h1 class="live-title">Live <span class="accent-text">Rooms</span></h1>
-      <p class="live-subtitle">Scopri cosa stanno guardando gli utenti in live.</p>
+    <header class="mb-10">
+      <h1 class="text-2xl mobilel:text-3xl tablet:text-4xl font-extrabold text-evergreen mb-2">Live <span
+          class="text-mint-leaf">Rooms</span></h1>
+      <p>Scopri cosa stanno guardando gli utenti in live.</p>
     </header>
 
-    <div v-if="isLoading && rooms.length === 0" class="loading-state">
-      <div class="spinner"></div>
+    <div v-if="isLoading && rooms.length === 0"
+      class="flex flex-col items-center justify-center py-16 px-8 text-center">
+      <div class="w-10 h-10 border-4 border-gray-300 border-t-mint-leaf rounded-full animate-spin mb-6"></div>
       <p>Caricando stanze attive...</p>
     </div>
 
-    <div v-else-if="rooms.length === 0" class="empty-state">
-      <div class="empty-icon">🎬</div>
-      <h3>Nessuna stanza attiva</h3>
+    <div v-else-if="rooms.length === 0" class="flex flex-col items-center justify-center py-16 px-8 text-center">
+      <div class="text-6xl mb-4">🎬</div>
+      <h3 class="mb-2 text-evergreen">Nessuna stanza attiva</h3>
       <p>Nessuno sta guardando film per adesso!!</p>
     </div>
 
-    <div v-else class="rooms-grid">
-      <div v-for="room in rooms" :key="room.idFilm" class="room-card" @click="joinRoom(room)">
-        <div class="poster-wrapper">
-          <img v-if="room.poster_path" :src="getPosterUrl(room.poster_path)" :alt="room.title" class="movie-poster"
-            @error="handleImageError" />
-          <div v-else class="poster-placeholder">
-            <span>🎬</span>
-          </div>
-          <div class="live-badge">
-            <span class="pulse-dot"></span>
-            LIVE
-          </div>
+    <div v-else
+      class="grid grid-cols-[1fr] mobilem:grid-cols-[repeat(auto-fill,minmax(150px,1fr))] gap-4 mobilel:grid-cols-[repeat(auto-fill,minmax(180px,1fr))] mobilel:gap-5 tablet:grid-cols-[repeat(auto-fill,minmax(200px,1fr))] tablet:gap-6 laptop:grid-cols-[repeat(auto-fill,minmax(240px,1fr))] laptop:gap-8">
+      <div v-for="room in rooms" :key="room.idFilm"
+        class="rounded-2xl overflow-hidden shadow-sm border border-gray-300 cursor-pointer flex flex-col transition-all hover:-translate-y-1.5 hover:shadow-lg group"
+        @click="joinRoom(room)">
+        <div class="relative w-full pt-[140%] bg-alabaster-grey">
+          <img v-if="room.poster_path" :src="`${IMAGE_URL}${room.poster_path}`" :alt="room.title"
+            class="absolute top-0 left-0 w-full h-full object-cover" />
+          <img v-else :src="PLACEHOLDER_IMAGE" :alt="movie.title"
+            class="absolute top-0 left-0 w-full h-full object-cover" />
         </div>
 
-        <div class="room-details">
-          <h3 class="movie-title" :title="room.title">{{ room.title }}</h3>
-          <div class="movie-meta">
-            <span v-if="room.vote_average" class="movie-score">⭐ {{ Number(room.vote_average).toFixed(1) }}</span>
-            <span v-if="room.release_date" class="movie-year">{{
+        <div class="p-4 mobilel:p-6 flex flex-col grow">
+          <h3
+            class="text-base mobilel:text-xl font-bold mb-2 whitespace-nowrap overflow-hidden text-ellipsis group-hover:text-mint-leaf"
+            :title="room.title">{{ room.title }}</h3>
+          <div class="flex flex-col gap-2 mobiles:flex-row mobiles:gap-3 text-sm mb-4">
+            <span v-if="room.vote_average" class=" bg-amber-200 text-amber-600 py-1 px-2 rounded-full font-semibold">★
+              {{ Number(room.vote_average).toFixed(1) }}</span>
+            <span v-if="room.release_date" class="py-1">{{
               room.release_date.substring(0, 4)
               }}</span>
           </div>
 
-          <div class="room-stats">
-            <span class="spectators-count"> 👥 {{ room.activeUsers || 1 }} watching </span>
+          <div class="mt-auto border-t border-gray-300 pt-3">
+            <span class="text-sm text-evergreen font-semibold"> 👥 {{ room.activeUsers || 1 }} watching </span>
           </div>
         </div>
       </div>
@@ -57,6 +60,7 @@ import BasePopup from '~/components/base_popup.vue'
 
 const runtimeConfig = useRuntimeConfig()
 const IMAGE_URL = runtimeConfig.public.imageUrl
+const PLACEHOLDER_IMAGE = runtimeConfig.public.placeholderImage
 
 const rooms = ref([])
 const isLoading = ref(true)
@@ -65,17 +69,6 @@ const isPopupOpen = ref(false)
 const popupMessage = ref('')
 
 const supabase = useSupabaseClient()
-
-const getPosterUrl = (path) => {
-  if (!path) return ''
-  return `${IMAGE_URL}${path}`
-}
-
-const handleImageError = (e) => {
-  e.target.style.display = 'none'
-  const placeholder = e.target.parentElement.querySelector('.poster-placeholder')
-  if (placeholder) placeholder.style.display = 'flex'
-}
 
 const fetchLiveRooms = async () => {
   try {

@@ -5,6 +5,7 @@ import ReviewPopup from '~/components/review_popup.vue'
 
 const runtimeConfig = useRuntimeConfig()
 const IMAGE_URL = runtimeConfig.public.imageUrl
+const PLACEHOLDER_IMAGE = runtimeConfig.public.placeholderImage
 const GET_REVIEWS = runtimeConfig.public.getMyReviews
 const DEL_REVIEW = runtimeConfig.public.deleteReview
 const UPDATE_PASSWORD = runtimeConfig.public.updatePassword
@@ -16,7 +17,6 @@ const user = useSupabaseUser()
 
 const userReviews = ref([])
 const currentUsername = ref(user.value?.user_metadata?.username || '')
-const isFetchingReviews = ref(false)
 
 const userAvatarUrl = computed(() => {
   return user.value ? user.value?.user_metadata?.profile_pic_url : null
@@ -176,9 +176,9 @@ function openReadReviewPopup(review) {
 }
 
 function getStatusClass(val) {
-  if (val < 6) return 'status-low'
-  if (val < 8) return 'status-mid'
-  return 'status-high'
+  if (val < 6) return 'bg-red-500'
+  if (val < 8) return 'bg-yellow-500'
+  return 'bg-green-500'
 }
 
 function formatDate(timestamp) {
@@ -254,21 +254,26 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="profile-wrapper">
+  <div class="py-8 px-3 mobiles:py-10 mobiles:px-4 min-h-screen mobilel:py-16 mobilel:px-8 bg-alabaster-grey">
     <BasePopup :show="isPopupOpen" :title="popupTitle" :content="popupMessage" :actions="popupActions"
       :identifier="popupId" @close="isPopupOpen = false" @action="routePopupEvent" />
 
     <ReviewPopup :show="isReadPopupOpen" :review="selectedReviewToRead" @close="isReadPopupOpen = false" />
 
-    <div class="profile-container">
-      <header class="profile-card main-header-card">
-        <div class="avatar-column">
-          <div class="avatar-wrapper" @click="triggerFileInput">
-            <img v-if="userAvatarUrl" :src="userAvatarUrl" alt="Avatar utente" class="avatar-img" />
-            <div v-else class="avatar-placeholder">
+    <div class="max-w-313 my-0 mx-auto flex flex-col gap-8">
+      <header
+        class="p-5 max-w-full mobiles:p-6 rounded-3xl mobilel:p-9 border border-gray-300 shadow-sm flex flex-col tablet:flex-row text-center gap-6 items-center tablet:gap-12 relative overflow-hidden border-l-5 border-l-evergreen">
+        <div class="flex flex-col items-center gap-3">
+          <div
+            class="w-20 h-20 relative mobiles:w-25 mobiles:h-25 rounded-full overflow-hidden cursor-pointer shadow-sm border-4 border-gray-300 bg-evergreen transition-all hover:scale-105 group"
+            @click="triggerFileInput">
+            <img v-if="userAvatarUrl" :src="userAvatarUrl" alt="Avatar utente" class="w-full h-full object-cover" />
+            <div v-else
+              class="w-full h-full flex items-center justify-center text-alabaster-grey text-5xl font-extrabold">
               {{ currentUsername?.charAt(0).toUpperCase() }}
             </div>
-            <div class="avatar-hover-overlay">
+            <div
+              class="opacity-0 group-hover:opacity-100 absolute top-0 left-0 w-full h-full bg-green-900 flex items-center justify-center text-white transition-all">
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
                 <path d="M10.5 8.5a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z" />
                 <path
@@ -276,23 +281,28 @@ onMounted(async () => {
               </svg>
             </div>
             <input type="file" ref="fileInput" @change="handleAvatarUpload" accept="image/png, image/jpeg"
-              class="hidden-input" />
+              class="hidden" />
           </div>
 
-          <button v-if="userAvatarUrl" @click="handleRemoveAvatarClick" class="btn-remove-avatar"
+          <button v-if="userAvatarUrl" @click="handleRemoveAvatarClick"
+            class="bg-transparent text-red-500 text-xs font-semibold cursor-pointer py-1 px-2 transition-all hover:underline hover:scale-105"
             :disabled="isActionLoading" title="Rimuovi foto profilo">
             Rimuovi foto
           </button>
         </div>
 
-        <div class="user-info-meta">
-          <span class="badge-role">Account Utente</span>
-          <h1>{{ currentUsername }}</h1>
+        <div class="items-center tablet:items-start flex flex-col">
+          <span
+            class="text-xs uppercase font-bold tracking-wider py-1 px-3 bg-gray-300 text-evergreen rounded-full mb-2">Account
+            Utente</span>
+          <h1 class="text-2xl mobilel:text-4xl text-evergreen font-extrabold mb-2 tracking-tight">{{ currentUsername }}
+          </h1>
         </div>
 
-        <div class="header-actions-side">
-          <button @click="handleLogoutClick" class="btn-logout-header" title="Disconnetti account"
-            :disabled="isActionLoading">
+        <div class="mt-2 tablet:ml-auto">
+          <button @click="handleLogoutClick"
+            class="inline-flex items-center gap-2 bg-transparent border border-gray-300 py-3 px-4 rounded-xl text-sm font-bold cursor-pointer transition-all hover:bg-[#ef44440d] hover:border-red-500 hover:text-red-500"
+            title="Disconnetti account" :disabled="isActionLoading">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
               <path fill-rule="evenodd"
                 d="M6 12.5a.5.5 0 0 0 .5.5h8a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5h-8a.5.5 0 0 0-.5.5v2a.5.5 0 0 1-1 0v-2A1.5 1.5 0 0 1 6.5 2h8A1.5 1.5 0 0 1 16 3.5v9a1.5 1.5 0 0 1-1.5 1.5h-8A1.5 1.5 0 0 1 5 12.5v-2a.5.5 0 0 1 1 0v2z" />
@@ -304,53 +314,58 @@ onMounted(async () => {
         </div>
       </header>
 
-      <div class="profile-grid">
-        <section class="profile-card security-section">
-          <div class="section-title-wrapper">
-            <h3>Sicurezza Account</h3>
-            <p class="card-subtitle">Aggiorna le credenziali di accesso</p>
+      <div class="grid grid-cols-[1fr] gap-8 items-start laptop:grid-cols-[340px_1fr]">
+        <section class="rounded-3xl p-9 border border-gray-300 shadow-sm">
+          <div>
+            <h3 class="text-xl font-bold text-evergreen">Sicurezza Account</h3>
+            <p class="text-sm mt-1">Aggiorna le credenziali di accesso</p>
           </div>
-          <hr class="card-divider" />
+          <hr class="h-px bg-gray-300 border-0 my-6" />
 
-          <form @submit.prevent="handleCambiaPassword" class="password-form">
-            <div class="input-group">
-              <label>Vecchia Password</label>
-              <input v-model="oldPassword" type="password" placeholder="••••••••" required />
+          <form @submit.prevent="handleCambiaPassword" class="flex flex-col gap-3">
+            <div class="flex flex-col gap-2">
+              <label class="text-evergreen font-semibold text-base">Vecchia Password</label>
+              <input v-model="oldPassword" type="password"
+                class="w-full p-3 text-base border border-muted-teal rounded-lg transition bg-alabaster-grey focus:outline-0 focus:shadow-sm"
+                placeholder="••••••••" required />
             </div>
 
             <PasswordInput v-model:password="newPassword" v-model:confirmPassword="confirmPassword" />
 
-            <button type="submit" class="btn-submit-password" :disabled="isActionLoading">
+            <button type="submit"
+              class="bg-mint-leaf text-white font-bold h-12 rounded-lg transition-all cursor-pointer hover:bg-evergreen mt-2"
+              :disabled="isActionLoading">
               {{ isActionLoading ? 'Aggiornamento...' : 'Salva Nuova Password' }}
             </button>
           </form>
         </section>
 
-        <section class="profile-card reviews-section">
-          <div class="reviews-header-flex">
+        <section class="rounded-3xl p-9 border border-gray-300 shadow-sm">
+          <div class="flex flex-col items-start gap-3 justify-between mobilel:items-center mobilel:flex-row">
             <div>
-              <h3>Archivio Recensioni</h3>
-              <p class="card-subtitle">
+              <h3 class="text-lg font-bold text-evergreen">Archivio Recensioni</h3>
+              <p class="text-sm mt-1">
                 Clicca sul testo per visualizzare l'anteprima a schermo intero
               </p>
             </div>
-            <span class="count-badge">{{ userReviews.length }}</span>
+            <span class="bg-alabaster-grey border border-gray-300 py-1 px-3 rounded-lg font-bold text-sm">{{
+              userReviews.length }}</span>
           </div>
-          <hr class="card-divider" />
+          <hr class="border-none h-px bg-gray-300 my-6" />
 
-          <div v-if="isFetchingReviews" class="reviews-loader">
-            <div class="spinner"></div>
-          </div>
-
-          <div v-else-if="userReviews.length > 0" class="dashboard-reviews-container">
-            <div v-for="review in userReviews" :key="review.id" class="dashboard-review-row">
-              <div class="movie-details-side">
-                <div class="movie-thumb-wrapper" @click="goToFilm(review)">
+          <div v-if="userReviews.length > 0" class="flex flex-col gap-4">
+            <div v-for="review in userReviews" :key="review.id"
+              class="grid grid-cols-[1fr] gap-4 p-4 laptop:grid-cols-[200px_1fr_auto] laptop:gap-8 laptop:p-5 items-center rounded-2xl border border-gray-300 transition-all hover:border-mint-leaf hover:shadow-lg">
+              <div class="flex items-center gap-3 overflow-hidden">
+                <div
+                  class="relative w-11 h-16 rounded-lg overflow-hidden cursor-pointer bg-alabaster-grey shrink-0 group"
+                  @click="goToFilm(review)">
                   <img v-if="review.poster_path" :src="`${IMAGE_URL}${review.poster_path}`" :alt="review.title"
-                    class="movie-thumb-img" />
-                  <div v-else class="movie-thumb-placeholder">🎬</div>
+                    class="w-full h-full object-cover" />
+                  <img v-else :src="PLACEHOLDER_IMAGE" :alt="review.title" class="w-full h-full object-cover" />
 
-                  <div class="movie-thumb-overlay">
+                  <div
+                    class="absolute top-0 left-0 w-full h-full bg-green-900 text-white flex items-center justify-center opacity-0 transition-all group-hover:opacity-100">
                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor"
                       viewBox="0 0 16 16">
                       <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z" />
@@ -360,28 +375,30 @@ onMounted(async () => {
                   </div>
                 </div>
 
-                <div class="movie-meta-titles">
-                  <span class="movie-link-title" @click="goToFilm(review)">
+                <div class="flex flex-col gap-1 overflow-hidden">
+                  <span class="font-bold cursor-pointer whitespace-nowrap overflow-hidden text-ellipsis"
+                    @click="goToFilm(review)">
                     {{ review.title || 'Dettagli Film' }}
                   </span>
-                  <span class="meta-date">
+                  <span class="text-xs">
                     {{ formatDate(review.time) }}
                   </span>
                 </div>
               </div>
 
-              <div class="review-body-side review-body-clickable" @click="openReadReviewPopup(review)"
-                title="Leggi tutto">
-                <div class="mini-score-badge" :class="getStatusClass(review.score)">
-                  <span class="star-icon">★</span>
-                  <span class="score-value">{{ review.score }}</span>
-                  <span class="score-max">/10</span>
+              <div
+                class="flex flex-col gap-2 py-2 px-3 rounded-lg cursor-pointer bg-alabaster-grey border border-gray-300 transition-all hover:border-mint-leaf"
+                @click="openReadReviewPopup(review)" title="Leggi tutto">
+                <div class="inline-flex items-center gap-1 text-xs font-bold py-1 px-2 rounded-sm w-fit"
+                  :class="getStatusClass(review.score)">
+                  <span class="tracking-wider">★ {{ review.score }}/10</span>
                 </div>
-                <p class="review-paragraph-text">{{ review.content }}</p>
+                <p class="text-xs wrap-break-word break-normal overflow-hidden text-ellipsis">{{ review.content }}</p>
               </div>
 
-              <div class="review-action-side">
-                <button @click="handleDeleteReview(review)" class="btn-delete-review-minimal"
+              <div>
+                <button @click="handleDeleteReview(review)"
+                  class="inline-flex items-center gap-2 bg-transparent border border-gray-300 py-2 px-3 rounded-lg text-xs font-semibold cursor-pointer transition-all hover:bg-[#ef44440d] hover:border-red-500 hover:text-red-500"
                   title="Elimina questa recensione">
                   <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor"
                     viewBox="0 0 16 16">
@@ -396,662 +413,16 @@ onMounted(async () => {
             </div>
           </div>
 
-          <div v-else class="profile-reviews-empty">
-            <div class="empty-bubble">✍️</div>
-            <h4>Ancora nessuna recensione</h4>
+          <div v-else class="text-center py-12 px-4">
+            <div class="text-4xl mb-2">✍️</div>
+            <h4 class="mb-1">Ancora nessuna recensione</h4>
             <br />
-            <NuxtLink to="/" class="btn-redirect-home">Esplora Film</NuxtLink>
+            <NuxtLink to="/"
+              class="bg-transparent border border-mint-leaf text-mint-leaf py-2 px-4 rounded-lg text-sm font-bold cursor-pointer transition-all hover:bg-mint-leaf hover:text-white">
+              Esplora Film</NuxtLink>
           </div>
         </section>
       </div>
     </div>
   </div>
 </template>
-
-<style scoped>
-.profile-wrapper {
-  min-height: 100vh;
-  padding: 4rem 2rem;
-  background-color: var(--alabaster-grey);
-  color: var(--text-main);
-  font-family:
-    'Inter',
-    system-ui,
-    -apple-system,
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-}
-
-.profile-container {
-  max-width: 1240px;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-}
-
-.profile-card {
-  background-color: var(--bg-card);
-  border-radius: 20px;
-  padding: 2.25rem;
-  border: 1px solid rgba(162, 178, 170, 0.25);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.01);
-}
-
-.card-subtitle {
-  font-size: 0.85rem;
-  color: var(--text-muted);
-  margin-top: 4px;
-}
-
-.card-divider {
-  border: 0;
-  height: 1px;
-  background: rgba(162, 178, 170, 0.15);
-  margin: 1.5rem 0;
-}
-
-.main-header-card {
-  display: flex;
-  align-items: center;
-  gap: 3rem;
-  position: relative;
-  overflow: hidden;
-  border-left: 5px solid var(--evergreen);
-}
-
-.header-actions-side {
-  margin-left: auto;
-}
-
-.avatar-column {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-}
-
-.avatar-wrapper {
-  position: relative;
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
-  overflow: hidden;
-  cursor: pointer;
-  box-shadow: 0 10px 25px rgba(2, 39, 4, 0.12);
-  border: 4px solid var(--bg-card);
-  background-color: var(--evergreen);
-  transition: var(--transition-standard);
-}
-
-.avatar-wrapper:hover {
-  transform: scale(1.03);
-}
-
-.avatar-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.avatar-placeholder {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--bg-card);
-  font-size: 3rem;
-  font-weight: 800;
-  background: linear-gradient(135deg, var(--evergreen), #000);
-}
-
-.avatar-hover-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(2, 39, 4, 0.8);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--bg-card);
-  opacity: 0;
-  transition: var(--transition-standard);
-}
-
-.avatar-wrapper:hover .avatar-hover-overlay {
-  opacity: 1;
-}
-
-.hidden-input {
-  display: none;
-}
-
-.btn-remove-avatar {
-  background: transparent;
-  color: var(--status-low-bg);
-  border: none;
-  font-size: 0.75rem;
-  font-weight: 600;
-  cursor: pointer;
-  padding: 2px 8px;
-  transition: var(--transition-standard);
-}
-
-.btn-remove-avatar:hover {
-  text-decoration: underline;
-  opacity: 0.8;
-}
-
-.user-info-meta {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-}
-
-.badge-role {
-  font-size: 0.72rem;
-  text-transform: uppercase;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  padding: 4px 10px;
-  background: rgba(2, 39, 4, 0.08);
-  color: var(--evergreen);
-  border-radius: 30px;
-  margin-bottom: 0.5rem;
-}
-
-.user-info-meta h1 {
-  font-size: 2.25rem;
-  font-weight: 800;
-  color: var(--evergreen);
-  margin: 0 0 0.5rem 0;
-  letter-spacing: -0.03em;
-}
-
-.btn-logout-header {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background: transparent;
-  border: 1px solid rgba(162, 178, 170, 0.4);
-  color: var(--text-muted);
-  padding: 10px 18px;
-  border-radius: 12px;
-  font-size: 0.85rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: var(--transition-standard);
-}
-
-.btn-logout-header:hover {
-  background-color: rgba(239, 68, 68, 0.05);
-  border-color: rgba(239, 68, 68, 0.3);
-  color: var(--status-low-bg);
-}
-
-.profile-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 2rem;
-  align-items: start;
-}
-
-@media (min-width: 1024px) {
-  .profile-grid {
-    grid-template-columns: 340px 1fr;
-  }
-}
-
-.security-section h3,
-.reviews-section h3 {
-  font-size: 1.2rem;
-  font-weight: 700;
-  color: var(--evergreen);
-  margin: 0;
-}
-
-.password-form {
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-}
-
-.input-group {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.input-group label {
-  font-size: 0.75rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  color: var(--text-muted);
-  letter-spacing: 0.03em;
-}
-
-.input-group input {
-  padding: 0.75rem 1rem;
-  border-radius: 10px;
-  border: 1px solid rgba(162, 178, 170, 0.4);
-  background-color: var(--bg-card);
-  font-size: 0.9rem;
-  outline: none;
-  color: var(--text-main);
-  transition: var(--transition-standard);
-}
-
-.input-group input:focus {
-  border-color: var(--mint-leaf);
-  box-shadow: 0 0 0 3.5px rgba(88, 179, 104, 0.12);
-}
-
-.btn-submit-password {
-  margin-top: 0.5rem;
-  background-color: var(--mint-leaf);
-  color: var(--bg-card);
-  border: none;
-  padding: 0.85rem;
-  border-radius: 10px;
-  font-weight: 700;
-  font-size: 0.9rem;
-  cursor: pointer;
-  transition: var(--transition-standard);
-}
-
-.btn-submit-password:hover:not(:disabled) {
-  background-color: var(--evergreen);
-}
-
-.reviews-header-flex {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.count-badge {
-  background-color: var(--alabaster-grey);
-  border: 1px solid rgba(162, 178, 170, 0.3);
-  color: var(--text-main);
-  padding: 4px 12px;
-  border-radius: 6px;
-  font-weight: 700;
-  font-size: 0.8rem;
-}
-
-.dashboard-reviews-container {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.dashboard-review-row {
-  display: grid;
-  grid-template-columns: 200px 1fr auto;
-  gap: 2rem;
-  align-items: center;
-  padding: 1.25rem;
-  border-radius: 14px;
-  border: 1px solid rgba(162, 178, 170, 0.25);
-  background-color: var(--bg-card);
-  transition: var(--transition-standard);
-}
-
-.dashboard-review-row:hover {
-  border-color: var(--mint-leaf);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.01);
-}
-
-.movie-details-side {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  overflow: hidden;
-}
-
-.movie-thumb-wrapper {
-  position: relative;
-  width: 44px;
-  height: 62px;
-  border-radius: 6px;
-  overflow: hidden;
-  cursor: pointer;
-  background-color: var(--alabaster-grey);
-  flex-shrink: 0;
-}
-
-.movie-thumb-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.movie-thumb-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(2, 39, 4, 0.9);
-  color: var(--bg-card);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 0;
-  transition: var(--transition-standard);
-}
-
-.movie-thumb-wrapper:hover .movie-thumb-overlay {
-  opacity: 1;
-}
-
-.movie-meta-titles {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  overflow: hidden;
-}
-
-.movie-link-title {
-  font-weight: 700;
-  font-size: 0.9rem;
-  color: var(--text-main);
-  cursor: pointer;
-  line-height: 1.3;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.movie-link-title:hover {
-  color: var(--mint-leaf);
-}
-
-.meta-date {
-  font-size: 0.72rem;
-  color: var(--text-muted);
-}
-
-.review-body-side {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  padding: 0.5rem 0.75rem;
-  border-radius: 8px;
-}
-
-.review-body-clickable {
-  cursor: pointer;
-  background-color: var(--alabaster-grey);
-  border: 1px solid rgba(162, 178, 170, 0.2);
-  transition: var(--transition-standard);
-}
-
-.review-body-clickable:hover {
-  background-color: var(--bg-card);
-  border-color: var(--mint-leaf);
-}
-
-.mini-score-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 0.72rem;
-  font-weight: 700;
-  padding: 2px 6px;
-  border-radius: 4px;
-  color: var(--bg-card);
-  width: fit-content;
-}
-
-.status-low {
-  background-color: var(--status-low-bg);
-}
-
-.status-mid {
-  background-color: var(--status-mid-bg);
-}
-
-.status-high {
-  background-color: var(--status-high-bg);
-}
-
-.review-paragraph-text {
-  font-size: 0.85rem;
-  line-height: 1.5;
-  color: var(--text-muted);
-  margin: 0;
-  overflow-wrap: break-word;
-  word-break: break-word;
-  display: -webkit-box;
-  line-clamp: 2;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.btn-delete-review-minimal {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: transparent;
-  border: 1px solid rgba(162, 178, 170, 0.4);
-  color: var(--text-muted);
-  padding: 6px 12px;
-  border-radius: 8px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: var(--transition-standard);
-}
-
-.btn-delete-review-minimal:hover {
-  background-color: rgba(239, 68, 68, 0.05);
-  border-color: rgba(239, 68, 68, 0.3);
-  color: var(--status-low-bg);
-}
-
-.profile-reviews-empty {
-  text-align: center;
-  padding: 3rem 1rem;
-}
-
-.empty-bubble {
-  font-size: 2rem;
-  margin-bottom: 0.5rem;
-}
-
-.profile-reviews-empty h4 {
-  margin: 0 0 4px 0;
-  font-size: 1.05rem;
-  color: var(--text-main);
-}
-
-.btn-redirect-home {
-  background: transparent;
-  border: 1px solid var(--mint-leaf);
-  color: var(--mint-leaf);
-  padding: 8px 16px;
-  border-radius: 8px;
-  font-size: 0.82rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: var(--transition-standard);
-}
-
-.btn-redirect-home:hover {
-  background-color: var(--mint-leaf);
-  color: var(--bg-card);
-}
-
-.popup-premium-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
-  padding: 0.5rem 0;
-}
-
-.modal-icon-success {
-  color: var(--mint-leaf);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.check-icon {
-  width: 56px;
-  height: 56px;
-}
-
-.popup-custom-text {
-  font-size: 0.95rem;
-  color: var(--text-muted);
-  line-height: 1.5;
-  text-align: center;
-  margin: 0;
-}
-
-.btn-popup-close-premium {
-  width: 100%;
-  padding: 0.85rem;
-  border-radius: 12px;
-  border: none;
-  font-weight: 750;
-  font-size: 0.95rem;
-  cursor: pointer;
-  transition: var(--transition-standard);
-}
-
-.btn-popup-close-premium.success {
-  background-color: var(--mint-leaf);
-  color: var(--bg-card);
-}
-
-.btn-popup-close-premium.success:hover {
-  background-color: var(--evergreen);
-}
-
-.btn-popup-close-premium.error {
-  background-color: var(--status-low-bg);
-  color: var(--bg-card);
-}
-
-.btn-popup-close-premium.info {
-  background-color: var(--alabaster-grey);
-  color: var(--text-main);
-}
-
-.btn-confirm-annulla {
-  background-color: var(--alabaster-grey);
-  color: var(--text-main);
-  border: 1px solid rgba(162, 178, 170, 0.4);
-  padding: 0.75rem 1.5rem;
-  border-radius: 10px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: var(--transition-standard);
-}
-
-.btn-confirm-procedi {
-  background-color: var(--status-low-bg);
-  color: var(--bg-card);
-  border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 10px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: var(--transition-standard);
-}
-
-.reviews-loader {
-  display: flex;
-  justify-content: center;
-  padding: 2rem 0;
-}
-
-.spinner {
-  width: 24px;
-  height: 24px;
-  border: 3px solid rgba(162, 178, 170, 0.2);
-  border-top-color: var(--mint-leaf);
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@media (max-width: 1024px) {
-  .dashboard-review-row {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-    padding: 1rem;
-  }
-}
-
-@media (max-width: 768px) {
-  .main-header-card {
-    flex-direction: column;
-    text-align: center;
-    gap: 1.5rem;
-    padding: 2rem 1.5rem;
-  }
-
-  .header-actions-side {
-    margin-left: 0;
-    margin-top: 0.5rem;
-  }
-
-  .user-info-meta {
-    align-items: center;
-  }
-}
-
-@media (max-width: 425px) {
-  .profile-wrapper {
-    padding: 2.5rem 1rem;
-  }
-
-  .profile-card {
-    padding: 1.5rem;
-  }
-
-  .main-header-card {
-    padding: 1.5rem;
-  }
-
-  .user-info-meta h1 {
-    font-size: 1.6rem;
-  }
-
-  .reviews-header-flex {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.75rem;
-  }
-}
-
-@media (max-width: 321px) {
-  .profile-wrapper {
-    padding: 2rem 0.75rem;
-  }
-
-  .profile-card {
-    padding: 1.2rem;
-    max-width: 100%;
-  }
-
-  .avatar-wrapper {
-    width: 80px;
-    height: 80px;
-  }
-}
-</style>

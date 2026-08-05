@@ -27,7 +27,7 @@ export default defineEventHandler(async (event) => {
 			.from("reviews")
 			.delete()
 			.eq("movie", movieId)
-			.eq("user", user.id);
+			.eq("user", user.sub);
 
 		if (error) throw error;
 

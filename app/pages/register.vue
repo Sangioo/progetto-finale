@@ -15,14 +15,12 @@ const email = ref('')
 const username = ref('')
 const password = ref('')
 const confirmPassword = ref('')
-const isLoading = ref(false)
 const errorMsg = ref('')
 const successMsg = ref('')
 
 
 const handleSignup = async () => {
   try {
-    isLoading.value = true
     errorMsg.value = ''
     successMsg.value = ''
 
@@ -56,48 +54,51 @@ const handleSignup = async () => {
   } catch (err) {
     errorMsg.value = 'Si è verificato un errore durante la registrazione. Riprova più tardi.'
     console.error(err)
-  } finally {
-    isLoading.value = false
   }
 }
 </script>
 
 <template>
-  <div id="container">
-    <main class="auth-section">
-      <section class="auth-card">
-        <h1 class="auth-title text-evergreen">Crea il tuo account</h1>
-        <p class="auth-subtitle">Inizia a tenere traccia dei film che ami.</p>
+  <div class="min-h-screen bg-alabaster-grey flex items-center justify-center">
+    <main class="w-full max-w-113 4k:max-w-140">
+      <section
+        class="y-6 px-4 mobiles:py-8 mobiles:px-6 rounded-xl shadow-sm mobilel:py-10 mobilel:px-8 border border-gray-300 4k:py-12 4k:px-10">
+        <h1 class="text-2xl mb-2 mobiles:text-4xl font-extrabold text-evergreen tracking-tight">Crea il tuo account</h1>
+        <p class="mb-4">Inizia a tenere traccia dei film che ami.</p>
 
-        <form @submit.prevent="handleSignup" class="form-grid">
-          <div class="form-group">
-            <label for="username" class="form-label">Username</label>
-            <input v-model="username" type="text" class="form-control" id="username" placeholder="es. user1234"
-              required />
+        <form @submit.prevent="handleSignup" class="flex flex-col gap-3">
+          <div class="flex flex-col gap-2">
+            <label for="username" class="text-evergreen font-semibold text-base">Username</label>
+            <input v-model="username" type="text"
+              class="w-full p-3 text-base border border-muted-teal rounded-lg transition bg-alabaster-grey focus:outline-0 focus:shadow-sm"
+              id="username" placeholder="es. user1234" required />
           </div>
 
-          <div class="form-group">
-            <label for="email" class="form-label">Email</label>
-            <input v-model="email" type="email" class="form-control" id="email" placeholder="user@example.com"
-              required />
+          <div class="flex flex-col gap-2">
+            <label for="email" class="text-evergreen font-semibold text-base">Email</label>
+            <input v-model="email" type="email"
+              class="w-full p-3 text-base border border-muted-teal rounded-lg transition bg-alabaster-grey focus:outline-0 focus:shadow-sm"
+              id="email" placeholder="es. user@example.com" required />
           </div>
 
           <PasswordInput v-model:password="password" v-model:confirmPassword="confirmPassword" />
 
-          <div class="captcha-wrapper">
-            <div id="recaptcha-container"></div>
-          </div>
-
-          <button class="btn-base btn-submit" type="submit" :disabled="isLoading">
-            {{ isLoading ? 'Creazione account...' : 'Registrati' }}
+          <button
+            class="bg-mint-leaf text-white font-bold h-12 rounded-lg transition-all cursor-pointer hover:bg-evergreen mt-2"
+            type="submit">
+            Registrati
           </button>
 
-          <div v-if="errorMsg" class="custom-alert" role="alert">
+          <div v-if="errorMsg"
+            class="bg-red-600/50 border border-red-900 text-red-900 font-semibold rounded-lg text-center p-3 h-12"
+            role="alert">
             {{ errorMsg }}
           </div>
         </form>
 
-        <p class="auth-extra">Hai già un account? <NuxtLink to="/login">Accedi</NuxtLink>
+        <p class="text-center text-sm mt-4">
+          Hai già un account? <NuxtLink to="/login"
+            class="text-mint-leaf font-bold transition-all hover:text-evergreen hover:underline">Accedi</NuxtLink>
         </p>
       </section>
     </main>

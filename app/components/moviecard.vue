@@ -18,7 +18,7 @@ const handleCardClick = () => {
 
 <template>
   <div
-    class="group bg-white dark:bg-dark-alabaster-grey rounded-2xl overflow-hidden flex flex-col transition-all duration-300 border border-alabaster-grey dark:border-dark-alabaster-grey shadow relative cursor-pointer hover:shadow-lg hover:transform hover:-translate-y-2"
+    class="group bg-white dark:bg-dark-alabaster-grey rounded-2xl overflow-hidden flex flex-col transition-all duration-300 border border-alabaster-grey dark:border-dark-alabaster-grey shadow dark:shadow-gray-600 relative cursor-pointer hover:shadow-lg hover:transform hover:-translate-y-2"
     @click="handleCardClick">
     <div class="relative aspect-2/3 overflow-hidden">
       <img :src="movie.poster_path ? `${IMAGE_URL}${movie.poster_path}` : PLACEHOLDER_IMAGE"

@@ -33,7 +33,7 @@ const formattedDate = computed(() => {
 <template>
   <Transition name="fade">
     <div v-if="show"
-      class="fixed top-0 left-0 w-screen h-screen bg-black/75 dark:bg-white/75 flex justify-center items-center z-100 backdrop-blur-xs tablet:p-4"
+      class="fixed top-0 left-0 w-screen h-screen bg-black/75 dark:bg-gray-500/75 flex justify-center items-center z-100 backdrop-blur-xs tablet:p-4"
       @click.self="emit('close')">
       <div
         class="relative bg-white dark:bg-dark-alabaster-grey w-screen h-screen shadow-lg overflow-hidden flex flex-col pt-20 tablet:p-0 tablet:max-h-212.5 tablet:max-w-275 tablet:w-[95vw] tablet:h-[85vh] tablet:rounded-3xl">

@@ -212,8 +212,9 @@ onBeforeUnmount(() => {
           for="sort-by-select">Ordina
           per</label>
         <select v-model="filters.sort_by" id="sort-by-select"
-          class="w-full cursor-pointer appearance-none rounded-lg border border-muted-teal dark:border-dark-muted-teal p-2 text-sm box-border transition-all duration-300 ease-in-out focus:border-mint-leaf dark:focus:border-dark-mint-leaf focus:outline-none focus:shadow-sm mobilel:px-4 mobilel:py-3">
-          <option v-for="option in sortOptions" :key="option.value" :value="option.value">
+          class="w-full cursor-pointer appearance-none rounded-lg border border-muted-teal dark:border-dark-muted-teal p-2 text-sm box-border transition-all duration-300 ease-in-out focus:border-mint-leaf dark:focus:border-dark-mint-leaf focus:outline-none focus:shadow-sm mobilel:px-4 mobilel:py-3 dark:text-white">
+          <option v-for="option in sortOptions" :key="option.value" :value="option.value"
+            class="dark:text-white dark:bg-dark-alabaster-grey">
             {{ option.label }}
           </option>
         </select>
@@ -229,7 +230,7 @@ onBeforeUnmount(() => {
               for="with-origin-country">Nazione
               d'origine</label>
             <input v-model="filters.with_origin_country" type="text" maxlength="2"
-              class="w-full box-border rounded-lg border border-muted-teal dark:border-dark-muted-teal p-2 text-sm uppercase transition-all duration-300 ease-in-out focus:border-mint-leaf dark:focus:border-dark-mint-leaf focus:outline-none focus:shadow-sm mobilel:px-4 mobilel:py-3"
+              class="w-full box-border rounded-lg border border-muted-teal dark:border-dark-muted-teal p-2 text-sm uppercase transition-all duration-300 ease-in-out focus:border-mint-leaf dark:focus:border-dark-mint-leaf focus:outline-none focus:shadow-sm mobilel:px-4 mobilel:py-3 dark:text-white"
               placeholder="IT" id="with-origin-country" />
           </div>
           <div class="flex flex-1 flex-col">
@@ -237,7 +238,7 @@ onBeforeUnmount(() => {
               for="with-original-language">Lingua
               originale</label>
             <input v-model="filters.with_original_language" type="text"
-              class="w-full box-border rounded-lg border border-muted-teal dark:border-dark-muted-teal p-2 text-sm transition-all duration-300 ease-in-out focus:border-mint-leaf dark:focus:border-dark-mint-leaf focus:outline-none focus:shadow-sm mobilel:px-4 mobilel:py-3"
+              class="w-full box-border rounded-lg border border-muted-teal dark:border-dark-muted-teal p-2 text-sm transition-all duration-300 ease-in-out focus:border-mint-leaf dark:focus:border-dark-mint-leaf focus:outline-none focus:shadow-sm mobilel:px-4 mobilel:py-3 dark:text-white"
               placeholder="it" id="with-original-language" />
           </div>
         </div>
@@ -251,7 +252,7 @@ onBeforeUnmount(() => {
           <label class="mb-2 block text-xs font-semibold uppercase tracking-wider dark:text-white" for="year">Anno
             specifico</label>
           <input v-model="filters.year" type="number"
-            class="w-full box-border rounded-lg border border-muted-teal dark:border-dark-muted-teal p-2 text-sm transition-all duration-300 ease-in-out focus:border-mint-leaf dark:focus:border-dark-mint-leaf focus:outline-none focus:shadow-sm mobilel:px-4 mobilel:py-3"
+            class="w-full box-border rounded-lg border border-muted-teal dark:border-dark-muted-teal p-2 text-sm transition-all duration-300 ease-in-out focus:border-mint-leaf dark:focus:border-dark-mint-leaf focus:outline-none focus:shadow-sm mobilel:px-4 mobilel:py-3 dark:text-white"
             min="1900" max="2100" id="year" placeholder="Es. 2024" />
         </div>
         <div class="mt-3 flex gap-4 flex-col mobilel:flex-row">
@@ -259,14 +260,14 @@ onBeforeUnmount(() => {
             <label class="mb-2 block text-xs font-semibold uppercase tracking-wider dark:text-white"
               for="release-date-gte">Da</label>
             <input v-model="filters.release_date_gte" type="date"
-              class="w-full box-border rounded-lg border border-muted-teal dark:border-dark-muted-teal p-2 text-sm transition-all duration-300 ease-in-out focus:border-mint-leaf dark:focus:border-dark-mint-leaf focus:outline-none focus:shadow-sm mobilel:px-4 mobilel:py-3"
+              class="w-full box-border rounded-lg border border-muted-teal dark:border-dark-muted-teal p-2 text-sm transition-all duration-300 ease-in-out focus:border-mint-leaf dark:focus:border-dark-mint-leaf focus:outline-none focus:shadow-sm mobilel:px-4 mobilel:py-3 dark:text-white"
               id="release-date-gte" />
           </div>
           <div class="flex flex-1 flex-col">
             <label class="mb-2 block text-xs font-semibold uppercase tracking-wider dark:text-white"
               for="release-date-lte">A</label>
             <input v-model="filters.release_date_lte" type="date"
-              class="w-full box-border rounded-lg border border-muted-teal dark:border-dark-muted-teal p-2 text-sm transition-all duration-300 ease-in-out focus:border-mint-leaf dark:focus:border-dark-mint-leaf focus:outline-none focus:shadow-sm mobilel:px-4 mobilel:py-3"
+              class="w-full box-border rounded-lg border border-muted-teal dark:border-dark-muted-teal p-2 text-sm transition-all duration-300 ease-in-out focus:border-mint-leaf dark:focus:border-dark-mint-leaf focus:outline-none focus:shadow-sm mobilel:px-4 mobilel:py-3 dark:text-white"
               id="release-date-lte" />
           </div>
         </div>
@@ -281,7 +282,7 @@ onBeforeUnmount(() => {
             <td class="w-1/2">
               <button type="button" :class="[
                 'w-full cursor-pointer rounded-lg border border-muted-teal dark:border-dark-muted-teal px-2 py-2 text-sm font-semibold transition-all duration-300 ease-in-out hover:border-mint-leaf',
-                isGenreSelected(g1.id) ? 'border-evergreen dark:border-dark-evergreen bg-evergreen dark:bg-dark-evergreen text-white dark:text-dark-alabaster-grey' : '',
+                isGenreSelected(g1.id) ? 'border-evergreen dark:border-dark-evergreen bg-evergreen dark:bg-dark-evergreen text-white dark:text-dark-alabaster-grey' : 'dark:text-gray-300',
               ]" @click="toggleGenre(g1.id)">
                 {{ g1.name }}
               </button>
@@ -289,7 +290,7 @@ onBeforeUnmount(() => {
             <td class="w-1/2">
               <button v-if="g2" type="button" :class="[
                 'w-full cursor-pointer rounded-lg border border-muted-teal dark:border-dark-muted-teal px-2 py-2 text-sm font-semibold transition-all duration-300 ease-in-out hover:border-mint-leaf',
-                isGenreSelected(g2.id) ? 'border-evergreen dark:border-dark-evergreen bg-evergreen dark:bg-dark-evergreen text-white dark:text-dark-alabaster-grey' : '',
+                isGenreSelected(g2.id) ? 'border-evergreen dark:border-dark-evergreen bg-evergreen dark:bg-dark-evergreen text-white dark:text-dark-alabaster-grey' : 'dark:text-gray-300',
               ]" @click="toggleGenre(g2.id)">
                 {{ g2.name }}
               </button>
@@ -308,7 +309,7 @@ onBeforeUnmount(() => {
               for="vote-average-gte">Min
               (0-10)</label>
             <input v-model="filters.vote_average_gte" type="number"
-              class="w-full box-border rounded-lg border border-muted-teal dark:border-dark-muted-teal p-2 text-center text-sm transition-all duration-300 ease-in-out focus:border-mint-leaf dark:focus:border-dark-mint-leaf focus:outline-none focus:shadow-sm mobilel:px-4 mobilel:py-3"
+              class="w-full box-border rounded-lg border border-muted-teal dark:border-dark-muted-teal p-2 text-center text-sm transition-all duration-300 ease-in-out focus:border-mint-leaf dark:focus:border-dark-mint-leaf focus:outline-none focus:shadow-sm mobilel:px-4 mobilel:py-3 dark:text-white"
               min="0" max="10" step="0.1" id="vote-average-gte"
               @input="enforceNumericRange('vote_average_gte', 'vote_average_lte', 0, 10)" />
           </div>
@@ -317,7 +318,7 @@ onBeforeUnmount(() => {
               for="vote-average-lte">Max
               (0-10)</label>
             <input v-model="filters.vote_average_lte" type="number"
-              class="w-full box-border rounded-lg border border-muted-teal dark:border-dark-muted-teal p-2 text-center text-sm transition-all duration-300 ease-in-out focus:border-mint-leaf dark:focus:border-dark-mint-leaf focus:outline-none focus:shadow-sm mobilel:px-4 mobilel:py-3"
+              class="w-full box-border rounded-lg border border-muted-teal dark:border-dark-muted-teal p-2 text-center text-sm transition-all duration-300 ease-in-out focus:border-mint-leaf dark:focus:border-dark-mint-leaf focus:outline-none focus:shadow-sm mobilel:px-4 mobilel:py-3 dark:text-white"
               min="0" max="10" step="0.1" id="vote-average-lte"
               @input="enforceNumericRange('vote_average_gte', 'vote_average_lte', 0, 10)" />
           </div>
@@ -327,7 +328,7 @@ onBeforeUnmount(() => {
             for="vote-count-gte">Numero
             voti minimo</label>
           <input v-model="filters.vote_count_gte" type="number"
-            class="w-full box-border rounded-lg border border-muted-teal dark:border-dark-muted-teal p-2 text-sm transition-all duration-300 ease-in-out focus:border-mint-leaf dark:focus:border-dark-mint-leaf focus:outline-none focus:shadow-sm mobilel:px-4 mobilel:py-3"
+            class="w-full box-border rounded-lg border border-muted-teal dark:border-dark-muted-teal p-2 text-sm transition-all duration-300 ease-in-out focus:border-mint-leaf dark:focus:border-dark-mint-leaf focus:outline-none focus:shadow-sm mobilel:px-4 mobilel:py-3 dark:text-white"
             min="0" step="1" id="vote-count-gte" placeholder="Es. 100" />
         </div>
       </div>
@@ -338,11 +339,11 @@ onBeforeUnmount(() => {
           (Minuti)</label>
         <div class="flex items-center gap-4 flex-col mobilel:flex-row">
           <input v-model="filters.runtime_gte" type="number"
-            class="w-full box-border rounded-lg border border-muted-teal dark:border-dark-muted-teal p-2 text-center text-sm transition-all duration-300 ease-in-out focus:border-mint-leaf dark:focus:border-dark-mint-leaf focus:outline-none focus:shadow-sm mobilel:px-4 mobilel:py-3"
+            class="w-full box-border rounded-lg border border-muted-teal dark:border-dark-muted-teal p-2 text-center text-sm transition-all duration-300 ease-in-out focus:border-mint-leaf dark:focus:border-dark-mint-leaf focus:outline-none focus:shadow-sm mobilel:px-4 mobilel:py-3 dark:text-white"
             min="0" step="1" @input="normalizeRangeOrder('runtime_gte', 'runtime_lte')" placeholder="Min" />
           <span class="px-1 font-bold text-muted-teal">-</span>
           <input v-model="filters.runtime_lte" type="number"
-            class="w-full box-border rounded-lg border border-muted-teal dark:border-dark-muted-teal p-2 text-center text-sm transition-all duration-300 ease-in-out focus:border-mint-leaf dark:focus:border-dark-mint-leaf focus:outline-none focus:shadow-sm mobilel:px-4 mobilel:py-3"
+            class="w-full box-border rounded-lg border border-muted-teal dark:border-dark-muted-teal p-2 text-center text-sm transition-all duration-300 ease-in-out focus:border-mint-leaf dark:focus:border-dark-mint-leaf focus:outline-none focus:shadow-sm mobilel:px-4 mobilel:py-3 dark:text-white"
             min="0" step="1" @input="normalizeRangeOrder('runtime_gte', 'runtime_lte')" placeholder="Max" />
         </div>
       </div>
@@ -354,18 +355,20 @@ onBeforeUnmount(() => {
           IT)</label>
         <div class="flex gap-4">
           <select v-model="filters.certification_gte"
-            class="w-full cursor-pointer appearance-none rounded-lg border border-muted-teal dark:border-dark-muted-teal p-2 pr-10 text-sm box-border transition-all duration-300 ease-in-out focus:border-mint-leaf dark:focus:border-dark-mint-leaf focus:outline-none focus:shadow-sm mobilel:px-4 mobilel:py-3"
+            class="w-full cursor-pointer appearance-none rounded-lg border border-muted-teal dark:border-dark-muted-teal p-2 pr-10 text-sm box-border transition-all duration-300 ease-in-out focus:border-mint-leaf dark:focus:border-dark-mint-leaf focus:outline-none focus:shadow-sm mobilel:px-4 mobilel:py-3 dark:text-white"
             @change="normalizeCertificationRange('certification_gte', 'certification_lte')">
             <option value="">Min</option>
-            <option v-for="cert in italianCertificationOptions" :key="cert" :value="cert">
+            <option v-for="cert in italianCertificationOptions" :key="cert" :value="cert"
+              class="dark:text-white dark:bg-dark-alabaster-grey">
               {{ cert }}
             </option>
           </select>
           <select v-model="filters.certification_lte"
-            class="w-full cursor-pointer appearance-none rounded-lg border border-muted-teal dark:border-dark-muted-teal p-2 pr-10 text-sm box-border transition-all duration-300 ease-in-out focus:border-mint-leaf dark:focus:border-dark-mint-leaf focus:outline-none focus:shadow-sm mobilel:px-4 mobilel:py-3"
+            class="w-full cursor-pointer appearance-none rounded-lg border border-muted-teal dark:border-dark-muted-teal p-2 pr-10 text-sm box-border transition-all duration-300 ease-in-out focus:border-mint-leaf dark:focus:border-dark-mint-leaf focus:outline-none focus:shadow-sm mobilel:px-4 mobilel:py-3 dark:text-white"
             @change="normalizeCertificationRange('certification_gte', 'certification_lte')">
             <option value="">Max</option>
-            <option v-for="cert in italianCertificationOptions" :key="cert" :value="cert">
+            <option v-for="cert in italianCertificationOptions" :key="cert" :value="cert"
+              class="dark:text-white dark:bg-dark-alabaster-grey">
               {{ cert }}
             </option>
           </select>
@@ -378,7 +381,7 @@ onBeforeUnmount(() => {
           Applica Filtri
         </button>
         <button type="button"
-          class="cursor-pointer rounded-xl border border-muted-teal dark:border-dark-muted-teal p-4 font-bold shadow-sm transition-all duration-300 ease-in-out h-14 hover:bg-alabaster-grey dark:hover:bg-alabaster-grey hover:shadow-lg"
+          class="cursor-pointer rounded-xl border border-muted-teal dark:border-dark-muted-teal p-4 font-bold shadow-sm transition-all duration-300 ease-in-out h-14 hover:bg-alabaster-grey dark:hover:bg-alabaster-grey hover:shadow-lg dark:text-white dark:hover:text-black"
           @click="resetFilters">
           Svuota tutto
         </button>

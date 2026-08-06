@@ -254,7 +254,8 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="py-8 px-3 mobiles:py-10 mobiles:px-4 min-h-screen mobilel:py-16 mobilel:px-8 bg-alabaster-grey">
+  <div
+    class="py-8 px-3 mobiles:py-10 mobiles:px-4 min-h-screen mobilel:py-16 mobilel:px-8 bg-alabaster-grey dark:bg-dark-alabaster-grey">
     <BasePopup :show="isPopupOpen" :title="popupTitle" :content="popupMessage" :actions="popupActions"
       :identifier="popupId" @close="isPopupOpen = false" @action="routePopupEvent" />
 
@@ -262,18 +263,18 @@ onMounted(async () => {
 
     <div class="max-w-313 my-0 mx-auto flex flex-col gap-8">
       <header
-        class="p-5 max-w-full mobiles:p-6 rounded-3xl mobilel:p-9 border border-gray-300 shadow-sm flex flex-col tablet:flex-row text-center gap-6 items-center tablet:gap-12 relative overflow-hidden border-l-5 border-l-evergreen">
+        class="p-5 max-w-full mobiles:p-6 rounded-3xl mobilel:p-9 border border-gray-300 dark:border-dark-muted-teal shadow-sm flex flex-col tablet:flex-row text-center gap-6 items-center tablet:gap-12 relative overflow-hidden border-l-5 border-l-evergreen dark:border-l-dark-evergreen">
         <div class="flex flex-col items-center gap-3">
           <div
-            class="w-20 h-20 relative mobiles:w-25 mobiles:h-25 rounded-full overflow-hidden cursor-pointer shadow-sm border-4 border-gray-300 bg-evergreen transition-all hover:scale-105 group"
+            class="w-20 h-20 relative mobiles:w-25 mobiles:h-25 rounded-full overflow-hidden cursor-pointer shadow-sm border-4 border-gray-300 dark:border-dark-muted-teal bg-evergreen dark:bg-dark-evergreen transition-all hover:scale-105 group"
             @click="triggerFileInput">
             <img v-if="userAvatarUrl" :src="userAvatarUrl" alt="Avatar utente" class="w-full h-full object-cover" />
             <div v-else
-              class="w-full h-full flex items-center justify-center text-alabaster-grey text-5xl font-extrabold">
+              class="w-full h-full flex items-center justify-center text-alabaster-grey dark:text-dark-alabaster-grey text-5xl font-extrabold">
               {{ currentUsername?.charAt(0).toUpperCase() }}
             </div>
             <div
-              class="opacity-0 group-hover:opacity-100 absolute top-0 left-0 w-full h-full bg-green-900 flex items-center justify-center text-white transition-all">
+              class="opacity-0 group-hover:opacity-100 absolute top-0 left-0 w-full h-full bg-green-900 flex items-center justify-center text-white dark:text-black transition-all">
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
                 <path d="M10.5 8.5a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z" />
                 <path
@@ -293,15 +294,17 @@ onMounted(async () => {
 
         <div class="items-center tablet:items-start flex flex-col">
           <span
-            class="text-xs uppercase font-bold tracking-wider py-1 px-3 bg-gray-300 text-evergreen rounded-full mb-2">Account
+            class="text-xs uppercase font-bold tracking-wider py-1 px-3 bg-gray-300 dark:bg-gray-700 text-evergreen dark:text-dark-evergreen rounded-full mb-2">Account
             Utente</span>
-          <h1 class="text-2xl mobilel:text-4xl text-evergreen font-extrabold mb-2 tracking-tight">{{ currentUsername }}
+          <h1
+            class="text-2xl mobilel:text-4xl text-evergreen dark:text-dark-evergreen font-extrabold mb-2 tracking-tight">
+            {{ currentUsername }}
           </h1>
         </div>
 
         <div class="mt-2 tablet:ml-auto">
           <button @click="handleLogoutClick"
-            class="inline-flex items-center gap-2 bg-transparent border border-gray-300 py-3 px-4 rounded-xl text-sm font-bold cursor-pointer transition-all hover:bg-[#ef44440d] hover:border-red-500 hover:text-red-500"
+            class="inline-flex items-center gap-2 bg-transparent border border-gray-300 dark:border-dark-muted-teal dark:text-gray-300 py-3 px-4 rounded-xl text-sm font-bold cursor-pointer transition-all hover:bg-[#ef44440d] hover:border-red-500 hover:text-red-500"
             title="Disconnetti account" :disabled="isActionLoading">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
               <path fill-rule="evenodd"
@@ -315,57 +318,58 @@ onMounted(async () => {
       </header>
 
       <div class="grid grid-cols-[1fr] gap-8 items-start laptop:grid-cols-[340px_1fr]">
-        <section class="rounded-3xl p-9 border border-gray-300 shadow-sm">
+        <section class="rounded-3xl p-9 border border-gray-300 dark:border-dark-muted-teal shadow-sm">
           <div>
-            <h3 class="text-xl font-bold text-evergreen">Sicurezza Account</h3>
-            <p class="text-sm mt-1">Aggiorna le credenziali di accesso</p>
+            <h3 class="text-xl font-bold text-evergreen dark:text-dark-evergreen">Sicurezza Account</h3>
+            <p class="text-sm mt-1 dark:text-gray-300">Aggiorna le credenziali di accesso</p>
           </div>
-          <hr class="h-px bg-gray-300 border-0 my-6" />
+          <hr class="h-px bg-gray-300 dark:bg-dark-muted-teal border-0 my-6" />
 
           <form @submit.prevent="handleCambiaPassword" class="flex flex-col gap-3">
             <div class="flex flex-col gap-2">
-              <label class="text-evergreen font-semibold text-base">Vecchia Password</label>
+              <label class="text-evergreen dark:text-dark-evergreen font-semibold text-base">Vecchia Password</label>
               <input v-model="oldPassword" type="password"
-                class="w-full p-3 text-base border border-muted-teal rounded-lg transition bg-alabaster-grey focus:outline-0 focus:shadow-sm"
-                placeholder="••••••••" required />
+                class="w-full p-3 text-base border border-muted-teal dark:border-dark-muted-teal rounded-lg transition bg-alabaster-grey dark:bg-dark-alabaster-grey focus:outline-0 focus:shadow-sm dark:text-white"
+                placeholder="********" required />
             </div>
 
             <PasswordInput v-model:password="newPassword" v-model:confirmPassword="confirmPassword" />
 
             <button type="submit"
-              class="bg-mint-leaf text-white font-bold h-12 rounded-lg transition-all cursor-pointer hover:bg-evergreen mt-2"
+              class="bg-mint-leaf dark:bg-dark-mint-leaf text-white dark:text-black font-bold h-12 rounded-lg transition-all cursor-pointer hover:bg-evergreen dark:hover:bg-dark-evergreen mt-2"
               :disabled="isActionLoading">
               {{ isActionLoading ? 'Aggiornamento...' : 'Salva Nuova Password' }}
             </button>
           </form>
         </section>
 
-        <section class="rounded-3xl p-9 border border-gray-300 shadow-sm">
+        <section class="rounded-3xl p-9 border border-gray-300 dark:border-dark-muted-teal shadow-sm">
           <div class="flex flex-col items-start gap-3 justify-between mobilel:items-center mobilel:flex-row">
             <div>
-              <h3 class="text-lg font-bold text-evergreen">Archivio Recensioni</h3>
-              <p class="text-sm mt-1">
+              <h3 class="text-lg font-bold text-evergreen dark:text-dark-evergreen">Archivio Recensioni</h3>
+              <p class="text-sm mt-1 dark:text-gray-300">
                 Clicca sul testo per visualizzare l'anteprima a schermo intero
               </p>
             </div>
-            <span class="bg-alabaster-grey border border-gray-300 py-1 px-3 rounded-lg font-bold text-sm">{{
-              userReviews.length }}</span>
+            <span
+              class="bg-alabaster-grey dark:bg-dark-alabaster-grey border border-gray-300 dark:border-dark-muted-teal py-1 px-3 rounded-lg font-bold text-sm dark:text-gray-300">{{
+                userReviews.length }}</span>
           </div>
           <hr class="border-none h-px bg-gray-300 my-6" />
 
           <div v-if="userReviews.length > 0" class="flex flex-col gap-4">
             <div v-for="review in userReviews" :key="review.id"
-              class="grid grid-cols-[1fr] gap-4 p-4 laptop:grid-cols-[200px_1fr_auto] laptop:gap-8 laptop:p-5 items-center rounded-2xl border border-gray-300 transition-all hover:border-mint-leaf hover:shadow-lg">
+              class="grid grid-cols-[1fr] gap-4 p-4 laptop:grid-cols-[200px_1fr_auto] laptop:gap-8 laptop:p-5 items-center rounded-2xl border border-gray-300 dark:border-dark-muted-teal transition-all hover:border-mint-leaf dark:hover:border-dark-mint-leaf hover:shadow-lg">
               <div class="flex items-center gap-3 overflow-hidden">
                 <div
-                  class="relative w-11 h-16 rounded-lg overflow-hidden cursor-pointer bg-alabaster-grey shrink-0 group"
+                  class="relative w-11 h-16 rounded-lg overflow-hidden cursor-pointer bg-alabaster-grey dark:bg-dark-alabaster-grey shrink-0 group"
                   @click="goToFilm(review)">
                   <img v-if="review.poster_path" :src="`${IMAGE_URL}${review.poster_path}`" :alt="review.title"
                     class="w-full h-full object-cover" />
                   <img v-else :src="PLACEHOLDER_IMAGE" :alt="review.title" class="w-full h-full object-cover" />
 
                   <div
-                    class="absolute top-0 left-0 w-full h-full bg-green-900 text-white flex items-center justify-center opacity-0 transition-all group-hover:opacity-100">
+                    class="absolute top-0 left-0 w-full h-full bg-evergreen dark:bg-dark-evergreen text-white dark:text-white flex items-center justify-center opacity-0 transition-all group-hover:opacity-100">
                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor"
                       viewBox="0 0 16 16">
                       <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z" />
@@ -376,29 +380,30 @@ onMounted(async () => {
                 </div>
 
                 <div class="flex flex-col gap-1 overflow-hidden">
-                  <span class="font-bold cursor-pointer whitespace-nowrap overflow-hidden text-ellipsis"
+                  <span class="font-bold cursor-pointer whitespace-nowrap overflow-hidden text-ellipsis dark:text-white"
                     @click="goToFilm(review)">
                     {{ review.title || 'Dettagli Film' }}
                   </span>
-                  <span class="text-xs">
+                  <span class="text-xs dark:text-gray-300">
                     {{ formatDate(review.time) }}
                   </span>
                 </div>
               </div>
 
               <div
-                class="flex flex-col gap-2 py-2 px-3 rounded-lg cursor-pointer bg-alabaster-grey border border-gray-300 transition-all hover:border-mint-leaf"
+                class="flex flex-col gap-2 py-2 px-3 rounded-lg cursor-pointer bg-alabaster-grey dark:bg-dark-alabaster-grey border border-gray-300 dark:border-dark-muted-teal transition-all hover:border-mint-leaf dark:hover:border-dark-mint-leaf"
                 @click="openReadReviewPopup(review)" title="Leggi tutto">
                 <div class="inline-flex items-center gap-1 text-xs font-bold py-1 px-2 rounded-sm w-fit"
                   :class="getStatusClass(review.score)">
                   <span class="tracking-wider">★ {{ review.score }}/10</span>
                 </div>
-                <p class="text-xs wrap-break-word break-normal overflow-hidden text-ellipsis">{{ review.content }}</p>
+                <p class="text-xs wrap-break-word break-normal overflow-hidden text-ellipsis dark:text-gray-300">{{
+                  review.content }}</p>
               </div>
 
               <div>
                 <button @click="handleDeleteReview(review)"
-                  class="inline-flex items-center gap-2 bg-transparent border border-gray-300 py-2 px-3 rounded-lg text-xs font-semibold cursor-pointer transition-all hover:bg-[#ef44440d] hover:border-red-500 hover:text-red-500"
+                  class="inline-flex items-center gap-2 bg-transparent border border-gray-300 dark:border-dark-muted-teal py-2 px-3 rounded-lg text-xs font-semibold cursor-pointer transition-all hover:bg-[#ef44440d] hover:border-red-500 hover:text-red-500 dark:text-gray-300"
                   title="Elimina questa recensione">
                   <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor"
                     viewBox="0 0 16 16">
@@ -415,10 +420,10 @@ onMounted(async () => {
 
           <div v-else class="text-center py-12 px-4">
             <div class="text-4xl mb-2">✍️</div>
-            <h4 class="mb-1">Ancora nessuna recensione</h4>
+            <h4 class="mb-1 dark:text-gray-300">Ancora nessuna recensione</h4>
             <br />
             <NuxtLink to="/"
-              class="bg-transparent border border-mint-leaf text-mint-leaf py-2 px-4 rounded-lg text-sm font-bold cursor-pointer transition-all hover:bg-mint-leaf hover:text-white">
+              class="bg-transparent border border-mint-leaf dark:border-dark-mint-leaf text-mint-leaf dark:text-dark-mint-leaf py-2 px-4 rounded-lg text-sm font-bold cursor-pointer transition-all hover:bg-mint-leaf dark:hover:bg-dark-mint-leaf hover:text-white dark:hover:text-black">
               Esplora Film</NuxtLink>
           </div>
         </section>

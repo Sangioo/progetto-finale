@@ -215,13 +215,15 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="flex flex-col min-h-screen bg-alabaster-grey laptop:flex-row">
+  <div class="flex flex-col min-h-screen bg-alabaster-grey dark:bg-dark-alabaster-grey laptop:flex-row">
     <aside v-if="activeTab === 'filters'"
       class="p-4 flex-none w-full h-fit static mobilel:p-6 m-0 laptop:flex laptop:grow-0 laptop:shrink-0 laptop:basis-1/4 top-6 laptop:m-6">
-      <div class="h-full border border-gray-300 rounded-2xl flex flex-col shadow-sm overflow-hidden">
+      <div
+        class="h-full border border-gray-300 dark:border-dark-muted-teal rounded-2xl flex flex-col shadow-sm overflow-hidden">
         <header class="p-6 mobilel:p-8">
-          <p class="text-xs uppercase tracking-widest text-mint-leaf font-bold mb-1">Framelog Research</p>
-          <h2 class="text-evergreen text-2xl font-extrabold tracking-tight">Filtri <span
+          <p class="text-xs uppercase tracking-widest text-mint-leaf dark:text-dark-mint-leaf font-bold mb-1">Framelog
+            Research</p>
+          <h2 class="text-evergreen dark:text-dark-evergreen text-2xl font-extrabold tracking-tight">Filtri <span
               class="font-light opacity-80">Avanzati</span>
           </h2>
         </header>
@@ -234,37 +236,41 @@ onMounted(async () => {
 
     <main class="p-4 mobilel:p-5 tablet:p-6 flex-1 laptop:pt-6 laptop:px-14 laptop:pb-16 min-w-0 transition-all"
       :class="{ 'max-w-313 my-0 mx-auto': activeTab === 'search' }">
-      <div class="flex-wrap tablet:flex-nowrap flex gap-2 mb-8 bg-gray-300 p-2 rounded-xl w-fit">
+      <div class="flex-wrap tablet:flex-nowrap flex gap-2 mb-8 bg-gray-300 dark:bg-gray-700 p-2 rounded-xl w-fit">
         <button
-          :class="{ 'bg-alabaster-grey text-evergreen shadow-sm': activeTab === 'search', 'bg-transparent': activeTab !== 'search' }"
-          class="py-2 px-4 text-sm border-none mobiles:px-5 font-bold mobiles:text-base cursor-pointer rounded-lg transition-all hover:text-evergreen"
+          :class="{ 'bg-alabaster-grey dark:bg-dark-alabaster-grey text-evergreen dark:text-dark-evergreen shadow-sm': activeTab === 'search', 'bg-transparent dark:text-gray-300': activeTab !== 'search' }"
+          class="py-2 px-4 text-sm border-none mobiles:px-5 font-bold mobiles:text-base cursor-pointer rounded-lg transition-all hover:text-evergreen dark:hover:text-dark-evergreen"
           @click="setTab('search')">
           🔎 Ricerca Rapida
         </button>
         <button
-          :class="{ 'bg-alabaster-grey text-evergreen shadow-sm': activeTab === 'filters', 'bg-transparent': activeTab !== 'filters' }"
-          class="py-2 px-4 text-sm border-none mobiles:px-5 font-bold mobiles:text-base cursor-pointer rounded-lg transition-all hover:text-evergreen"
+          :class="{ 'bg-alabaster-grey dark:bg-dark-alabaster-grey text-evergreen dark:text-dark-evergreen shadow-sm': activeTab === 'filters', 'bg-transparent dark:text-gray-300': activeTab !== 'filters' }"
+          class="py-2 px-4 text-sm border-none mobiles:px-5 font-bold mobiles:text-base cursor-pointer rounded-lg transition-all hover:text-evergreen dark:hover:text-dark-evergreen"
           @click="setTab('filters')">
           ✨ Esplorazione Avanzata
         </button>
       </div>
 
-      <header class="flex flex-col items-start gap-3 justify-between mb-10 border-b border-gray-300 pb-6">
+      <header
+        class="flex flex-col items-start gap-3 justify-between mb-10 border-b border-gray-300 dark:border-dark-muted-teal pb-6">
         <div class="flex flex-col tablet:flex-row w-full justify-between">
           <div v-if="activeTab === 'search'">
-            <h1 class="text-evergreen text-2xl mobiles:text-3xl">Trova un <span class="font-normal">Film</span></h1>
-            <p class="mt-2">Cerca per titolo o esplora i titoli in evidenza qui sotto.</p>
+            <h1 class="text-evergreen dark:text-dark-evergreen text-2xl mobiles:text-3xl">Trova un <span
+                class="font-normal">Film</span></h1>
+            <p class="mt-2 dark:text-gray-300">Cerca per titolo o esplora i titoli in evidenza qui sotto.</p>
           </div>
           <div v-else>
-            <h1 class="text-evergreen text-2xl mobiles:text-3xl">Esplora <span class="font-normal">su Misura</span></h1>
-            <p v-if="!isLoading && hasMovies" class="mt-2">
+            <h1 class="text-evergreen dark:text-dark-evergreen text-2xl mobiles:text-3xl">Esplora <span
+                class="font-normal">su Misura</span></h1>
+            <p v-if="!isLoading && hasMovies" class="mt-2 dark:text-gray-300">
               Rilevati
-              <strong class="text-evergreen">{{ totalResults.toLocaleString() }}</strong> titoli
+              <strong class="text-evergreen dark:text-dark-evergreen">{{ totalResults.toLocaleString() }}</strong>
+              titoli
             </p>
           </div>
 
           <button v-if="activeTab === 'filters'" @click="handleResetFilters"
-            class="flex items-center gap-2 bg-white border border-gray-300 py-2 px-5 rounded-xl font-semibold cursor-pointer transition-all h-fit w-fit hover:bg-evergreen hover:text-white hover:border-evergreen">
+            class="flex items-center gap-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-dark-muted-teal py-2 px-5 rounded-xl font-semibold cursor-pointer transition-all h-fit w-fit hover:bg-evergreen dark:hover:bg-dark-evergreen hover:text-white dark:hover:text-black hover:border-evergreen dark:hover:border-dark-evergreen dark:text-white">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
               stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
               <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
@@ -278,12 +284,12 @@ onMounted(async () => {
       <div v-if="activeTab === 'search'" class="mb-12">
         <form @submit.prevent="searchMovies">
           <div
-            class="grid grid-cols-[1fr] laptop:grid-cols-[1fr_auto] items-center gap-3 border border-gray-300 rounded-2xl p-3 shadow-sm transition-all focus-within:border-mint-leaf focus-within:shadow-lg">
-            <input v-model="searchTerm" type="text" class="border-none outline-none bg-transparent"
+            class="grid grid-cols-[1fr] laptop:grid-cols-[1fr_auto] items-center gap-3 border border-gray-300 dark:border-dark-muted-teal rounded-2xl p-3 shadow-sm transition-all focus-within:border-mint-leaf dark:focus-within:border-dark-mint-leaf focus-within:shadow-lg">
+            <input v-model="searchTerm" type="text" class="border-none outline-none bg-transparent dark:text-white"
               placeholder="Scrivi il nome di un film ..." autocomplete="off" spellcheck="false" name="search-box"
               id="search-box" />
             <button
-              class="w-full laptop:w-auto rounded-xl py-2 px-6 bg-mint-leaf text-white font-bold cursor-pointer transition-all hover:bg-evergreen"
+              class="w-full laptop:w-auto rounded-xl py-2 px-6 bg-mint-leaf dark:bg-dark-mint-leaf text-white dark:text-black font-bold cursor-pointer transition-all hover:bg-evergreen dark:hover:bg-dark-evergreen"
               type="submit">Cerca</button>
           </div>
         </form>
@@ -291,17 +297,17 @@ onMounted(async () => {
 
       <section ref="galleryRef" class="gallery">
         <h3 v-if="activeTab === 'search' && !hasSearched && hasMovies && !isLoading"
-          class="text-evergreen text-xl font-bold mb-6">
+          class="text-evergreen dark:text-dark-evergreen text-xl font-bold mb-6">
           Titoli in evidenza
         </h3>
         <h3 v-if="activeTab === 'search' && hasSearched && hasMovies && !isLoading"
-          class="text-evergreen text-xl font-bold mb-6">
+          class="text-evergreen dark:text-dark-evergreen text-xl font-bold mb-6">
           Risultati per "{{ searchTerm }}"
         </h3>
 
         <div v-if="isLoading"
           class="grid grid-cols-[1fr] gap-4 mobilem:grid-cols-[repeat(auto-fill,minmax(150px,1fr))] mobilel:grid-cols-[repeat(auto-fill,minmax(170px,1fr))] mobilel:gap-6 tablet:grid-cols-[repeat(auto-fill,minmax(200px,1fr))] tablet:gap-8">
-          <div v-for="n in 12" :key="n" class="bg-gray-300 h-80 rounded-2xl animate-pulse"></div>
+          <div v-for="n in 12" :key="n" class="bg-gray-300 dark:bg-gray-500 h-80 rounded-2xl animate-pulse"></div>
         </div>
 
         <div v-else-if="hasMovies"
@@ -312,26 +318,27 @@ onMounted(async () => {
             :inWatched="movie.watchStatus === 2" />
         </div>
 
-        <div v-else class="text-center py-16 px-8 rounded-2xl border border-gray-300 my-8 mx-auto">
-          <span class="inline-flex text-4xl bg-mint-leaf/30 p-4 rounded-full mb-4">🔎</span>
-          <h2 class="text-evergreen">Nessun risultato trovato</h2>
+        <div v-else
+          class="text-center py-16 px-8 rounded-2xl border border-gray-300 dark:border-dark-muted-teal my-8 mx-auto">
+          <span class="inline-flex text-4xl bg-mint-leaf/30 dark:bg-dark-mint-leaf/30 p-4 rounded-full mb-4">🔎</span>
+          <h2 class="text-evergreen dark:text-dark-evergreen">Nessun risultato trovato</h2>
           <p>
             Nessun film corrisponde ai criteri attuali. Prova a modificare i parametri.
           </p>
         </div>
 
         <nav v-if="!isLoading && hasMovies && activeTab === 'filters'"
-          class="flex flex-wrap justify-center items-center gap-1.5 mt-18 p-2 rounded-2xl w-fit mx-auto shadow-sm border border-gray-300">
+          class="flex flex-wrap justify-center items-center gap-1.5 mt-18 p-2 rounded-2xl w-fit mx-auto shadow-sm border border-gray-300 dark:border-dark-muted-teal">
           <button @click="goToPage(index - 1)" :disabled="index === 0"
-            class="w-8 h-8 mobilem:w-10 mobilem:h-10 border-none bg-transparent rounded-full font-semibold cursor-pointer transition-all disabled:opacity-30 disabled:cursor-not-allowed hover:not-disabled:bg-mint-leaf">
+            class="w-8 h-8 mobilem:w-10 mobilem:h-10 border-none bg-transparent rounded-full font-semibold cursor-pointer transition-all disabled:opacity-30 disabled:cursor-not-allowed hover:not-disabled:bg-mint-leaf dark:hover:not-disabled:bg-dark-mint-leaf dark:text-gray-300">
             &lsaquo;
           </button>
           <button v-for="n in 5" :key="n" @click="goToPage(n - 1)"
-            :class="['w-8 h-8 mobilem:w-10 mobilem:h-10 border-none rounded-full font-semibold cursor-pointer transition-all disabled:opacity-30 disabled:cursor-not-allowed hover:bg-mint-leaf', { 'bg-evergreen text-white': index === n - 1 }]">
+            :class="['w-8 h-8 mobilem:w-10 mobilem:h-10 border-none rounded-full font-semibold cursor-pointer transition-all disabled:opacity-30 disabled:cursor-not-allowed hover:bg-mint-leaf dark:hover:bg-dark-mint-leaf dark:text-gray-300', { 'bg-evergreen text-white dark:bg-dark-evergreen': index === n - 1 }]">
             {{ n }}
           </button>
           <button @click="goToPage(index + 1)" :disabled="index === 4"
-            class="w-8 h-8 mobilem:w-10 mobilem:h-10 border-none bg-transparent rounded-full font-semibold cursor-pointer transition-all disabled:opacity-30 disabled:cursor-not-allowed hover:not-disabled:bg-mint-leaf">
+            class="w-8 h-8 mobilem:w-10 mobilem:h-10 border-none bg-transparent rounded-full font-semibold cursor-pointer transition-all disabled:opacity-30 disabled:cursor-not-allowed hover:not-disabled:bg-mint-leaf dark:hover:not-disabled:bg-dark-mint-leaf dark:text-gray-300">
             &rsaquo;
           </button>
         </nav>

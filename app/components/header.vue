@@ -124,7 +124,7 @@ const closeHeader = () => {
               <span class="text-sm font-semibold text-evergreen dark:text-dark-evergreen">{{ username }}</span>
 
               <div
-                class="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full border-2 border-muted-teal bg-evergreen dark:bg-dark-evergreen transition">
+                class="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full border-2 border-muted-teal dark:border-dark-muted-teal bg-evergreen dark:bg-dark-evergreen transition">
                 <img v-if="profilePicture" :src="profilePicture" alt="Foto Profilo"
                   class="h-full w-full object-cover" />
                 <span v-else class="text-sm font-bold text-alabaster-grey dark:text-dark-alabaster-grey">

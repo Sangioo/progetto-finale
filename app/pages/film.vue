@@ -230,7 +230,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="relative min-h-screen bg-alabaster-grey">
+  <div class="relative min-h-screen bg-alabaster-grey dark:bg-dark-alabaster-grey">
     <BasePopup :show="isPopupOpen" :title="popupTitle" :content="popupMessage" :actions="popupActions"
       :identifier="popupId" @close="isPopupOpen = false" @action="routePopupEvent" />
     <ReviewPopup :show="isReviewPopupOpen" :review="selectedReviewForPopup" @close="isReviewPopupOpen = false" />
@@ -243,7 +243,7 @@ onUnmounted(() => {
       class="relative z-1 mx-auto grid max-w-313 grid-cols-1 gap-8 px-4 py-6 mobilel:px-6 mobilel:py-8 laptop:grid-cols-[2fr_1fr] laptop:gap-10">
       <main>
         <NuxtLink to="/"
-          class="inline-block self-start pb-6 text-[0.95rem] font-semibold transition-all duration-300 ease-in-out hover:-translate-x-1 hover:text-mint-leaf">
+          class="inline-block self-start pb-6 text-[0.95rem] font-semibold transition-all duration-300 ease-in-out hover:-translate-x-1 hover:text-mint-leaf dark:text-white dark:hover:text-dark-mint-leaf">
           ← Torna ai film</NuxtLink>
 
         <div class="flex flex-col items-center gap-8 text-center tablet:flex-row tablet:items-start tablet:text-left">
@@ -261,7 +261,8 @@ onUnmounted(() => {
 
           <section class="grow">
             <header>
-              <h1 class="m-0 text-3xl font-extrabold text-evergreen text-shadow-xs mobilel:text-4xl">
+              <h1
+                class="m-0 text-3xl font-extrabold text-evergreen dark:text-dark-evergreen text-shadow-xs mobilel:text-4xl">
                 {{ movie?.title }}
                 <span v-if="movie?.release_date" class="ml-2 font-normal">
                   ({{ movie.release_date.split('-')[0] }})
@@ -269,7 +270,7 @@ onUnmounted(() => {
               </h1>
               <div class="mt-3 flex flex-wrap justify-center gap-2 tablet:justify-start">
                 <span v-for="genre in movie?.genre_ids" :key="genre"
-                  class="rounded-4xl border border-gray-300 px-3 py-1 text-sm font-semibold shadow-sm">
+                  class="rounded-4xl border dark:text-white border-gray-300 dark:border-dark-muted-teal px-3 py-1 text-sm font-semibold shadow-sm">
                   {{ genreName(genre) }}
                 </span>
               </div>
@@ -277,7 +278,7 @@ onUnmounted(() => {
 
             <div class="mt-6 flex flex-col items-stretch gap-2 tablet:grid tablet:grid-cols-[2fr_1fr]">
               <button @click="handleLiveRoomAction"
-                class="flex min-w-50 flex-1 items-center justify-center gap-2 rounded-xl border border-evergreen bg-evergreen px-4 py-2 font-bold text-white shadow-sm transition-all duration-300 ease-in-out hover:-translate-y-px hover:border-mint-leaf hover:bg-mint-leaf hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:border-evergreen disabled:hover:bg-evergreen"
+                class="flex min-w-50 flex-1 items-center justify-center gap-2 rounded-xl border border-evergreen dark:border-dark-evergreen bg-evergreen dark:bg-dark-evergreen px-4 py-2 font-bold text-white dark:text-black shadow-sm transition-all duration-300 ease-in-out hover:-translate-y-px hover:border-mint-leaf dark:hover:border-dark-mint-leaf hover:bg-mint-leaf dark:hover:bg-dark-mint-leaf hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:border-evergreen dark:disabled:hover:border-dark-evergreen disabled:hover:bg-evergreen dark:disabled:hover:bg-dark-evergreen cursor-pointer"
                 :disabled="!isAuthenticated">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="h-5 w-5 fill-current">
                   <path
@@ -290,27 +291,28 @@ onUnmounted(() => {
                 :isAuthenticated="isAuthenticated" @left-click="toggleWatchlist" @right-click="toggleWatched" />
             </div>
 
-            <hr class="my-4 h-px border-0 bg-gray-200" />
+            <hr class="my-4 h-px border-0 bg-gray-200 dark:bg-dark-muted-teal" />
 
             <div class="mt-4">
-              <h4 class="mb-2 text-base font-bold uppercase tracking-wide text-evergreen">Sinossi</h4>
-              <p class=" leading-6.5">{{ movie?.overview }}</p>
+              <h4 class="mb-2 text-base font-bold uppercase tracking-wide text-evergreen dark:text-dark-evergreen">
+                Sinossi</h4>
+              <p class=" leading-6.5 dark:text-gray-300">{{ movie?.overview }}</p>
             </div>
           </section>
         </div>
 
-        <hr class="my-8 h-px border-0 bg-gray-200" />
+        <hr class="my-8 h-px border-0 bg-gray-200 dark:bg-dark-muted-teal" />
 
         <section>
-          <div class="rounded-2xl border border-gray-200 p-6 shadow-sm">
+          <div class="rounded-2xl border border-gray-200 dark:border-dark-muted-teal p-6 shadow-sm">
             <div class="mb-5 flex items-center justify-between gap-4">
               <div class="flex items-center gap-4">
                 <div v-if="currentUserAvatar"
-                  class="h-11 w-11 overflow-hidden rounded-full border-2 border-mint-leaf bg-alabaster-grey">
+                  class="h-11 w-11 overflow-hidden rounded-full border-2 border-mint-leaf dark:border-dark-mint-leaf bg-alabaster-grey dark:bg-dark-alabaster-grey">
                   <img :src="currentUserAvatar" alt="Il tuo Profilo" class="h-full w-full object-cover" />
                 </div>
                 <div>
-                  <h3 class="m-0 text-xl font-bold text-evergreen">La tua Recensione</h3>
+                  <h3 class="m-0 text-xl font-bold text-evergreen dark:text-dark-evergreen">La tua Recensione</h3>
                   <p class="m-0 text-sm">Cosa ne pensi di questa pellicola?</p>
                 </div>
               </div>
@@ -323,13 +325,13 @@ onUnmounted(() => {
             <div class="mt-2 flex flex-col gap-6">
               <div class="relative w-full">
                 <textarea v-model="recensioneTesto" placeholder="Scrivi qui la tua recensione..." maxlength="1000"
-                  class="min-h-35 w-full resize-y rounded-xl border border-gray-200 bg-alabaster-grey p-5 leading-6.5 outline-none transition-all duration-300 ease-in-out focus:border-mint-leaf focus:shadow-sm"></textarea>
+                  class="min-h-35 w-full resize-y rounded-xl border border-gray-200 dark:border-dark-muted-teal bg-alabaster-grey dark:bg-dark-alabaster-grey p-5 leading-6.5 outline-none transition-all duration-300 ease-in-out focus:border-mint-leaf dark:focus:border-dark-mint-leaf focus:shadow-sm dark:text-gray-300"></textarea>
                 <div class="absolute bottom-3.5 right-3.5 text-xs">{{
                   recensioneTesto.length }}/1000</div>
               </div>
 
               <div
-                class="flex flex-col items-center gap-4 rounded-xl border border-gray-200 bg-alabaster-grey px-6 py-5 text-center mobilel:flex-row mobilel:justify-between mobilel:text-left">
+                class="flex flex-col items-center gap-4 rounded-xl border border-gray-200 dark:border-dark-muted-teal bg-alabaster-grey dark:bg-dark-alabaster-grey px-6 py-5 text-center mobilel:flex-row mobilel:justify-between mobilel:text-left">
                 <div class="flex flex-col items-center gap-2 mobilel:items-start">
                   <span class="text-sm font-bold uppercase tracking-wide">Seleziona
                     la tua valutazione</span>
@@ -339,11 +341,11 @@ onUnmounted(() => {
                         class="relative inline-flex h-7 w-7 items-center justify-center text-2xl leading-none transition-transform duration-200 ease-in hover:scale-[1.15]">
                         <span
                           class="absolute left-0 top-0 flex h-full w-full cursor-pointer items-center justify-center [clip-path:polygon(0_0,50%_0,50%_100%,0%_100%)] transition-colors duration-150 ease-in"
-                          :class="displayVoteStars >= star - 0.5 ? 'text-yellow-500 text-shadow-sm' : 'text-gray-200'"
+                          :class="displayVoteStars >= star - 0.5 ? 'text-yellow-500 text-shadow-sm' : 'text-gray-200 dark:text-gray-400'"
                           @mouseover="hoverVoteStars = star - 0.5" @click="setRating(star - 0.5)">★</span>
                         <span
                           class="absolute left-0 top-0 flex h-full w-full cursor-pointer items-center justify-center [clip-path:polygon(50%_0,100%_0,100%_100%,50%_100%)] transition-colors duration-150 ease-in"
-                          :class="displayVoteStars >= star ? 'text-yellow-500 text-shadow-sm' : 'text-gray-200'"
+                          :class="displayVoteStars >= star ? 'text-yellow-500 text-shadow-sm' : 'text-gray-200 dark:text-gray-400'"
                           @mouseover="hoverVoteStars = star" @click="setRating(star)">★</span>
                       </div>
                     </template>
@@ -367,7 +369,7 @@ onUnmounted(() => {
               </div>
 
               <button @click="handleInviaRecensione"
-                class="cursor-pointer rounded-xl bg-evergreen px-6 py-4 font-bold text-white shadow-sm transition-all duration-300 ease-in-out hover:bg-mint-leaf hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50"
+                class="cursor-pointer rounded-xl bg-evergreen dark:bg-dark-evergreen px-6 py-4 font-bold text-white dark:text-black shadow-sm transition-all duration-300 ease-in-out hover:bg-mint-leaf dark:hover:bg-dark-mint-leaf hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50"
                 :disabled="!isAuthenticated || !recensioneTesto.trim()">
                 <span>Pubblica Recensione</span>
               </button>
@@ -376,22 +378,23 @@ onUnmounted(() => {
         </section>
       </main>
 
-      <aside class="self-start rounded-2xl border border-gray-300 p-6">
-        <div class="mb-6 flex items-center gap-3 border-b border-gray-300 pb-3">
-          <h3 class="m-0 text-lg font-extrabold text-evergreen">Community</h3>
-          <span class="rounded-full bg-gray-300 px-3 py-1 text-sm font-bold">{{ reviewsList.length }}</span>
+      <aside class="self-start rounded-2xl border border-gray-300 dark:border-dark-muted-teal p-6">
+        <div class="mb-3 flex items-center gap-3 border-b border-gray-300 dark:border-dark-muted-teal pb-3">
+          <h3 class="m-0 text-lg font-extrabold text-evergreen dark:text-dark-evergreen">Community</h3>
+          <span class="rounded-full bg-gray-300 dark:bg-gray-500 px-3 py-1 text-sm font-bold">{{ reviewsList.length
+            }}</span>
         </div>
 
-        <div class="flex flex-col gap-4">
+        <div class="flex flex-col">
           <div v-if="reviewsList.length > 0">
             <TransitionGroup name="fade-list" tag="div">
               <div v-for="rev in reviewsList" :key="rev.id || rev.time"
-                class="cursor-pointer rounded-xl border border-gray-300 bg-alabaster-grey p-4 transition-all duration-300 ease-in-out hover:-translate-y-0.5 hover:border-mint-leaf hover:shadow-sm"
+                class="cursor-pointer rounded-xl border border-gray-300 dark:border-dark-muted-teal bg-alabaster-grey dark:bg-dark-alabaster-grey p-4 transition-all duration-300 ease-in-out hover:-translate-y-0.5 hover:border-mint-leaf dark:hover:border-dark-mint-leaf hover:shadow-sm mt-3"
                 @click="apriPopupRecensione(rev)">
                 <div class="mb-3 flex items-start justify-between gap-3">
                   <div class="flex items-center gap-3">
                     <div
-                      class="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full border border-mint-leaf bg-evergreen font-bold text-white">
+                      class="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full border border-mint-leaf dark:border-dark-mint-leaf bg-evergreen dark:bg-dark-evergreen font-bold text-white dark:text-black">
                       <img v-if="rev.profile_pic_url" :src="rev.profile_pic_url" alt="Avatar utente"
                         class="h-full w-full object-cover" @error="rev.hasError = true" />
                       <template v-else>
@@ -400,15 +403,15 @@ onUnmounted(() => {
                     </div>
 
                     <div class="flex flex-col">
-                      <span class="font-bold">{{ rev.username }}</span>
-                      <span class="text-xs">{{ formatDate(rev.time) }}</span>
+                      <span class="font-bold text-evergreen dark:text-dark-evergreen">{{ rev.username }}</span>
+                      <span class="text-xs dark:text-gray-300">{{ formatDate(rev.time) }}</span>
                     </div>
                   </div>
                   <div class="rounded-4xl px-3 py-2 text-sm font-bold" :class="getStatusClass(rev.score)">
                     {{ rev.score }}/10
                   </div>
                 </div>
-                <p class="m-0 line-clamp-3 leading-normal">{{ rev.content }}</p>
+                <p class="m-0 line-clamp-3 leading-normal dark:text-gray-300">{{ rev.content }}</p>
               </div>
             </TransitionGroup>
           </div>

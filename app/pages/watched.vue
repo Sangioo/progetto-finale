@@ -63,33 +63,40 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="py-6 px-4 max-w-313 my-0 mx-auto mobilel:py-8 mobilel:px-6">
-    <BasePopup :show="isPopupOpen" title="Errore" :content="popupMessage" @close="isPopupOpen = false"
-      @action="isPopupOpen = false" />
-    <header class="p-4 mobiles:p-5 mobilel:py-6 mobilel:px-8 border-b-4 border-b-mint-leaf rounded-2xl mb-10 shadow">
-      <h1 class="text-2xl mobiles:text-3xl mobilel:text-4xl text-evergreen font-extrabold">Watched</h1>
-      <p class="mt-2 text-lg">Qui trovi i film che hai guardato.</p>
-    </header>
+  <div class="flex min-h-screen min-w-screen dark:bg-dark-alabaster-grey">
+    <div class="py-6 px-4 w-full max-w-313 my-0 mx-auto mobilel:py-8 mobilel:px-6">
+      <BasePopup :show="isPopupOpen" title="Errore" :content="popupMessage" @close="isPopupOpen = false"
+        @action="isPopupOpen = false" />
+      <header
+        class="p-4 mobiles:p-5 mobilel:py-6 mobilel:px-8 border-b-4 border-mint-leaf dark:border-dark-mint-leaf rounded-2xl mb-10 shadow">
+        <h1 class="text-2xl mobiles:text-3xl mobilel:text-4xl text-evergreen dark:text-dark-evergreen font-extrabold">
+          Watched</h1>
+        <p class="mt-2 text-lg dark:text-gray-300">Qui trovi i film che hai guardato.</p>
+      </header>
 
-    <div>
-      <div v-if="isLoading" class="text-center py-16 px-8">
-        <div class="w-10 h-10 border-4 border-gray-300 border-t-mint-leaf rounded-full animate-spin mb-6 mx-auto"></div>
-        <p class="font-semibold">Caricamento in corso...</p>
-      </div>
+      <div>
+        <div v-if="isLoading" class="text-center py-16 px-8">
+          <div class="w-10 h-10 border-4 border-gray-300 border-t-mint-leaf rounded-full animate-spin mb-6 mx-auto">
+          </div>
+          <p class="font-semibold dark:text-gray-300">Caricamento in corso...</p>
+        </div>
 
-      <div v-else-if="movies.length === 0" class="text-center py-16 px-8 rounded-3xl border border-gray-300">
-        <span class="text-7xl block mb-4">🎬</span>
-        <h2 class="text-evergreen font-bold mb-2">Non hai film guardati.</h2>
-        <p>Una volta che li avrai guardati, li troverai qui.</p>
-        <NuxtLink to="/"
-          class="inline-block mt-6 bg-evergreen text-white py-4 px-6 rounded-xl font-bold hover:bg-mint-leaf">Vai al
-          Catalogo</NuxtLink>
-      </div>
+        <div v-else-if="movies.length === 0"
+          class="text-center py-16 px-8 rounded-3xl border border-gray-300 dark:border-dark-muted-teal">
+          <span class="text-7xl block mb-4">🎬</span>
+          <h2 class="text-evergreen dark:text-dark-evergreen font-bold mb-2">Non hai film guardati.</h2>
+          <p class="dark:text-gray-300">Una volta che li avrai guardati, li troverai qui.</p>
+          <NuxtLink to="/"
+            class="inline-block mt-6 bg-evergreen dark:bg-dark-evergreen text-white dark:text-black py-4 px-6 rounded-xl font-bold hover:bg-mint-leaf dark:hover:bg-dark-mint-leaf">
+            Vai al
+            Catalogo</NuxtLink>
+        </div>
 
-      <div v-else
-        class="grid grid-cols-[1fr] mobilem:grid-cols-[repeat(auto-fill,minmax(150px,1fr))] tablet:grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-8">
-        <MovieCard v-for="movie in movies" :key="movie.id" :movie="movie" @reviews-click="handleReviewsClick(movie)"
-          @right-click="deleteFromWatched(movie)" :inWatched="true" />
+        <div v-else
+          class="grid grid-cols-[1fr] mobilem:grid-cols-[repeat(auto-fill,minmax(150px,1fr))] tablet:grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-8">
+          <MovieCard v-for="movie in movies" :key="movie.id" :movie="movie" @reviews-click="handleReviewsClick(movie)"
+            @right-click="deleteFromWatched(movie)" :inWatched="true" />
+        </div>
       </div>
     </div>
   </div>

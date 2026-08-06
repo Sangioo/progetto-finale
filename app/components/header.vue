@@ -19,22 +19,18 @@ const isAuthenticated = computed(() => !!user.value)
 const closeHeader = () => {
   isMenuOpen.value = false
 }
-
-const toggleMenu = () => {
-  isMenuOpen.value = !isMenuOpen.value
-}
 </script>
 
 <template>
   <nav class="sticky top-0 z-1000 border-b border-muted-teal/20 bg-white shadow-md backdrop-blur-xl max-h-20">
     <div
-      class="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-3 laptop:max-w-330 4k:max-w-550">
+      class="mx-auto flex max-w-313 flex-wrap items-center justify-between gap-3 px-4 py-3 bg-white shadow-lg tablet:shadow-none">
       <div class="flex items-center gap-3">
         <!-- Mobile menu button -->
         <button
           class="inline-flex h-10 w-10 items-center justify-center text-evergreen transition hover:border-mint-leaf hover:bg-alabaster-grey focus:outline-none focus:ring-2 focus:ring-mint-leaf/30 laptop:hidden"
           type="button" :aria-expanded="isMenuOpen" aria-controls="mainNavbar" aria-label="Toggle navigation"
-          @click="toggleMenu">
+          @click="isMenuOpen = !isMenuOpen">
           <span class="flex h-4 w-4 flex-col justify-between">
             <span class="h-0.5 w-full rounded-full bg-current transition"
               :class="isMenuOpen ? 'translate-y-1.75 rotate-45' : ''"></span>
@@ -84,7 +80,7 @@ const toggleMenu = () => {
       <!-- Main navigation -->
       <div id="mainNavbar" :class="[
         isMenuOpen ? 'flex' : 'hidden',
-        'w-full flex-col gap-4 border-t border-muted-teal/20 pt-4 laptop:flex laptop:w-auto laptop:flex-1 laptop:flex-row laptop:items-center laptop:justify-between laptop:border-t-0 laptop:pt-0',
+        'w-full flex-col gap-4 border-t border-muted-teal/20 pt-4 laptop:flex laptop:w-auto laptop:flex-1 laptop:flex-row laptop:items-center laptop:justify-between laptop:border-t-0 laptop:pt-0 bg-white',
       ]">
         <ul class="flex flex-col gap-1 laptop:flex-row laptop:items-center laptop:gap-1">
           <li>

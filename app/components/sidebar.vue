@@ -27,7 +27,7 @@ const sortOptions = [
 ]
 
 const italianCertificationOptions = ['T', 'VM14', 'VM18']
-const genreOptions = sessionStorage.getItem('genres')
+const genreOptions = JSON.parse(sessionStorage.getItem('genres'))
 
 const genreRows = computed(() => {
   const rows = []
@@ -198,7 +198,7 @@ onBeforeUnmount(() => {
   <div class="w-full box-border rounded-xl">
     <div class="mb-6 block laptop:hidden">
       <button type="button"
-        class="w-full cursor-pointer rounded-xl border-0 bg-evergreen p-4 font-bold text-white transition-all duration-300 ease-in-out hover:brightness-110"
+        class="w-full cursor-pointer rounded-xl border-0 bg-evergreen dark:bg-dark-evergreen p-4 font-bold text-white dark:text-dark-alabaster-grey transition-all duration-300 ease-in-out hover:brightness-110"
         @click="toggleFiltersVisibility">
         {{ isFiltersOpen ? 'Nascondi Opzioni' : 'Mostra Filtri Avanzati' }}
       </button>
@@ -206,78 +206,90 @@ onBeforeUnmount(() => {
 
     <form v-show="shouldShowFilters" id="filters-form" class="flex flex-col gap-5 mobilel:gap-6"
       @submit.prevent="applyFilters">
-      <div class="flex flex-col gap-3 border-b border-alabaster-grey pb-5 last:border-b-0 last:pb-0 mobilel:pb-6">
-        <label class="mb-1 block text-base font-bold tracking-tight text-evergreen" for="sort-by-select">Ordina
+      <div
+        class="flex flex-col gap-3 border-b border-alabaster-grey dark:border-dark-alabaster-grey pb-5 last:border-b-0 last:pb-0 mobilel:pb-6">
+        <label class="mb-1 block text-base font-bold tracking-tight text-evergreen dark:text-dark-evergreen"
+          for="sort-by-select">Ordina
           per</label>
         <select v-model="filters.sort_by" id="sort-by-select"
-          class="w-full cursor-pointer appearance-none rounded-lg border border-muted-teal p-2 text-sm box-border transition-all duration-300 ease-in-out focus:border-mint-leaf focus:outline-none focus:shadow-sm mobilel:px-4 mobilel:py-3">
+          class="w-full cursor-pointer appearance-none rounded-lg border border-muted-teal dark:border-dark-muted-teal p-2 text-sm box-border transition-all duration-300 ease-in-out focus:border-mint-leaf dark:focus:border-dark-mint-leaf focus:outline-none focus:shadow-sm mobilel:px-4 mobilel:py-3">
           <option v-for="option in sortOptions" :key="option.value" :value="option.value">
             {{ option.label }}
           </option>
         </select>
       </div>
 
-      <div class="flex flex-col gap-3 border-b border-alabaster-grey pb-5 last:border-b-0 last:pb-0 mobilel:pb-6">
-        <label class="mb-1 block text-base font-bold tracking-tight text-evergreen">Lingua e Area</label>
+      <div
+        class="flex flex-col gap-3 border-b border-alabaster-grey dark:border-dark-alabaster-grey pb-5 last:border-b-0 last:pb-0 mobilel:pb-6">
+        <label class="mb-1 block text-base font-bold tracking-tight text-evergreen dark:text-dark-evergreen">Lingua e
+          Area</label>
         <div class="flex gap-4">
           <div class="flex flex-1 flex-col">
-            <label class="mb-2 block text-xs font-semibold uppercase tracking-wider" for="with-origin-country">Nazione
+            <label class="mb-2 block text-xs font-semibold uppercase tracking-wider dark:text-white"
+              for="with-origin-country">Nazione
               d'origine</label>
             <input v-model="filters.with_origin_country" type="text" maxlength="2"
-              class="w-full box-border rounded-lg border border-muted-teal p-2 text-sm uppercase transition-all duration-300 ease-in-out focus:border-mint-leaf focus:outline-none focus:shadow-sm mobilel:px-4 mobilel:py-3"
+              class="w-full box-border rounded-lg border border-muted-teal dark:border-dark-muted-teal p-2 text-sm uppercase transition-all duration-300 ease-in-out focus:border-mint-leaf dark:focus:border-dark-mint-leaf focus:outline-none focus:shadow-sm mobilel:px-4 mobilel:py-3"
               placeholder="IT" id="with-origin-country" />
           </div>
           <div class="flex flex-1 flex-col">
-            <label class="mb-2 block text-xs font-semibold uppercase tracking-wider" for="with-original-language">Lingua
+            <label class="mb-2 block text-xs font-semibold uppercase tracking-wider dark:text-white"
+              for="with-original-language">Lingua
               originale</label>
             <input v-model="filters.with_original_language" type="text"
-              class="w-full box-border rounded-lg border border-muted-teal p-2 text-sm transition-all duration-300 ease-in-out focus:border-mint-leaf focus:outline-none focus:shadow-sm mobilel:px-4 mobilel:py-3"
+              class="w-full box-border rounded-lg border border-muted-teal dark:border-dark-muted-teal p-2 text-sm transition-all duration-300 ease-in-out focus:border-mint-leaf dark:focus:border-dark-mint-leaf focus:outline-none focus:shadow-sm mobilel:px-4 mobilel:py-3"
               placeholder="it" id="with-original-language" />
           </div>
         </div>
       </div>
 
-      <div class="flex flex-col gap-3 border-b border-alabaster-grey pb-5 last:border-b-0 last:pb-0 mobilel:pb-6">
-        <label class="mb-1 block text-base font-bold tracking-tight text-evergreen">Periodo di Uscita</label>
+      <div
+        class="flex flex-col gap-3 border-b border-alabaster-grey dark:border-dark-alabaster-grey pb-5 last:border-b-0 last:pb-0 mobilel:pb-6">
+        <label class="mb-1 block text-base font-bold tracking-tight text-evergreen dark:text-dark-evergreen">Periodo di
+          Uscita</label>
         <div class="flex flex-col">
-          <label class="mb-2 block text-xs font-semibold uppercase tracking-wider" for="year">Anno
+          <label class="mb-2 block text-xs font-semibold uppercase tracking-wider dark:text-white" for="year">Anno
             specifico</label>
           <input v-model="filters.year" type="number"
-            class="w-full box-border rounded-lg border border-muted-teal p-2 text-sm transition-all duration-300 ease-in-out focus:border-mint-leaf focus:outline-none focus:shadow-sm mobilel:px-4 mobilel:py-3"
+            class="w-full box-border rounded-lg border border-muted-teal dark:border-dark-muted-teal p-2 text-sm transition-all duration-300 ease-in-out focus:border-mint-leaf dark:focus:border-dark-mint-leaf focus:outline-none focus:shadow-sm mobilel:px-4 mobilel:py-3"
             min="1900" max="2100" id="year" placeholder="Es. 2024" />
         </div>
         <div class="mt-3 flex gap-4 flex-col mobilel:flex-row">
           <div class="flex flex-1 flex-col">
-            <label class="mb-2 block text-xs font-semibold uppercase tracking-wider" for="release-date-gte">Da</label>
+            <label class="mb-2 block text-xs font-semibold uppercase tracking-wider dark:text-white"
+              for="release-date-gte">Da</label>
             <input v-model="filters.release_date_gte" type="date"
-              class="w-full box-border rounded-lg border border-muted-teal p-2 text-sm transition-all duration-300 ease-in-out focus:border-mint-leaf focus:outline-none focus:shadow-sm mobilel:px-4 mobilel:py-3"
+              class="w-full box-border rounded-lg border border-muted-teal dark:border-dark-muted-teal p-2 text-sm transition-all duration-300 ease-in-out focus:border-mint-leaf dark:focus:border-dark-mint-leaf focus:outline-none focus:shadow-sm mobilel:px-4 mobilel:py-3"
               id="release-date-gte" />
           </div>
           <div class="flex flex-1 flex-col">
-            <label class="mb-2 block text-xs font-semibold uppercase tracking-wider" for="release-date-lte">A</label>
+            <label class="mb-2 block text-xs font-semibold uppercase tracking-wider dark:text-white"
+              for="release-date-lte">A</label>
             <input v-model="filters.release_date_lte" type="date"
-              class="w-full box-border rounded-lg border border-muted-teal p-2 text-sm transition-all duration-300 ease-in-out focus:border-mint-leaf focus:outline-none focus:shadow-sm mobilel:px-4 mobilel:py-3"
+              class="w-full box-border rounded-lg border border-muted-teal dark:border-dark-muted-teal p-2 text-sm transition-all duration-300 ease-in-out focus:border-mint-leaf dark:focus:border-dark-mint-leaf focus:outline-none focus:shadow-sm mobilel:px-4 mobilel:py-3"
               id="release-date-lte" />
           </div>
         </div>
       </div>
 
-      <div class="flex flex-col gap-3 border-b border-alabaster-grey pb-5 last:border-b-0 last:pb-0 mobilel:pb-6">
-        <label class="mb-1 block text-base font-bold tracking-tight text-evergreen">Generi</label>
+      <div
+        class="flex flex-col gap-3 border-b border-alabaster-grey dark:border-dark-alabaster-grey pb-5 last:border-b-0 last:pb-0 mobilel:pb-6">
+        <label
+          class="mb-1 block text-base font-bold tracking-tight text-evergreen dark:text-dark-evergreen">Generi</label>
         <table class="-mt-2 w-full border-separate border-spacing-0 mobilem:border-spacing-2">
           <tr v-for="[g1, g2] in genreRows" :key="g1.id">
             <td class="w-1/2">
               <button type="button" :class="[
-                'w-full cursor-pointer rounded-lg border border-muted-teal px-2 py-2 text-sm font-semibold transition-all duration-300 ease-in-out hover:border-mint-leaf',
-                isGenreSelected(g1.id) ? 'border-evergreen bg-evergreen text-white' : '',
+                'w-full cursor-pointer rounded-lg border border-muted-teal dark:border-dark-muted-teal px-2 py-2 text-sm font-semibold transition-all duration-300 ease-in-out hover:border-mint-leaf',
+                isGenreSelected(g1.id) ? 'border-evergreen dark:border-dark-evergreen bg-evergreen dark:bg-dark-evergreen text-white dark:text-dark-alabaster-grey' : '',
               ]" @click="toggleGenre(g1.id)">
                 {{ g1.name }}
               </button>
             </td>
             <td class="w-1/2">
               <button v-if="g2" type="button" :class="[
-                'w-full cursor-pointer rounded-lg border border-muted-teal px-2 py-2 text-sm font-semibold transition-all duration-300 ease-in-out hover:border-mint-leaf',
-                isGenreSelected(g2.id) ? 'border-evergreen bg-evergreen text-white' : '',
+                'w-full cursor-pointer rounded-lg border border-muted-teal dark:border-dark-muted-teal px-2 py-2 text-sm font-semibold transition-all duration-300 ease-in-out hover:border-mint-leaf',
+                isGenreSelected(g2.id) ? 'border-evergreen dark:border-dark-evergreen bg-evergreen dark:bg-dark-evergreen text-white dark:text-dark-alabaster-grey' : '',
               ]" @click="toggleGenre(g2.id)">
                 {{ g2.name }}
               </button>
@@ -286,54 +298,63 @@ onBeforeUnmount(() => {
         </table>
       </div>
 
-      <div class="flex flex-col gap-3 border-b border-alabaster-grey pb-5 last:border-b-0 last:pb-0 mobilel:pb-6">
-        <label class="mb-1 block text-base font-bold tracking-tight text-evergreen">Valutazione Pubblico</label>
+      <div
+        class="flex flex-col gap-3 border-b border-alabaster-grey dark:border-dark-alabaster-grey pb-5 last:border-b-0 last:pb-0 mobilel:pb-6">
+        <label class="mb-1 block text-base font-bold tracking-tight text-evergreen dark:text-dark-evergreen">Valutazione
+          Pubblico</label>
         <div class="flex gap-4">
           <div class="flex flex-1 flex-col">
-            <label class="mb-2 block text-xs font-semibold uppercase tracking-wider" for="vote-average-gte">Min
+            <label class="mb-2 block text-xs font-semibold uppercase tracking-wider dark:text-white"
+              for="vote-average-gte">Min
               (0-10)</label>
             <input v-model="filters.vote_average_gte" type="number"
-              class="w-full box-border rounded-lg border border-muted-teal p-2 text-center text-sm transition-all duration-300 ease-in-out focus:border-mint-leaf focus:outline-none focus:shadow-sm mobilel:px-4 mobilel:py-3"
+              class="w-full box-border rounded-lg border border-muted-teal dark:border-dark-muted-teal p-2 text-center text-sm transition-all duration-300 ease-in-out focus:border-mint-leaf dark:focus:border-dark-mint-leaf focus:outline-none focus:shadow-sm mobilel:px-4 mobilel:py-3"
               min="0" max="10" step="0.1" id="vote-average-gte"
               @input="enforceNumericRange('vote_average_gte', 'vote_average_lte', 0, 10)" />
           </div>
           <div class="flex flex-1 flex-col">
-            <label class="mb-2 block text-xs font-semibold uppercase tracking-wider" for="vote-average-lte">Max
+            <label class="mb-2 block text-xs font-semibold uppercase tracking-wider dark:text-white"
+              for="vote-average-lte">Max
               (0-10)</label>
             <input v-model="filters.vote_average_lte" type="number"
-              class="w-full box-border rounded-lg border border-muted-teal p-2 text-center text-sm transition-all duration-300 ease-in-out focus:border-mint-leaf focus:outline-none focus:shadow-sm mobilel:px-4 mobilel:py-3"
+              class="w-full box-border rounded-lg border border-muted-teal dark:border-dark-muted-teal p-2 text-center text-sm transition-all duration-300 ease-in-out focus:border-mint-leaf dark:focus:border-dark-mint-leaf focus:outline-none focus:shadow-sm mobilel:px-4 mobilel:py-3"
               min="0" max="10" step="0.1" id="vote-average-lte"
               @input="enforceNumericRange('vote_average_gte', 'vote_average_lte', 0, 10)" />
           </div>
         </div>
         <div class="mt-3 flex flex-col">
-          <label class="mb-2 block text-xs font-semibold uppercase tracking-wider" for="vote-count-gte">Numero
+          <label class="mb-2 block text-xs font-semibold uppercase tracking-wider dark:text-white"
+            for="vote-count-gte">Numero
             voti minimo</label>
           <input v-model="filters.vote_count_gte" type="number"
-            class="w-full box-border rounded-lg border border-muted-teal p-2 text-sm transition-all duration-300 ease-in-out focus:border-mint-leaf focus:outline-none focus:shadow-sm mobilel:px-4 mobilel:py-3"
+            class="w-full box-border rounded-lg border border-muted-teal dark:border-dark-muted-teal p-2 text-sm transition-all duration-300 ease-in-out focus:border-mint-leaf dark:focus:border-dark-mint-leaf focus:outline-none focus:shadow-sm mobilel:px-4 mobilel:py-3"
             min="0" step="1" id="vote-count-gte" placeholder="Es. 100" />
         </div>
       </div>
 
-      <div class="flex flex-col gap-3 border-b border-alabaster-grey pb-5 last:border-b-0 last:pb-0 mobilel:pb-6">
-        <label class="mb-1 block text-base font-bold tracking-tight text-evergreen">Durata (Minuti)</label>
+      <div
+        class="flex flex-col gap-3 border-b border-alabaster-grey dark:border-dark-alabaster-grey pb-5 last:border-b-0 last:pb-0 mobilel:pb-6">
+        <label class="mb-1 block text-base font-bold tracking-tight text-evergreen dark:text-dark-evergreen">Durata
+          (Minuti)</label>
         <div class="flex items-center gap-4 flex-col mobilel:flex-row">
           <input v-model="filters.runtime_gte" type="number"
-            class="w-full box-border rounded-lg border border-muted-teal p-2 text-center text-sm transition-all duration-300 ease-in-out focus:border-mint-leaf focus:outline-none focus:shadow-sm mobilel:px-4 mobilel:py-3"
+            class="w-full box-border rounded-lg border border-muted-teal dark:border-dark-muted-teal p-2 text-center text-sm transition-all duration-300 ease-in-out focus:border-mint-leaf dark:focus:border-dark-mint-leaf focus:outline-none focus:shadow-sm mobilel:px-4 mobilel:py-3"
             min="0" step="1" @input="normalizeRangeOrder('runtime_gte', 'runtime_lte')" placeholder="Min" />
           <span class="px-1 font-bold text-muted-teal">-</span>
           <input v-model="filters.runtime_lte" type="number"
-            class="w-full box-border rounded-lg border border-muted-teal p-2 text-center text-sm transition-all duration-300 ease-in-out focus:border-mint-leaf focus:outline-none focus:shadow-sm mobilel:px-4 mobilel:py-3"
+            class="w-full box-border rounded-lg border border-muted-teal dark:border-dark-muted-teal p-2 text-center text-sm transition-all duration-300 ease-in-out focus:border-mint-leaf dark:focus:border-dark-mint-leaf focus:outline-none focus:shadow-sm mobilel:px-4 mobilel:py-3"
             min="0" step="1" @input="normalizeRangeOrder('runtime_gte', 'runtime_lte')" placeholder="Max" />
         </div>
       </div>
 
-      <div class="flex flex-col gap-3 border-b border-alabaster-grey pb-5 last:border-b-0 last:pb-0 mobilel:pb-6">
-        <label class="mb-1 block text-base font-bold tracking-tight text-evergreen">Età (Classificazione
+      <div
+        class="flex flex-col gap-3 border-b border-alabaster-grey dark:border-dark-alabaster-grey pb-5 last:border-b-0 last:pb-0 mobilel:pb-6">
+        <label class="mb-1 block text-base font-bold tracking-tight text-evergreen dark:text-dark-evergreen">Età
+          (Classificazione
           IT)</label>
         <div class="flex gap-4">
           <select v-model="filters.certification_gte"
-            class="w-full cursor-pointer appearance-none rounded-lg border border-muted-teal p-2 pr-10 text-sm box-border transition-all duration-300 ease-in-out focus:border-mint-leaf focus:outline-none focus:shadow-sm mobilel:px-4 mobilel:py-3"
+            class="w-full cursor-pointer appearance-none rounded-lg border border-muted-teal dark:border-dark-muted-teal p-2 pr-10 text-sm box-border transition-all duration-300 ease-in-out focus:border-mint-leaf dark:focus:border-dark-mint-leaf focus:outline-none focus:shadow-sm mobilel:px-4 mobilel:py-3"
             @change="normalizeCertificationRange('certification_gte', 'certification_lte')">
             <option value="">Min</option>
             <option v-for="cert in italianCertificationOptions" :key="cert" :value="cert">
@@ -341,7 +362,7 @@ onBeforeUnmount(() => {
             </option>
           </select>
           <select v-model="filters.certification_lte"
-            class="w-full cursor-pointer appearance-none rounded-lg border border-muted-teal p-2 pr-10 text-sm box-border transition-all duration-300 ease-in-out focus:border-mint-leaf focus:outline-none focus:shadow-sm mobilel:px-4 mobilel:py-3"
+            class="w-full cursor-pointer appearance-none rounded-lg border border-muted-teal dark:border-dark-muted-teal p-2 pr-10 text-sm box-border transition-all duration-300 ease-in-out focus:border-mint-leaf dark:focus:border-dark-mint-leaf focus:outline-none focus:shadow-sm mobilel:px-4 mobilel:py-3"
             @change="normalizeCertificationRange('certification_gte', 'certification_lte')">
             <option value="">Max</option>
             <option v-for="cert in italianCertificationOptions" :key="cert" :value="cert">
@@ -351,13 +372,13 @@ onBeforeUnmount(() => {
         </div>
       </div>
 
-      <div class="mt-4 flex flex-col gap-3">
+      <div class="mt-4 mb-5 flex flex-col gap-3">
         <button type="submit"
-          class="cursor-pointer rounded-xl bg-mint-leaf p-4 font-bold text-white shadow-sm transition-all duration-300 ease-in-out h-14 hover:bg-evergreen hover:text-white hover:shadow-lg">
+          class="cursor-pointer rounded-xl bg-mint-leaf dark:bg-dark-mint-leaf p-4 font-bold text-white dark:text-dark-alabaster-grey shadow-sm transition-all duration-300 ease-in-out h-14 hover:bg-evergreen dark:hover:bg-dark-evergreen hover:text-white dark:hover:text-black hover:shadow-lg">
           Applica Filtri
         </button>
         <button type="button"
-          class="cursor-pointer rounded-xl border border-muted-teal p-4 font-bold shadow-sm transition-all duration-300 ease-in-out h-14 hover:bg-alabaster-grey hover:shadow-lg"
+          class="cursor-pointer rounded-xl border border-muted-teal dark:border-dark-muted-teal p-4 font-bold shadow-sm transition-all duration-300 ease-in-out h-14 hover:bg-alabaster-grey dark:hover:bg-alabaster-grey hover:shadow-lg"
           @click="resetFilters">
           Svuota tutto
         </button>

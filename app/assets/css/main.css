@@ -3,23 +3,24 @@
 @custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
 
 @theme {
-    --breakpoint-*: initial;
-    --breakpoint-mobiles: 320px;
-    --breakpoint-mobilem: 375px;
-    --breakpoint-mobilel: 425px;
-    --breakpoint-tablet: 768px;
-    --breakpoint-laptop: 1024px;
-    --breakpoint-desktop: 1440px;
-    --breakpoint-4k: 2560px;
+	--breakpoint-*: initial;
+	--breakpoint-mobiles: 320px;
+	--breakpoint-mobilem: 375px;
+	--breakpoint-mobilel: 425px;
+	--breakpoint-tablet: 768px;
+	--breakpoint-laptop: 1024px;
+	--breakpoint-desktop: 1440px;
+	--breakpoint-4k: 2560px;
 
-    --color-evergreen: #022704;
-    --color-mint-leaf: #58b368;
-    --color-alabaster-grey: #f8f9fa;
-    --color-muted-teal: #a2b2aa;
+	--color-evergreen: #022704;
+	--color-mint-leaf: #58b368;
+	--color-alabaster-grey: #f8f9fa;
+	--color-muted-teal: #a2b2aa;
 
-    --shadow-color: rgba(74, 189, 140, 0.05);
+	--color-dark-evergreen: #58b368;
+	--color-dark-mint-leaf: #86efac;
+	--color-dark-alabaster-grey: #1a202c;
+	--color-dark-muted-teal: #606978;
 
-    --shadow-footer: 0 -4px 20px var(--shadow-color);
-
-    --transition-standard: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+	--shadow-footer: 0 -4px 20px var(--shadow-color);
 }

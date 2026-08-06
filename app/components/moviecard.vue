@@ -18,14 +18,14 @@ const handleCardClick = () => {
 
 <template>
   <div
-    class="group bg-white rounded-2xl overflow-hidden flex flex-col transition-all duration-300 border border-alabaster-grey shadow relative cursor-pointer hover:shadow-lg hover:transform hover:-translate-y-2"
+    class="group bg-white dark:bg-dark-alabaster-grey rounded-2xl overflow-hidden flex flex-col transition-all duration-300 border border-alabaster-grey dark:border-dark-alabaster-grey shadow relative cursor-pointer hover:shadow-lg hover:transform hover:-translate-y-2"
     @click="handleCardClick">
     <div class="relative aspect-2/3 overflow-hidden">
       <img :src="movie.poster_path ? `${IMAGE_URL}${movie.poster_path}` : PLACEHOLDER_IMAGE"
         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" :alt="movie.title" />
 
       <div
-        class="absolute top-2.5 right-2.5 bg-white text-evergreen text-xs font-extrabold py-1 px-2.5 rounded-[10px] flex items-center gap-1.25 tracking-[0.5px] shadow-sm z-10">
+        class="absolute top-2.5 right-2.5 bg-white dark:bg-dark-alabaster-grey text-evergreen dark:text-dark-evergreen text-xs font-extrabold py-1 px-2.5 rounded-[10px] flex items-center gap-1.25 tracking-[0.5px] shadow-sm z-10">
         <span class="text-[#ffc107] mr-0.5">★</span> {{ movie.vote_average?.toFixed(1) }}
       </div>
 
@@ -35,10 +35,10 @@ const handleCardClick = () => {
     <div class="p-4 pb-5 flex flex-col gap-4">
       <div class="flex flex-col gap-0.5">
         <h4
-          class="text-base font-extrabold m-0 text-evergreen whitespace-nowrap overflow-hidden text-ellipsis transition-colors duration-300 group-hover:text-mint-leaf"
+          class="text-base font-extrabold m-0 text-evergreen dark:text-dark-evergreen whitespace-nowrap overflow-hidden text-ellipsis transition-colors duration-300 group-hover:text-mint-leaf dark:group-hover:text-dark-mint-leaf"
           :title="movie.title">{{ movie.title }}</h4>
 
-        <span class="text-sm text-gray-500 font-medium">
+        <span class="text-sm text-gray-500 dark:text-gray-400 font-medium">
           {{
             movie.release_date ? movie.release_date.split('-')[0] : 'N/A'
           }}

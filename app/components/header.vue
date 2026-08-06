@@ -22,13 +22,14 @@ const closeHeader = () => {
 </script>
 
 <template>
-  <nav class="sticky top-0 z-1000 border-b border-muted-teal/20 bg-white shadow-md backdrop-blur-xl max-h-20">
+  <nav
+    class="sticky top-0 z-1000 border-b border-muted-teal/20 bg-white dark:bg-dark-alabaster-grey shadow-md backdrop-blur-xl max-h-20">
     <div
-      class="mx-auto flex max-w-313 flex-wrap items-center justify-between gap-3 px-4 py-3 bg-white shadow-lg tablet:shadow-none">
+      class="mx-auto flex max-w-313 flex-wrap items-center justify-between gap-3 px-4 py-3 bg-white dark:bg-dark-alabaster-grey shadow-lg tablet:shadow-none">
       <div class="flex items-center gap-3">
         <!-- Mobile menu button -->
         <button
-          class="inline-flex h-10 w-10 items-center justify-center text-evergreen transition hover:border-mint-leaf hover:bg-alabaster-grey focus:outline-none focus:ring-2 focus:ring-mint-leaf/30 laptop:hidden"
+          class="inline-flex h-10 w-10 items-center justify-center text-evergreen dark:text-white transition hover:border-mint-leaf hover:bg-alabaster-grey focus:outline-none focus:ring-2 focus:ring-mint-leaf/30 laptop:hidden"
           type="button" :aria-expanded="isMenuOpen" aria-controls="mainNavbar" aria-label="Toggle navigation"
           @click="isMenuOpen = !isMenuOpen">
           <span class="flex h-4 w-4 flex-col justify-between">
@@ -46,8 +47,8 @@ const closeHeader = () => {
           to="/" @click="closeHeader">
           <img src="/logo.svg" alt="FrameLog" class="hidden h-8 w-8 laptop:block" />
           <span class="inline-flex items-center">
-            <span class="text-evergreen">Frame</span><span
-              class="text-mint-leaf transition duration-300 group-hover:text-evergreen">Log</span>
+            <span class="text-evergreen dark:text-white">Frame</span><span
+              class="text-mint-leaf dark:text-dark-mint-leaf transition duration-300 group-hover:text-evergreen dark:group-hover:text-white">Log</span>
           </span>
         </NuxtLink>
       </div>
@@ -57,7 +58,7 @@ const closeHeader = () => {
         <!-- User avatar -->
         <NuxtLink v-if="isAuthenticated" to="/profile" @click="closeHeader" class="inline-flex">
           <div
-            class="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full border-2 border-muted-teal bg-evergreen transition hover:scale-105 hover:border-mint-leaf">
+            class="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full border-2 border-muted-teal dark:border-dark-muted-teal bg-evergreen dark:bg-dark-evergreen transition hover:scale-105 hover:border-mint-leaf dark:hover:border-dark-mint-leaf">
             <img v-if="profilePicture" :src="profilePicture" alt="Foto Profilo" class="h-full w-full object-cover" />
             <span v-else class="text-sm font-bold text-alabaster-grey">
               {{ username?.charAt(0).toUpperCase() }}
@@ -67,7 +68,7 @@ const closeHeader = () => {
 
         <!-- Fallback -->
         <NuxtLink v-else to="/login" @click="closeHeader"
-          class="inline-flex h-9 w-9 items-center justify-center rounded-full border-2 border-muted-teal text-evergreen transition hover:border-mint-leaf hover:bg-alabaster-grey"
+          class="inline-flex h-9 w-9 items-center justify-center rounded-full border-2 border-muted-teal dark:border-dark-muted-teal text-evergreen dark:text-dark-evergreen transition hover:border-mint-leaf dark:hover:border-dark-mint-leaf hover:bg-alabaster-grey dark:hover:bg-dark-alabaster-grey"
           aria-label="Vai al login">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
             stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -80,33 +81,33 @@ const closeHeader = () => {
       <!-- Main navigation -->
       <div id="mainNavbar" :class="[
         isMenuOpen ? 'flex' : 'hidden',
-        'w-full flex-col gap-4 border-t border-muted-teal/20 pt-4 laptop:flex laptop:w-auto laptop:flex-1 laptop:flex-row laptop:items-center laptop:justify-between laptop:border-t-0 laptop:pt-0 bg-white',
+        'w-full flex-col gap-4 border-t border-muted-teal/20 pt-4 laptop:flex laptop:w-auto laptop:flex-1 laptop:flex-row laptop:items-center laptop:justify-between laptop:border-t-0 laptop:pt-0 bg-white dark:bg-dark-alabaster-grey',
       ]">
         <ul class="flex flex-col gap-1 laptop:flex-row laptop:items-center laptop:gap-1">
           <li>
             <NuxtLink
-              class="block rounded-xl px-4 py-2 text-sm font-semibold text-slate-600 transition hover:bg-alabaster-grey hover:text-evergreen"
+              class="block rounded-xl px-4 py-2 text-sm font-semibold text-slate-600 transition hover:text-evergreen dark:hover:text-dark-evergreen"
               @click="closeHeader" to="/">
               Home
             </NuxtLink>
           </li>
           <li>
             <NuxtLink
-              class="block rounded-xl px-4 py-2 text-sm font-semibold text-slate-600 transition hover:bg-alabaster-grey hover:text-evergreen"
+              class="block rounded-xl px-4 py-2 text-sm font-semibold text-slate-600 transition hover:text-evergreen dark:hover:text-dark-evergreen"
               @click="closeHeader" to="/watchlist">
               Watchlist
             </NuxtLink>
           </li>
           <li>
             <NuxtLink
-              class="block rounded-xl px-4 py-2 text-sm font-semibold text-slate-600 transition hover:bg-alabaster-grey hover:text-evergreen"
+              class="block rounded-xl px-4 py-2 text-sm font-semibold text-slate-600 transition hover:text-evergreen dark:hover:text-dark-evergreen"
               @click="closeHeader" to="/watched">
               Watched
             </NuxtLink>
           </li>
           <li>
             <NuxtLink
-              class="block rounded-xl px-4 py-2 text-sm font-semibold text-slate-600 transition hover:bg-alabaster-grey hover:text-evergreen"
+              class="block rounded-xl px-4 py-2 text-sm font-semibold text-slate-600 transition hover:text-evergreen dark:hover:text-dark-evergreen"
               @click="closeHeader" to="/live">
               Live
             </NuxtLink>
@@ -119,14 +120,14 @@ const closeHeader = () => {
           <!-- User profile -->
           <div v-if="isAuthenticated" class="hidden items-center gap-2 laptop:flex">
             <NuxtLink to="/profile" @click="closeHeader"
-              class="inline-flex items-center gap-3 rounded-xl px-3 py-1 no-underline transition hover:bg-alabaster-grey">
-              <span class="text-sm font-semibold text-evergreen">{{ username }}</span>
+              class="inline-flex items-center gap-3 rounded-xl px-3 py-1 no-underline transition hover:bg-alabaster-grey dark:hover:bg-dark-alabaster-grey">
+              <span class="text-sm font-semibold text-evergreen dark:text-dark-evergreen">{{ username }}</span>
 
               <div
-                class="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full border-2 border-muted-teal bg-evergreen transition">
+                class="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full border-2 border-muted-teal bg-evergreen dark:bg-dark-evergreen transition">
                 <img v-if="profilePicture" :src="profilePicture" alt="Foto Profilo"
                   class="h-full w-full object-cover" />
-                <span v-else class="text-sm font-bold text-alabaster-grey">
+                <span v-else class="text-sm font-bold text-alabaster-grey dark:text-dark-alabaster-grey">
                   {{ username?.charAt(0).toUpperCase() }}
                 </span>
               </div>
@@ -136,12 +137,12 @@ const closeHeader = () => {
           <!-- Login/Register links -->
           <div v-else class="flex flex-col gap-2 mobilel:flex-row mobilel:justify-end laptop:gap-2">
             <NuxtLink
-              class="inline-flex items-center justify-center rounded-lg border border-muted-teal px-4 py-2 text-sm font-semibold text-evergreen transition hover:border-evergreen hover:bg-alabaster-grey"
+              class="inline-flex items-center justify-center rounded-lg border border-muted-teal dark:border-dark-muted-teal px-4 py-2 text-sm font-semibold text-evergreen dark:text-dark-evergreen transition hover:border-evergreen dark:hover:border-dark-evergreen hover:bg-alabaster-grey dark:hover:bg-dark-alabaster-grey"
               @click="closeHeader" to="/login">
               Login
             </NuxtLink>
             <NuxtLink
-              class="inline-flex items-center justify-center rounded-lg border border-mint-leaf bg-mint-leaf px-4 py-2 text-sm font-semibold text-white transition hover:border-evergreen hover:bg-evergreen"
+              class="inline-flex items-center justify-center rounded-lg border border-mint-leaf dark:border-dark-mint-leaf bg-mint-leaf dark:bg-dark-mint-leaf px-4 py-2 text-sm font-semibold text-alabaster-grey dark:text-dark-alabaster-grey transition hover:border-evergreen dark:hover:border-dark-evergreen hover:bg-evergreen dark:hover:bg-dark-evergreen"
               @click="closeHeader" to="/register">
               Register
             </NuxtLink>

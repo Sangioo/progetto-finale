@@ -13,15 +13,16 @@ const isLong = computed(() => checkPassword(password.value).isLong)
 </script>
 <template>
   <div class="flex flex-col gap-2">
-    <label for="password" class="text-evergreen font-semibold text-base">Password</label>
+    <label for="password" class="text-evergreen dark:text-dark-evergreen font-semibold text-base">Password</label>
     <input v-model="password" type="password"
-      class="w-full p-3 text-base border border-muted-teal rounded-lg transition bg-alabaster-grey focus:outline-0 focus:shadow-sm"
+      class="w-full p-3 text-base border border-muted-teal dark:border-dark-muted-teal rounded-lg transition bg-alabaster-grey dark:bg-dark-alabaster-grey focus:outline-0 focus:shadow-sm dark:text-white"
       id="password" placeholder="********" required @input="typingPassword = true" />
   </div>
 
-  <div v-if="typingPassword" class="border border-muted-teal rounded-lg p-3 bg-alabaster-grey">
+  <div v-if="typingPassword"
+    class="border border-muted-teal dark:border-dark-muted-teal rounded-lg p-3 bg-alabaster-grey dark:bg-dark-alabaster-grey">
     <ul class="list-none p-0 m-0 flex flex-col gap-2 *:flex *:items-center *:gap-2 *:text-sm">
-      <li :class="{ 'text-mint-leaf': hasUpperCase, 'text-red-600': !hasUpperCase }">
+      <li :class="{ 'text-mint-leaf dark:text-dark-mint-leaf': hasUpperCase, 'text-red-600': !hasUpperCase }">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"
           class="shrink-0" v-if="hasUpperCase">
           <path
@@ -35,7 +36,7 @@ const isLong = computed(() => checkPassword(password.value).isLong)
         </svg>Almeno una lettera maiuscola
       </li>
 
-      <li :class="{ 'text-mint-leaf': hasLowerCase, 'text-red-600': !hasLowerCase }">
+      <li :class="{ 'text-mint-leaf dark:text-dark-mint-leaf': hasLowerCase, 'text-red-600': !hasLowerCase }">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"
           class="shrink-0" v-if="hasLowerCase">
           <path
@@ -49,7 +50,7 @@ const isLong = computed(() => checkPassword(password.value).isLong)
         </svg>Almeno una lettera minuscola
       </li>
 
-      <li :class="{ 'text-mint-leaf': hasNumber, 'text-red-600': !hasNumber }">
+      <li :class="{ 'text-mint-leaf dark:text-dark-mint-leaf': hasNumber, 'text-red-600': !hasNumber }">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"
           class="shrink-0" v-if="hasNumber">
           <path
@@ -63,7 +64,7 @@ const isLong = computed(() => checkPassword(password.value).isLong)
         </svg>Almeno un numero
       </li>
 
-      <li :class="{ 'text-mint-leaf': hasSpecialChar, 'text-red-600': !hasSpecialChar }">
+      <li :class="{ 'text-mint-leaf dark:text-dark-mint-leaf': hasSpecialChar, 'text-red-600': !hasSpecialChar }">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"
           class="shrink-0" v-if="hasSpecialChar">
           <path
@@ -77,7 +78,7 @@ const isLong = computed(() => checkPassword(password.value).isLong)
         </svg>Almeno un carattere speciale
       </li>
 
-      <li :class="{ 'text-mint-leaf': isLong, 'text-red-600': !isLong }">
+      <li :class="{ 'text-mint-leaf dark:text-dark-mint-leaf': isLong, 'text-red-600': !isLong }">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"
           class="shrink-0" v-if="isLong">
           <path
@@ -94,9 +95,10 @@ const isLong = computed(() => checkPassword(password.value).isLong)
   </div>
 
   <div class="flex flex-col gap-2">
-    <label for="confirmPassword" class="text-evergreen font-semibold text-base">Conferma Password</label>
+    <label for="confirmPassword" class="text-evergreen dark:text-dark-evergreen font-semibold text-base">Conferma
+      Password</label>
     <input v-model="confirmPassword" type="password"
-      class="w-full p-3 text-base border border-muted-teal rounded-lg transition bg-alabaster-grey focus:outline-0 focus:shadow-sm"
+      class="w-full p-3 text-base border border-muted-teal dark:border-dark-muted-teal rounded-lg transition bg-alabaster-grey dark:bg-dark-alabaster-grey focus:outline-0 focus:shadow-sm dark:text-white"
       id="confirmPassword" placeholder="********" required />
   </div>
 </template>

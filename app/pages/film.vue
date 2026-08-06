@@ -236,8 +236,7 @@ onUnmounted(() => {
     <ReviewPopup :show="isReviewPopupOpen" :review="selectedReviewForPopup" @close="isReviewPopupOpen = false" />
 
     <div v-if="movie?.backdrop_path"
-      class="pointer-events-none absolute inset-x-0 top-0 z-0 h-120 bg-cover bg-top opacity-28"
-      style="mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 40%, rgba(0, 0, 0, 0.4) 75%, rgba(0, 0, 0, 0) 100%); -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 40%, rgba(0, 0, 0, 0.4) 75%, rgba(0, 0, 0, 0) 100%);"
+      class="pointer-events-none absolute inset-x-0 top-0 z-0 h-120 bg-cover bg-top opacity-28 mask-b-to-70%"
       :style="{ backgroundImage: `url(${IMAGE_URL}${movie.backdrop_path})` }"></div>
 
     <div
@@ -276,7 +275,7 @@ onUnmounted(() => {
               </div>
             </header>
 
-            <div class="mt-6 flex flex-col items-stretch gap-4 tablet:flex-row tablet:flex-wrap">
+            <div class="mt-6 flex flex-col items-stretch gap-2 tablet:grid tablet:grid-cols-[2fr_1fr]">
               <button @click="handleLiveRoomAction"
                 class="flex min-w-50 flex-1 items-center justify-center gap-2 rounded-xl border border-evergreen bg-evergreen px-4 py-2 font-bold text-white shadow-sm transition-all duration-300 ease-in-out hover:-translate-y-px hover:border-mint-leaf hover:bg-mint-leaf hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:border-evergreen disabled:hover:bg-evergreen"
                 :disabled="!isAuthenticated">

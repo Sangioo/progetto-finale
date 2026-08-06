@@ -59,7 +59,7 @@ const handleSignup = async () => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-alabaster-grey dark:bg-dark-alabaster-grey flex items-center justify-center">
+  <div class="min-h-screen bg-alabaster-grey dark:bg-dark-alabaster-grey flex items-center justify-center p-4">
     <main class="w-full max-w-113 4k:max-w-140">
       <section
         class="y-6 px-4 mobiles:py-8 mobiles:px-6 rounded-xl shadow-sm mobilel:py-10 mobilel:px-8 border border-gray-300 dark:border-dark-muted-teal 4k:py-12 4k:px-10">

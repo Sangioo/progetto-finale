@@ -5,11 +5,13 @@
       <div
         class="flex flex-col flex-wrap text-center items-center justify-between gap-4 tablet:flex-row tablet:text-left tablet:gap-8">
         <div class="flex flex-col grow shrink basis-1/10">
-          <NuxtLink to="/"
-            class="group inline-block text-xl font-extrabold tracking-tight text-alabaster-grey dark:text-dark-alabaster-grey no-underline mobiles:text-2xl mobilel:text-4xl">
-            Frame<span
-              class="text-mint-leaf dark:text-dark-mint-leaf transition-colors duration-300 group-hover:text-alabaster-grey dark:group-hover:text-dark-alabaster-grey">Log</span>
-          </NuxtLink>
+          <div>
+            <NuxtLink to="/"
+              class="group inline-block text-xl font-extrabold tracking-tight text-alabaster-grey dark:text-dark-alabaster-grey no-underline mobiles:text-2xl mobilel:text-4xl">
+              Frame<span
+                class="text-mint-leaf dark:text-dark-mint-leaf transition-colors duration-300 group-hover:text-alabaster-grey dark:group-hover:text-dark-alabaster-grey">Log</span>
+            </NuxtLink>
+          </div>
           <p
             class="mt-2 mb-0 mx-auto max-w-70 text-muted-teal dark:text-dark-muted-teal text-sm tablet:text-base tablet:mt-4 tablet:mx-0 tablet:max-w-85">
             Il tuo spazio per raccontare e organizzare il tuo cinema.

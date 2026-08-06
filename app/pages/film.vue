@@ -313,7 +313,7 @@ onUnmounted(() => {
                 </div>
                 <div>
                   <h3 class="m-0 text-xl font-bold text-evergreen dark:text-dark-evergreen">La tua Recensione</h3>
-                  <p class="m-0 text-sm">Cosa ne pensi di questa pellicola?</p>
+                  <p class="m-0 text-sm dark:text-gray-300">Cosa ne pensi di questa pellicola?</p>
                 </div>
               </div>
 
@@ -326,14 +326,14 @@ onUnmounted(() => {
               <div class="relative w-full">
                 <textarea v-model="recensioneTesto" placeholder="Scrivi qui la tua recensione..." maxlength="1000"
                   class="min-h-35 w-full resize-y rounded-xl border border-gray-200 dark:border-dark-muted-teal bg-alabaster-grey dark:bg-dark-alabaster-grey p-5 leading-6.5 outline-none transition-all duration-300 ease-in-out focus:border-mint-leaf dark:focus:border-dark-mint-leaf focus:shadow-sm dark:text-gray-300"></textarea>
-                <div class="absolute bottom-3.5 right-3.5 text-xs">{{
+                <div class="absolute bottom-3.5 right-3.5 text-xs dark:text-gray-300">{{
                   recensioneTesto.length }}/1000</div>
               </div>
 
               <div
                 class="flex flex-col items-center gap-4 rounded-xl border border-gray-200 dark:border-dark-muted-teal bg-alabaster-grey dark:bg-dark-alabaster-grey px-6 py-5 text-center mobilel:flex-row mobilel:justify-between mobilel:text-left">
                 <div class="flex flex-col items-center gap-2 mobilel:items-start">
-                  <span class="text-sm font-bold uppercase tracking-wide">Seleziona
+                  <span class="text-sm font-bold uppercase tracking-wide dark:text-gray-300">Seleziona
                     la tua valutazione</span>
                   <div class="flex items-center gap-1" @mouseleave="hoverVoteStars = null">
                     <template v-for="star in 5" :key="star">
@@ -359,7 +359,7 @@ onUnmounted(() => {
                     <span class="-mb-0.5 text-xs font-extrabold uppercase tracking-wider opacity-80">Voto</span>
                     <div class="flex flex-row items-baseline font-extrabold">
                       <input type="number"
-                        class="w-8 bg-transparent p-0 text-center text-2xl font-extrabold text-inherit outline-none"
+                        class="w-12 bg-transparent p-0 text-center text-2xl font-extrabold text-inherit outline-none"
                         :value="voteForBackend" @input="handleInputRating" @blur="handleInputBlur" min="0" max="10"
                         step="1" title="Modifica a mano il voto" />
                       <span class="-ml-0.5 text-sm opacity-70">/10</span>
@@ -382,7 +382,7 @@ onUnmounted(() => {
         <div class="mb-3 flex items-center gap-3 border-b border-gray-300 dark:border-dark-muted-teal pb-3">
           <h3 class="m-0 text-lg font-extrabold text-evergreen dark:text-dark-evergreen">Community</h3>
           <span class="rounded-full bg-gray-300 dark:bg-gray-500 px-3 py-1 text-sm font-bold">{{ reviewsList.length
-            }}</span>
+          }}</span>
         </div>
 
         <div class="flex flex-col">

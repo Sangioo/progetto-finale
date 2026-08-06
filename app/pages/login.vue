@@ -27,7 +27,7 @@ const handleLogin = async () => {
     await navigateTo('/')
   } catch (err) {
     console.error(err)
-    errorMsg.value = 'Si è verificato un errore durante il login.'
+    errorMsg.value = err.message.startsWith('Invalid login credentials') ? 'Credenziali non valide' : 'Si è verificato un errore durante il login.'
   }
 }
 </script>

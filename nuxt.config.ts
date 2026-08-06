@@ -37,8 +37,7 @@ export default defineNuxtConfig({
 			supabaseUrl: process.env.NUXT_PUBLIC_SUPABASE_URL,
 			supabaseKey: process.env.NUXT_PUBLIC_SUPABASE_KEY,
 
-			baseUrl: "http://localhost:3000",
-			apiUrl: "http://localhost:3000/api",
+			apiUrl: "/api",
 			imageUrl: "https://image.tmdb.org/t/p/w342",
 			placeholderImage: "/placeholder.png",
 

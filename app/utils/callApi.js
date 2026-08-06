@@ -8,30 +8,21 @@ export const callApi = async ({
 }) => {
 	const config = useRuntimeConfig();
 
-	const url = new URL(`${config.public.apiUrl}/${endpoint}`);
+	try {
+		const response = await $fetch(`${config.public.apiUrl}/${endpoint}`, {
+			method,
+			query,
+			body,
+			credentials: "include",
+			headers: {
+				...headers,
+			},
+			responseType: parseJson ? "json" : "text",
+		});
 
-	for (const [key, value] of Object.entries(query)) {
-		if (value !== undefined && value !== null) {
-			url.searchParams.set(key, String(value));
-		}
-	}
-
-	const response = await fetch(url.toString(), {
-		method,
-		credentials: "include",
-		headers: {
-			...headers,
-		},
-		body,
-	});
-
-	if (!response.ok) {
-		throw new Error(response.statusText);
-	}
-
-	if (!parseJson) {
 		return response;
+	} catch (error) {
+		console.error(error);
+		throw error;
 	}
-
-	return await response.json();
 };

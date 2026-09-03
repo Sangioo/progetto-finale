@@ -16,13 +16,11 @@ const username = ref('')
 const password = ref('')
 const confirmPassword = ref('')
 const errorMsg = ref('')
-const successMsg = ref('')
 
 
 const handleSignup = async () => {
   try {
     errorMsg.value = ''
-    successMsg.value = ''
 
     if (password.value !== confirmPassword.value) {
       errorMsg.value = 'Le password non corrispondono.'
@@ -46,11 +44,10 @@ const handleSignup = async () => {
 
     if (error) throw error
 
-    successMsg.value = 'Registrazione completata! Controlla la tua casella email per confermare l\'account.'
-
     email.value = ''
     password.value = ''
     confirmPassword.value = ''
+    await navigateTo('/')
   } catch (err) {
     errorMsg.value = 'Si è verificato un errore durante la registrazione. Riprova più tardi.'
     console.error(err)

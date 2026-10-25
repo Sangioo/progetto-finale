@@ -142,11 +142,6 @@ const isSidebarOpen = ref(false)
 const isPopupOpen = ref(false)
 const popupMessage = ref('')
 
-const cliccato = () => {
-  isSidebarOpen.value = false
-  console.log('cliccato')
-}
-
 const messagesChannel = supabase.channel(`${movieId.value}:messages`, {
   config: {
     broadcast: {
